@@ -1,0 +1,159 @@
+import { useState, useEffect } from "react";
+import { useTheme } from "../../theme/ThemeProvider";
+import { useAuth } from "../../context/AuthContext";
+import { supabase } from "../../lib/supabase";
+import { motion } from "framer-motion";
+
+export default function AdminSettings({ showToast }) {
+  const { tokens, mode, setMode } = useTheme();
+  const { user, profile, updateProfile } = useAuth();
+  const [adminProfiles, setAdminProfiles] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    async function load() {
+      setLoading(true);
+      const { data } = await supabase
+        .from("profiles")
+        .select("id, full_name, email, role, created_at")
+        .eq("role", "admin");
+      if (data) setAdminProfiles(data);
+      setLoading(false);
+    }
+    load();
+  }, []);
+
+  async function handleThemeChange(newMode) {
+    setMode(newMode);
+    try {
+      await supabase.from("profiles").update({ theme_preference: newMode }).eq("id", user.id);
+      showToast("Tema tercihi kaydedildi");
+    } catch (e) {
+      console.error("Theme save error:", e);
+    }
+  }
+
+  return (
+    <div className="max-w-3xl">
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        className="rounded-xl overflow-hidden mb-6"
+        style={{ background: tokens.card, border: `1px solid ${tokens.border}` }}
+      >
+        <div style={{ padding: "20px 24px", borderBottom: `1px solid ${tokens.border}` }}>
+          <h3 style={{ fontSize: 15, fontWeight: 700, color: tokens.textPrimary }}>Tema Tercihi</h3>
+          <p style={{ fontSize: 12, color: tokens.muted, marginTop: 4 }}>Tema tercihiniz veritabanında saklanır ve tüm oturumlarda senkronize edilir.</p>
+        </div>
+        <div className="p-5">
+          <div className="flex gap-3">
+            {[
+              { id: "dark", label: "Karanlık", icon: "🌙", desc: "Koyu arka plan" },
+              { id: "light", label: "Aydınlık", icon: "☀️", desc: "Açık arka plan" },
+              { id: "system", label: "Sistem", icon: "💻", desc: "Cihaz ayarına göre" },
+            ].map(theme => (
+              <button
+                key={theme.id}
+                onClick={() => handleThemeChange(theme.id)}
+                className="flex-1 rounded-xl p-4 text-left transition-all duration-200"
+                style={{
+                  background: mode === theme.id ? tokens.primary + "15" : tokens.surface,
+                  border: `2px solid ${mode === theme.id ? tokens.primary : tokens.border}`,
+                  cursor: "pointer",
+                }}
+              >
+                <div className="flex items-center gap-2 mb-2">
+                  <span style={{ fontSize: 18 }}>{theme.icon}</span>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: mode === theme.id ? tokens.primary : tokens.textPrimary }}>{theme.label}</span>
+                </div>
+                <div style={{ fontSize: 11, color: tokens.muted }}>{theme.desc}</div>
+                {mode === theme.id && (
+                  <div className="flex items-center gap-1 mt-2" style={{ fontSize: 10, color: tokens.primary, fontWeight: 600 }}>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                    Aktif
+                  </div>
+                )}
+              </button>
+            ))}
+          </div>
+        </div>
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.1 }}
+        className="rounded-xl overflow-hidden mb-6"
+        style={{ background: tokens.card, border: `1px solid ${tokens.border}` }}
+      >
+        <div style={{ padding: "20px 24px", borderBottom: `1px solid ${tokens.border}` }}>
+          <h3 style={{ fontSize: 15, fontWeight: 700, color: tokens.textPrimary }}>Admin Hesabı</h3>
+        </div>
+        <div className="p-5">
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center justify-between py-2.5" style={{ borderBottom: `1px solid ${tokens.border}` }}>
+              <span style={{ fontSize: 12, color: tokens.muted }}>Ad Soyad</span>
+              <span style={{ fontSize: 13, fontWeight: 600, color: tokens.textPrimary }}>{profile?.full_name || "—"}</span>
+            </div>
+            <div className="flex items-center justify-between py-2.5" style={{ borderBottom: `1px solid ${tokens.border}` }}>
+              <span style={{ fontSize: 12, color: tokens.muted }}>E-posta</span>
+              <span style={{ fontSize: 13, fontWeight: 600, color: tokens.textPrimary }}>{user?.email || "—"}</span>
+            </div>
+            <div className="flex items-center justify-between py-2.5" style={{ borderBottom: `1px solid ${tokens.border}` }}>
+              <span style={{ fontSize: 12, color: tokens.muted }}>Rol</span>
+              <span className="inline-flex items-center rounded px-2 py-0.5" style={{ fontSize: 11, fontWeight: 700, background: tokens.primary + "20", color: tokens.primary }}>Admin</span>
+            </div>
+            <div className="flex items-center justify-between py-2.5">
+              <span style={{ fontSize: 12, color: tokens.muted }}>Kayıt Tarihi</span>
+              <span style={{ fontSize: 13, color: tokens.textPrimary }}>{new Date(profile?.created_at).toLocaleDateString("tr-TR")}</span>
+            </div>
+          </div>
+        </div>
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.2 }}
+        className="rounded-xl overflow-hidden"
+        style={{ background: tokens.card, border: `1px solid ${tokens.border}` }}
+      >
+        <div style={{ padding: "20px 24px", borderBottom: `1px solid ${tokens.border}` }}>
+          <h3 style={{ fontSize: 15, fontWeight: 700, color: tokens.textPrimary }}>Admin Kullanıcıları</h3>
+          <p style={{ fontSize: 12, color: tokens.muted, marginTop: 4 }}>Sistemdeki tüm admin hesapları</p>
+        </div>
+        <div>
+          {loading ? (
+            <div className="text-center py-8" style={{ color: tokens.muted, fontSize: 13 }}>Yükleniyor...</div>
+          ) : adminProfiles.length === 0 ? (
+            <div className="text-center py-8" style={{ color: tokens.muted, fontSize: 13 }}>Admin bulunamadı</div>
+          ) : (
+            adminProfiles.map((a, i) => (
+              <div
+                key={a.id}
+                className="flex items-center gap-3 px-6 py-3 transition-colors duration-150"
+                style={{ borderBottom: i < adminProfiles.length - 1 ? `1px solid ${tokens.border}` : "none" }}
+                onMouseEnter={(e) => e.currentTarget.style.background = tokens.sidebarHover}
+                onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
+              >
+                <div
+                  className="flex items-center justify-center rounded-lg flex-shrink-0"
+                  style={{ width: 36, height: 36, background: tokens.primary + "20", color: tokens.primary, fontWeight: 700, fontSize: 13 }}
+                >
+                  {a.full_name?.[0] || a.email?.[0] || "?"}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div style={{ fontSize: 13, fontWeight: 600, color: tokens.textPrimary }}>{a.full_name || "—"}</div>
+                  <div style={{ fontSize: 11, color: tokens.muted }}>{a.email}</div>
+                </div>
+                <span className="inline-flex items-center rounded px-2 py-0.5" style={{ fontSize: 10, fontWeight: 700, background: tokens.primary + "20", color: tokens.primary }}>ADMIN</span>
+              </div>
+            ))
+          )}
+        </div>
+      </motion.div>
+    </div>
+  );
+}
