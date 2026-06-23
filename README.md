@@ -121,3 +121,9 @@ Her push'da GitHub Actions otomatik build edip GitHub Pages'a deploy eder.
 ## Lisans
 
 MIT
+
+## Yasal Uyarı (Disclaimer)
+
+**Önemli Not:** Bu proje içerisinde yer alan ders içerikleri, notlandırma sistemleri, üniversite/fakülte/bölüm hiyerarşisi ve diğer akademik veriler sadece örnek teşkil etmesi amacıyla kullanılmıştır. 
+
+Kullanıcıların bu platforma girdiği verilerin ve platform içerisindeki altyapı verilerinin (ders programları, içerikler vb.) **kopyalanması, izinsiz dağıtılması veya ticari amaçlarla kullanılması kesinlikle yasaktır.** Kullanıcılar, sisteme girdikleri verilerin doğruluğundan ve gizliliğinden kendileri sorumludur. Eğitim kurumlarına ait olabilecek tescilli verilerin izinsiz kullanımı durumunda sorumluluk tamamen kullanıcıya aittir.
