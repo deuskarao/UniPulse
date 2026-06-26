@@ -211,10 +211,14 @@ export function AuthProvider({ children }) {
   }
 
   async function loginWithGoogle() {
+    const redirectUrl = import.meta.env.PROD 
+      ? 'https://unipulse.perainc.online'
+      : window.location.origin;
+    
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: window.location.origin,
+        redirectTo: redirectUrl,
         queryParams: {
           prompt: 'select_account'
         }
