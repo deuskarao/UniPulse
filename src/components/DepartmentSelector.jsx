@@ -305,7 +305,12 @@ export default function DepartmentSelector({ onSelect, initialValue = null, toke
                 transition={{ duration: 0.2, delay: i * 0.03 }}
                 className="rounded-xl p-4 cursor-pointer transition-all duration-200"
                 style={{ background: tokens.surface, border: `1px solid ${tokens.border}` }}
-                onClick={() => handleDepartmentSelect(d.id)}
+                onClick={() => {
+                  console.log("[DepartmentSelector] Bölüm kartına tıklandı:", d.ad, d.id);
+                  console.log("[DepartmentSelector] selectedUni:", selectedUni?.ad, selectedUni?.id);
+                  console.log("[DepartmentSelector] selectedFaculty:", selectedFaculty?.ad, selectedFaculty?.id);
+                  handleDepartmentSelect(d.id);
+                }}
                 onMouseEnter={(e) => { e.currentTarget.style.background = tokens.success + "20"; e.currentTarget.style.borderColor = tokens.success + "50"; }}
                 onMouseLeave={(e) => { e.currentTarget.style.background = tokens.surface; e.currentTarget.style.borderColor = tokens.border; }}
               >
