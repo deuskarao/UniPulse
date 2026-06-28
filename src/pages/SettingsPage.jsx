@@ -85,33 +85,48 @@ export default function SettingsPage({ dersler, stats, bolum }) {
     try { await supabase.from("profiles").update({ theme_preference: m }).eq("id", user.id); } catch {}
   }
 
-  async function handleResetDepartment() {
-    if (!confirm("Bölümünüzü değiştirmek istediğinize emin misiniz?")) return;
+  // Bölüm sıfırlama — artık özel modal ile onaylanıyor
+  const [deptResetOpen, setDeptResetOpen] = useState(false);
+  const [deptResetError, setDeptResetError] = useState("");
+
+  function handleResetDepartmentClick() {
+    setDeptResetError("");
+    setDeptResetOpen(true);
+  }
+
+  async function confirmResetDepartment() {
     setIsUpdatingDept(true);
+    setDeptResetError("");
     try {
       await updateProfile({ department_id: null, faculty_id: null, university_id: null });
+      setDeptResetOpen(false);
     } catch (e) {
       console.error(e);
-      alert("Hata oluştu.");
+      setDeptResetError(e?.message || "Bölüm değiştirilemedi. Lütfen tekrar deneyin.");
+    } finally {
       setIsUpdatingDept(false);
     }
   }
 
   function openUsernameModal() {
     setUsernameInput(profile?.username || "");
+    setUsernameError("");
     setUsernameModal(true);
   }
 
+  const [usernameError, setUsernameError] = useState("");
+
   async function saveUsername() {
+    setUsernameError("");
     if (usernameInput && !/^[a-zA-Z0-9_.-]+$/.test(usernameInput)) {
-      alert("Lütfen geçerli bir kullanıcı adı girin (Sadece harf, rakam, alt çizgi, nokta).");
+      setUsernameError("Lütfen geçerli bir kullanıcı adı girin (Sadece harf, rakam, alt çizgi, nokta).");
       return;
     }
     try {
       await updateProfile({ username: usernameInput || null });
       setUsernameModal(false);
     } catch (err) {
-      alert("Bu kullanıcı adı zaten alınmış veya geçersiz!");
+      setUsernameError("Bu kullanıcı adı zaten alınmış veya geçersiz!");
     }
   }
 
@@ -386,15 +401,25 @@ export default function SettingsPage({ dersler, stats, bolum }) {
             </div>
             <span style={{ fontSize: 13, fontWeight: 700, color: tokens.textPrimary }}>Hesap Bilgileri</span>
           </div>
-          <button 
-            onClick={handleResetDepartment}
+          <button
+            onClick={handleResetDepartmentClick}
             disabled={isUpdatingDept}
-            style={{ 
-              padding: "7px 14px", borderRadius: 8, background: tokens.primary + "12", 
-              border: `1px solid ${tokens.primary}40`, color: tokens.primary, 
+            style={{
+              padding: "7px 14px", borderRadius: 8, background: tokens.primary + "12",
+              border: `1px solid ${tokens.primary}40`, color: tokens.primary,
               fontSize: 12, fontWeight: 600, cursor: isUpdatingDept ? "wait" : "pointer",
-              transition: "all 0.2s"
-            }}>
+              transition: "all 0.2s",
+              display: "inline-flex", alignItems: "center", gap: 6,
+            }}
+            onMouseEnter={(e) => { if (!isUpdatingDept) { e.currentTarget.style.background = tokens.primary + "20"; e.currentTarget.style.borderColor = tokens.primary + "60"; } }}
+            onMouseLeave={(e) => { if (!isUpdatingDept) { e.currentTarget.style.background = tokens.primary + "12"; e.currentTarget.style.borderColor = tokens.primary + "40"; } }}
+          >
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M23 4v6h-6"/>
+              <path d="M1 20v-6h6"/>
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10"/>
+              <path d="M20.49 15a9 9 0 0 1-14.85 3.36L1 14"/>
+            </svg>
             {isUpdatingDept ? "Güncelleniyor..." : "Bölümü Değiştir"}
           </button>
         </div>
@@ -434,16 +459,187 @@ export default function SettingsPage({ dersler, stats, bolum }) {
             </div>
             <h3 style={{ color: tokens.textPrimary, margin: "0 0 8px", fontSize: 19 }}>Kullanıcı Adı Belirle</h3>
             <p style={{ color: tokens.muted, fontSize: 13, margin: "0 0 24px" }}>Sadece harf, rakam, alt çizgi ve nokta kullanabilirsiniz.</p>
-            <input 
-              value={usernameInput} 
-              onChange={(e) => setUsernameInput(e.target.value)} 
-              placeholder="kullanici_adi" 
-              style={{ ...inputStyle, textAlign: "center", marginBottom: 24, fontSize: 15, fontWeight: 600, letterSpacing: 0.5 }} 
+            <input
+              value={usernameInput}
+              onChange={(e) => { setUsernameInput(e.target.value); setUsernameError(""); }}
+              placeholder="kullanici_adi"
+              style={{ ...inputStyle, textAlign: "center", marginBottom: usernameError ? 12 : 24, fontSize: 15, fontWeight: 600, letterSpacing: 0.5, ...(usernameError ? { borderColor: tokens.danger + "60", background: tokens.danger + "08" } : {}) }}
               onFocus={(e) => setTimeout(() => e.target.select(), 10)}
             />
+            {usernameError && (
+              <div style={{
+                margin: "0 0 18px",
+                padding: "10px 14px",
+                borderRadius: 10,
+                background: tokens.danger + "08",
+                border: `1px solid ${tokens.danger}25`,
+                display: "flex", alignItems: "center", gap: 8,
+                color: tokens.danger, fontSize: 11.5, fontWeight: 500,
+                textAlign: "left",
+              }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                  <circle cx="12" cy="12" r="10"/>
+                  <line x1="12" y1="8" x2="12" y2="12"/>
+                  <line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+                {usernameError}
+              </div>
+            )}
             <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
               <button onClick={() => setUsernameModal(false)} style={{ padding: "10px 20px", borderRadius: 10, border: `1px solid ${tokens.border}`, background: "transparent", color: tokens.textSecondary, cursor: "pointer", fontWeight: 600, fontSize: 13, transition: "background 0.2s" }} onMouseEnter={(e) => e.target.style.background = tokens.surface} onMouseLeave={(e) => e.target.style.background = "transparent"}>İptal</button>
               <button onClick={saveUsername} style={{ padding: "10px 20px", borderRadius: 10, border: "none", background: tokens.primary, color: "#fff", cursor: "pointer", fontWeight: 600, fontSize: 13, transition: "opacity 0.2s", boxShadow: `0 4px 14px ${tokens.primary}40` }} onMouseEnter={(e) => e.target.style.opacity = 0.85} onMouseLeave={(e) => e.target.style.opacity = 1}>Kaydet</button>
+            </div>
+          </div>
+        </Overlay>
+      )}
+
+      {/* Bölüm Değiştir Onay Modalı */}
+      {deptResetOpen && (
+        <Overlay onClick={() => !isUpdatingDept && setDeptResetOpen(false)}>
+          <div
+            style={{
+              background: tokens.card,
+              border: `1px solid ${tokens.border}`,
+              borderRadius: 20,
+              padding: "32px 28px 28px",
+              maxWidth: 420,
+              width: "90%",
+              textAlign: "center",
+              boxShadow: tokens.shadowLg,
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* İkon */}
+            <div style={{
+              width: 60, height: 60, borderRadius: 16,
+              background: tokens.warning + "12",
+              border: `1px solid ${tokens.warning}25`,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              margin: "0 auto 18px",
+              color: tokens.warning,
+            }}>
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                <line x1="12" y1="9" x2="12" y2="13"/>
+                <line x1="12" y1="17" x2="12.01" y2="17"/>
+              </svg>
+            </div>
+
+            <h3 style={{ color: tokens.textPrimary, margin: "0 0 8px", fontSize: 19, fontWeight: 700, letterSpacing: -0.3 }}>
+              Bölümünü Değiştir
+            </h3>
+
+            <p style={{ color: tokens.muted, fontSize: 13, margin: "0 0 8px", lineHeight: 1.55 }}>
+              Mevcut bölümünü ({bolum?.ad || profile?.department_id ? "—" : "seçili değil"}) sıfırlayarak
+              yeni bir üniversite, fakülte ve bölüm seçebilirsin.
+            </p>
+
+            {/* Uyarı kutusu — bu işlem geri alınamaz */}
+            <div style={{
+              margin: "16px 0",
+              padding: "12px 14px",
+              borderRadius: 10,
+              background: tokens.warning + "08",
+              border: `1px solid ${tokens.warning}20`,
+              display: "flex", alignItems: "flex-start", gap: 10,
+              textAlign: "left",
+            }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={tokens.warning} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: 1 }}>
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12" y2="12"/>
+                <line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+              <div style={{ fontSize: 11.5, color: tokens.textSecondary, lineHeight: 1.5 }}>
+                <strong style={{ color: tokens.textPrimary }}>Dikkat:</strong> Bu işlem, ders ve not verilerini silmez.
+                Ancak mevcut bölümüne ait ders listesi görünürlüğü değişir. Yeni bölümüne özel dersleri
+                sıfırdan eklemen gerekebilir.
+              </div>
+            </div>
+
+            {/* Hata mesajı */}
+            {deptResetError && (
+              <div style={{
+                margin: "12px 0",
+                padding: "10px 14px",
+                borderRadius: 10,
+                background: tokens.danger + "08",
+                border: `1px solid ${tokens.danger}25`,
+                display: "flex", alignItems: "center", gap: 8,
+                color: tokens.danger, fontSize: 12, fontWeight: 500,
+              }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10"/>
+                  <line x1="12" y1="8" x2="12" y2="12"/>
+                  <line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+                {deptResetError}
+              </div>
+            )}
+
+            {/* Butonlar */}
+            <div style={{ display: "flex", gap: 10, justifyContent: "center", marginTop: 20 }}>
+              <button
+                onClick={() => setDeptResetOpen(false)}
+                disabled={isUpdatingDept}
+                style={{
+                  padding: "10px 20px", borderRadius: 10,
+                  border: `1px solid ${tokens.border}`,
+                  background: "transparent",
+                  color: tokens.textSecondary,
+                  cursor: isUpdatingDept ? "default" : "pointer",
+                  fontWeight: 600, fontSize: 13,
+                  fontFamily: "inherit",
+                  transition: "all 0.15s",
+                  opacity: isUpdatingDept ? 0.5 : 1,
+                }}
+                onMouseEnter={(e) => { if (!isUpdatingDept) { e.currentTarget.style.background = tokens.surface; e.currentTarget.style.color = tokens.textPrimary; } }}
+                onMouseLeave={(e) => { if (!isUpdatingDept) { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = tokens.textSecondary; } }}
+              >
+                İptal
+              </button>
+              <button
+                onClick={confirmResetDepartment}
+                disabled={isUpdatingDept}
+                style={{
+                  padding: "10px 22px", borderRadius: 10,
+                  border: "none",
+                  background: isUpdatingDept
+                    ? tokens.warning + "60"
+                    : `linear-gradient(135deg, ${tokens.warning}, #d97706)`,
+                  color: "#fff",
+                  cursor: isUpdatingDept ? "wait" : "pointer",
+                  fontWeight: 600, fontSize: 13,
+                  fontFamily: "inherit",
+                  transition: "all 0.15s",
+                  boxShadow: isUpdatingDept ? "none" : `0 4px 14px ${tokens.warning}40`,
+                  display: "inline-flex", alignItems: "center", gap: 8,
+                }}
+                onMouseEnter={(e) => { if (!isUpdatingDept) { e.currentTarget.style.transform = "translateY(-1px)"; e.currentTarget.style.boxShadow = `0 6px 18px ${tokens.warning}50`; } }}
+                onMouseLeave={(e) => { if (!isUpdatingDept) { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = `0 4px 14px ${tokens.warning}40`; } }}
+              >
+                {isUpdatingDept ? (
+                  <>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ animation: "spin 1s linear infinite" }}>
+                      <line x1="12" y1="2" x2="12" y2="6"/>
+                      <line x1="12" y1="18" x2="12" y2="22"/>
+                      <line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/>
+                      <line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/>
+                      <line x1="2" y1="12" x2="6" y2="12"/>
+                      <line x1="18" y1="12" x2="22" y2="12"/>
+                      <line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/>
+                      <line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/>
+                    </svg>
+                    Değiştiriliyor...
+                  </>
+                ) : (
+                  <>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                    Evet, Değiştir
+                  </>
+                )}
+              </button>
             </div>
           </div>
         </Overlay>
