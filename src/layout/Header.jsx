@@ -101,10 +101,7 @@ export default function Header({ sidebarWidth, onOpenMobileSidebar, pageTitle, d
             <line x1="3" y1="18" x2="21" y2="18"/>
           </svg>
         </button>
-        <div>
-          <div style={{ fontSize: 11, color: tokens.muted, fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 1 }}>UniPulse</div>
-          <span style={{ fontSize: 15, fontWeight: 700, color: tokens.textPrimary, letterSpacing: -0.2 }}>{pageTitle}</span>
-        </div>
+        <span style={{ fontSize: 15, fontWeight: 700, color: tokens.textPrimary, letterSpacing: -0.2 }}>{pageTitle}</span>
       </div>
 
       <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
