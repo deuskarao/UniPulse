@@ -150,10 +150,9 @@ export default function DepartmentSelector({ onSelect, initialValue = null, toke
     return null;
   };
 
-  // Bölüm seçilince: university_id, faculty_id, department_id objesi gönder
-  // AppShell/Settings bunu updateProfile ile profiles tablosuna yazar.
-  // NOT: selectedUni ve selectedFaculty state'inden doğrudan alınır.
-  const handleDepartmentSelect = (deptId) => {
+  // Bölüm seçilince: doğrudan DB'ye yaz + onSelect callback çağır
+  // Bu, kesin çözüm — updateProfile'e güvenmek yerine doğrudan Supabase çağrılır.
+  const handleDepartmentSelect = async (deptId) => {
     const dept = departments.find(d => d.id === deptId);
     if (!dept) {
       console.error("[DepartmentSelector] Bölüm bulunamadı:", deptId);
@@ -167,29 +166,45 @@ export default function DepartmentSelector({ onSelect, initialValue = null, toke
       console.error("[DepartmentSelector] Fakülte seçilmemiş!");
       return;
     }
-    console.log("[DepartmentSelector] Bölüm seçildi:", {
-      university_id: selectedUni.id,
-      university_ad: selectedUni.ad,
-      faculty_id: selectedFaculty.id,
-      faculty_ad: selectedFaculty.ad,
-      department_id: dept.id,
-      department_ad: dept.ad,
-    });
-    onSelect({
+
+    const payload = {
       university_id: selectedUni.id,
       faculty_id: selectedFaculty.id,
       department_id: dept.id,
-    });
+    };
+    console.log("[DepartmentSelector] Bölüm seçildi, DB'ye yazılıyor:", payload);
+
+    // 1) Doğrudan DB'ye yaz (auth token ile, RLS sayesinde kendi profiline)
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        console.error("[DepartmentSelector] Kullanıcı girişi yok!");
+        return;
+      }
+      const { error } = await supabase
+        .from("profiles")
+        .update(payload)
+        .eq("id", user.id);
+      if (error) {
+        console.error("[DepartmentSelector] DB update hatası:", error);
+        alert("Bölüm kaydedilemedi: " + error.message);
+        return;
+      }
+      console.log("[DepartmentSelector] DB'ye yazıldı ✓");
+    } catch (err) {
+      console.error("[DepartmentSelector] Exception:", err);
+      alert("Bölüm kaydedilemedi: " + (err?.message || "Bilinmeyen hata"));
+      return;
+    }
+
+    // 2) Callback çağır (reload için)
+    if (onSelect) {
+      onSelect(payload);
+    }
   };
 
-  // Tek bölüm varsa otomatik seç
-  useEffect(() => {
-    const dept = getSelectedDepartment();
-    if (dept && selectedUni && selectedFaculty) {
-      handleDepartmentSelect(dept.id);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedFaculty, selectedUni, departments, facultyDepartments]);
+  // Tek bölüm varsa otomatik seç (useEffect kaldırıldı — closure sorunu yaratıyordu)
+  // Artık kullanıcı bölüm kartına tıklamalı.
 
   if (loading) {
     return (
