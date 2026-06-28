@@ -35,26 +35,26 @@ UPDATE department_courses SET legacy_id = NULL WHERE legacy_id = 0;
 
 INSERT INTO universities (ad, emoji, renk, slug)
 VALUES
-  ('İstanbul Teknik Üniversitesi (İTÜ)', '⚙️', '#0d9488', 'itu'),  -- İstanbul Teknik Üniversitesi (İTÜ)
-  ('Marmara Üniversitesi', '🏛️', '#7c3aed', 'marmara-universitesi'),  -- Marmara Üniversitesi
-  ('Yıldız Teknik Üniversitesi', '🔧', '#0891b2', 'yildiz-teknik-universitesi'),  -- Yıldız Teknik Üniversitesi
-  ('Dokuz Eylül Üniversitesi', '🌊', '#0ea5e9', 'dokuz-eylul-universitesi'),  -- Dokuz Eylül Üniversitesi
-  ('Gazi Üniversitesi', '🎯', '#dc2626', 'gazi-universitesi'),  -- Gazi Üniversitesi
-  ('Gebze Teknik Üniversitesi', '🔬', '#16a34a', 'gebze-teknik-universitesi'),  -- Gebze Teknik Üniversitesi
-  ('Eskişehir Teknik Üniversitesi', '✈️', '#4f46e5', 'eskisehir-teknik-universitesi'),  -- Eskişehir Teknik Üniversitesi
-  ('Galatasaray Üniversitesi', '🔴', '#b91c1c', 'galatasaray-universitesi'),  -- Galatasaray Üniversitesi
-  ('İzmir Yüksek Teknoloji Enstitüsü (İYTE)', '🌊', '#0284c7', 'iyte'),  -- İzmir Yüksek Teknoloji Enstitüsü (İYTE)
-  ('Akdeniz Üniversitesi', '🌴', '#16a34a', 'akdeniz-universitesi'),  -- Akdeniz Üniversitesi
-  ('Bursa Uludağ Üniversitesi', '⛰️', '#0891b2', 'bursa-uludag-universitesi'),  -- Bursa Uludağ Üniversitesi
-  ('Sakarya Üniversitesi', '🍃', '#65a30d', 'sakarya-universitesi'),  -- Sakarya Üniversitesi
-  ('Karadeniz Teknik Üniversitesi', '🌲', '#166534', 'karadeniz-teknik-universitesi'),  -- Karadeniz Teknik Üniversitesi
-  ('Çukurova Üniversitesi', '🌾', '#ca8a04', 'cukurova-universitesi'),  -- Çukurova Üniversitesi
-  ('Erciyes Üniversitesi', '🏔️', '#7c3aed', 'erciyes-universitesi'),  -- Erciyes Üniversitesi
-  ('Atatürk Üniversitesi', '🏛️', '#dc2626', 'ataturk-universitesi'),  -- Atatürk Üniversitesi
-  ('Pamukkale Üniversitesi', '🏺', '#0891b2', 'pamukkale-universitesi'),  -- Pamukkale Üniversitesi
-  ('Kocaeli Üniversitesi', '⚓', '#0d9488', 'kocaeli-universitesi'),  -- Kocaeli Üniversitesi
-  ('Selçuk Üniversitesi', '🕌', '#4f46e5', 'selcuk-universitesi'),  -- Selçuk Üniversitesi
-  ('Gaziantep Üniversitesi', '🏗️', '#d97706', 'gaziantep-universitesi');  -- Gaziantep Üniversitesi
+  ('İstanbul Teknik Üniversitesi (İTÜ)', '⚙️', '#0d9488', 'itu'),
+  ('Marmara Üniversitesi', '🏛️', '#7c3aed', 'marmara-universitesi'),
+  ('Yıldız Teknik Üniversitesi', '🔧', '#0891b2', 'yildiz-teknik-universitesi'),
+  ('Dokuz Eylül Üniversitesi', '🌊', '#0ea5e9', 'dokuz-eylul-universitesi'),
+  ('Gazi Üniversitesi', '🎯', '#dc2626', 'gazi-universitesi'),
+  ('Gebze Teknik Üniversitesi', '🔬', '#16a34a', 'gebze-teknik-universitesi'),
+  ('Eskişehir Teknik Üniversitesi', '✈️', '#4f46e5', 'eskisehir-teknik-universitesi'),
+  ('Galatasaray Üniversitesi', '🔴', '#b91c1c', 'galatasaray-universitesi'),
+  ('İzmir Yüksek Teknoloji Enstitüsü (İYTE)', '🌊', '#0284c7', 'iyte'),
+  ('Akdeniz Üniversitesi', '🌴', '#16a34a', 'akdeniz-universitesi'),
+  ('Bursa Uludağ Üniversitesi', '⛰️', '#0891b2', 'bursa-uludag-universitesi'),
+  ('Sakarya Üniversitesi', '🍃', '#65a30d', 'sakarya-universitesi'),
+  ('Karadeniz Teknik Üniversitesi', '🌲', '#166534', 'karadeniz-teknik-universitesi'),
+  ('Çukurova Üniversitesi', '🌾', '#ca8a04', 'cukurova-universitesi'),
+  ('Erciyes Üniversitesi', '🏔️', '#7c3aed', 'erciyes-universitesi'),
+  ('Atatürk Üniversitesi', '🏛️', '#dc2626', 'ataturk-universitesi'),
+  ('Pamukkale Üniversitesi', '🏺', '#0891b2', 'pamukkale-universitesi'),
+  ('Kocaeli Üniversitesi', '⚓', '#0d9488', 'kocaeli-universitesi'),
+  ('Selçuk Üniversitesi', '🕌', '#4f46e5', 'selcuk-universitesi'),
+  ('Gaziantep Üniversitesi', '🏗️', '#d97706', 'gaziantep-universitesi')
 ON CONFLICT (slug) DO NOTHING;
 
 -- ============================================================
