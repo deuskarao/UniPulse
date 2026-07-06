@@ -1,6 +1,7 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAuth } from "../context/AuthContext";
-import { Mail, Lock, Loader2, ArrowRight, ShieldAlert } from "lucide-react";
+import { useTheme } from "../theme/ThemeProvider";
+import { Mail, Lock, Loader2, ArrowRight, ShieldAlert, Sun, Moon, Sparkles } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const INDIGO = "#6366F1";
@@ -23,6 +24,14 @@ function Logo({ size = 30 }) {
 }
 
 // Google SVG icon
+function AppleIcon({ size = 16 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 384 512" fill="currentColor">
+      <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/>
+    </svg>
+  );
+}
+
 function GoogleIcon({ size = 16 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 18 18">
@@ -34,8 +43,18 @@ function GoogleIcon({ size = 16 }) {
   );
 }
 
+// Social button shared style
+const socialBtnBase = {
+  flex: 1, height: 48, borderRadius: 12,
+  background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)",
+  color: "#F1F5F9", cursor: "pointer", fontSize: 13, fontWeight: 600,
+  fontFamily: "inherit", transition: "all 0.2s ease",
+  display: "flex", justifyContent: "center", alignItems: "center", gap: 0,
+};
+
 export default function LoginPage({ onSwitch }) {
-  const { login, loginWithGoogle, resetPassword } = useAuth();
+  const { login, loginWithGoogle, loginWithApple, resetPassword } = useAuth();
+  const { toggleTheme, resolvedMode } = useTheme();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -200,6 +219,17 @@ export default function LoginPage({ onSwitch }) {
           </div>
           <span style={{ fontSize: 20, fontWeight: 700, letterSpacing: -0.5, color: "#F1F5F9" }}>UniPulse</span>
         </div>
+        <button onClick={toggleTheme} title="Temayı değiştir" style={{
+          width: 40, height: 40, borderRadius: 12,
+          background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)",
+          color: "#F1F5F9", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+          transition: "all 0.2s ease",
+        }}
+          onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.1)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.18)"; }}
+          onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.05)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"; }}
+        >
+          {resolvedMode === "dark" ? <Sun size={18} /> : <Moon size={18} />}
+        </button>
       </div>
 
       {/* Login Card */}
@@ -236,21 +266,28 @@ export default function LoginPage({ onSwitch }) {
             </p>
           </div>
 
-          {/* Google Button */}
-          <button onClick={loginWithGoogle} disabled={loading} style={{
-            width: "100%", height: 46, borderRadius: 12,
-            background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)",
-            color: "#F1F5F9", cursor: "pointer", fontSize: 14, fontWeight: 600,
-            fontFamily: "inherit", transition: "all 0.2s ease",
-            display: "flex", justifyContent: "center", alignItems: "center", gap: 10,
-            marginBottom: 0,
-          }}
-            onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.07)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.16)"; e.currentTarget.style.transform = "translateY(-1px)"; }}
-            onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.04)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"; e.currentTarget.style.transform = "translateY(0)"; }}
-          >
-            <GoogleIcon size={18} />
-            Google ile Devam Et
-          </button>
+          {/* Social Login Buttons — 3 columns */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 }}>
+            <button onClick={loginWithGoogle} disabled={loading} title="Google ile giriş yap" style={socialBtnBase}
+              onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.07)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.16)"; e.currentTarget.style.transform = "translateY(-1px)"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.04)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"; e.currentTarget.style.transform = "translateY(0)"; }}
+            >
+              <GoogleIcon size={20} />
+            </button>
+            <button onClick={() => loginWithApple?.()} disabled={loading} title="Apple ile giriş yap" style={socialBtnBase}
+              onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.07)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.16)"; e.currentTarget.style.transform = "translateY(-1px)"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.04)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"; e.currentTarget.style.transform = "translateY(0)"; }}
+            >
+              <AppleIcon size={20} />
+            </button>
+            <button onClick={() => { login("demo@unipulse.app", "demo123").catch(() => {}); }} disabled={loading} title="Demo hesabı ile giriş yap"
+              style={{ ...socialBtnBase, color: "#60A5FA" }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(96,165,250,0.08)"; e.currentTarget.style.borderColor = "rgba(96,165,250,0.25)"; e.currentTarget.style.transform = "translateY(-1px)"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.04)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"; e.currentTarget.style.transform = "translateY(0)"; }}
+            >
+              <Sparkles size={20} />
+            </button>
+          </div>
 
           {/* Divider */}
           <div style={{ display: "flex", alignItems: "center", margin: "20px 0" }}>
