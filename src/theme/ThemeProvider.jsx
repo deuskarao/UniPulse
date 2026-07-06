@@ -1,9 +1,9 @@
 import { createContext, useContext, useEffect, useState, useCallback } from "react";
 
 /*
-  UniPulse Design Tokens v2 — "Modern EdTech"
-  Palette: İndigo-Safe (#4F46E5 / #6366F1)
-  Style:   Modern Minimal — Linear/Vercel-inspired
+  UniPulse Design Tokens v3 — "Professional Tech"
+  Palette: Blue (#2563EB / #3B82F6)
+  Style:   Modern Minimal — Corporate/Professional
   Semantic: Yeşil · Amber · Kırmızı
 */
 export const THEME_TOKENS = {
@@ -11,9 +11,9 @@ export const THEME_TOKENS = {
     background: "#F8FAFC",
     surface: "#FFFFFF",
     card: "#FFFFFF",
-    primary: "#4F46E5",
-    primaryHover: "#4338CA",
-    primaryLight: "#EEF2FF",
+    primary: "#2563EB",
+    primaryHover: "#1D4ED8",
+    primaryLight: "#DBEAFE",
     success: "#059669",
     successLight: "#ECFDF5",
     warning: "#D97706",
@@ -25,24 +25,24 @@ export const THEME_TOKENS = {
     muted: "#64748B",
     border: "#E2E8F0",
     sidebar: "#FFFFFF",
-    sidebarActive: "#EEF2FF",
+    sidebarActive: "#DBEAFE",
     sidebarHover: "#F8FAFC",
-    chartPrimary: "#4F46E5",
+    chartPrimary: "#2563EB",
     chartSecondary: "#10B981",
     chartTertiary: "#F59E0B",
     shadowSm: "0 1px 2px 0 rgba(15, 23, 42, 0.04), 0 1px 3px 0 rgba(15, 23, 42, 0.06)",
     shadowMd: "0 4px 6px -1px rgba(15, 23, 42, 0.05), 0 2px 4px -2px rgba(15, 23, 42, 0.05)",
     shadowLg: "0 12px 24px -6px rgba(15, 23, 42, 0.08), 0 4px 8px -2px rgba(15, 23, 42, 0.04)",
-    glow: "0 0 0 1px rgba(79, 70, 229, 0.08)",
+    glow: "0 0 0 1px rgba(37, 99, 235, 0.08)",
     input: "#F8FAFC",
   },
   dark: {
     background: "#0A0F1C",
     surface: "#0F1623",
     card: "#131A2A",
-    primary: "#6366F1",
-    primaryHover: "#818CF8",
-    primaryLight: "#1E1B4B",
+    primary: "#3B82F6",
+    primaryHover: "#60A5FA",
+    primaryLight: "#1E3A8A",
     success: "#10B981",
     successLight: "#052E1A",
     warning: "#F59E0B",
@@ -54,15 +54,15 @@ export const THEME_TOKENS = {
     muted: "#94A3B8",
     border: "#1F2937",
     sidebar: "#070B14",
-    sidebarActive: "#1E1B4B",
+    sidebarActive: "#1E3A8A",
     sidebarHover: "#111827",
-    chartPrimary: "#6366F1",
+    chartPrimary: "#3B82F6",
     chartSecondary: "#34D399",
     chartTertiary: "#FBBF24",
     shadowSm: "0 1px 2px 0 rgba(0, 0, 0, 0.20), 0 1px 3px 0 rgba(0, 0, 0, 0.25)",
     shadowMd: "0 4px 6px -1px rgba(0, 0, 0, 0.30), 0 2px 4px -2px rgba(0, 0, 0, 0.25)",
     shadowLg: "0 12px 24px -6px rgba(0, 0, 0, 0.40), 0 4px 8px -2px rgba(0, 0, 0, 0.30)",
-    glow: "0 0 24px rgba(99, 102, 241, 0.18)",
+    glow: "0 0 24px rgba(59, 130, 246, 0.18)",
     input: "#0F1623",
   },
 };

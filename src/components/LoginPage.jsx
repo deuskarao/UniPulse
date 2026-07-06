@@ -1,27 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../theme/ThemeProvider";
-import { Mail, Lock, Loader2, ArrowRight, ShieldAlert, Sun, Moon, Sparkles } from "lucide-react";
+import { Mail, Lock, Loader2, ArrowRight, ShieldAlert, Sun, Moon, Sparkles, GraduationCap } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-
-const INDIGO = "#6366F1";
-const INDIGO_LIGHT = "#818CF8";
-
-function Logo({ size = 30 }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 64 64" fill="none">
-      <defs>
-        <linearGradient id="logoGradLogin" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor={INDIGO_LIGHT}/>
-          <stop offset="100%" stopColor={INDIGO}/>
-        </linearGradient>
-      </defs>
-      <polyline points="6,34 16,34 22,20 28,48 34,26 38,38 44,30 50,34 58,34"
-        fill="none" stroke="url(#logoGradLogin)" strokeWidth="4.5"
-        strokeLinecap="round" strokeLinejoin="round"/>
-    </svg>
-  );
-}
 
 // Google SVG icon
 function AppleIcon({ size = 16 }) {
@@ -54,7 +35,9 @@ const socialBtnBase = {
 
 export default function LoginPage({ onSwitch }) {
   const { login, loginWithGoogle, loginWithApple, resetPassword } = useAuth();
-  const { toggleTheme, resolvedMode } = useTheme();
+  const { toggleTheme, resolvedMode, tokens } = useTheme();
+  const isDark = resolvedMode === "dark";
+  
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -167,8 +150,9 @@ export default function LoginPage({ onSwitch }) {
 
   const inputStyle = {
     width: "100%", height: 46, padding: "0 14px 0 42px", borderRadius: 12,
-    background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)",
-    color: "#F1F5F9", fontSize: 14, outline: "none", boxSizing: "border-box",
+    background: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)", 
+    border: isDark ? "1px solid rgba(255,255,255,0.08)" : "1px solid rgba(0,0,0,0.1)",
+    color: tokens.textPrimary, fontSize: 14, outline: "none", boxSizing: "border-box",
     transition: "all 0.2s ease", fontFamily: "inherit",
   };
 
@@ -177,34 +161,34 @@ export default function LoginPage({ onSwitch }) {
   };
 
   const labelStyle = {
-    display: "block", fontSize: 12, color: "rgba(241,245,249,0.6)",
+    display: "block", fontSize: 12, color: tokens.textSecondary,
     fontWeight: 600, marginBottom: 6, letterSpacing: "0.2px",
   };
 
   const focusHandlers = {
-    onFocus: (e) => { e.target.style.borderColor = "rgba(99,102,241,0.5)"; e.target.style.background = "rgba(99,102,241,0.06)"; e.target.style.boxShadow = "0 0 0 3px rgba(99,102,241,0.12)"; },
-    onBlur: (e) => { e.target.style.borderColor = "rgba(255,255,255,0.08)"; e.target.style.background = "rgba(255,255,255,0.04)"; e.target.style.boxShadow = "none"; },
+    onFocus: (e) => { e.target.style.borderColor = tokens.primary; e.target.style.background = isDark ? "rgba(37,99,235,0.06)" : "rgba(37,99,235,0.03)"; e.target.style.boxShadow = `0 0 0 3px rgba(37,99,235,0.12)`; },
+    onBlur: (e) => { e.target.style.borderColor = isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.1)"; e.target.style.background = isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)"; e.target.style.boxShadow = "none"; },
   };
 
   const iconStyle = {
     position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)",
-    color: "rgba(241,245,249,0.35)", pointerEvents: "none",
+    color: tokens.muted, pointerEvents: "none",
   };
 
   return (
     <div style={{
-      minHeight: "100vh", background: "#070B14",
+      minHeight: "100vh", background: tokens.background,
       fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
       display: "flex", alignItems: "center", justifyContent: "center",
       position: "relative", overflow: "hidden",
     }}>
       {/* Rainbow Trail Canvas */}
-      <canvas ref={canvasRef} style={{ position: "fixed", inset: 0, width: "100%", height: "100%", zIndex: 0, pointerEvents: "none" }} />
+      {isDark && <canvas ref={canvasRef} style={{ position: "fixed", inset: 0, width: "100%", height: "100%", zIndex: 0, pointerEvents: "none" }} />}
 
       {/* Background Glows */}
       <div style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 0 }}>
-        <div style={{ position: "absolute", top: "-200px", left: "-200px", width: 720, height: 720, borderRadius: "50%", background: INDIGO, filter: "blur(150px)", opacity: 0.25 }} />
-        <div style={{ position: "absolute", bottom: "-180px", right: "-180px", width: 560, height: 560, borderRadius: "50%", background: "#0EA5E9", filter: "blur(150px)", opacity: 0.18 }} />
+        <div style={{ position: "absolute", top: "-200px", left: "-200px", width: 720, height: 720, borderRadius: "50%", background: tokens.primary, filter: "blur(150px)", opacity: isDark ? 0.2 : 0.08 }} />
+        <div style={{ position: "absolute", bottom: "-180px", right: "-180px", width: 560, height: 560, borderRadius: "50%", background: tokens.success, filter: "blur(150px)", opacity: isDark ? 0.15 : 0.05 }} />
       </div>
 
       {/* Top Header */}
@@ -212,23 +196,24 @@ export default function LoginPage({ onSwitch }) {
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <div style={{
             width: 40, height: 40, borderRadius: 12,
-            background: "rgba(99,102,241,0.1)", border: "1px solid rgba(99,102,241,0.2)",
-            display: "flex", alignItems: "center", justifyContent: "center",
+            background: isDark ? "rgba(37,99,235,0.1)" : "rgba(37,99,235,0.08)", 
+            display: "flex", alignItems: "center", justifyContent: "center", color: tokens.primary
           }}>
-            <Logo size={24} />
+            <GraduationCap size={24} />
           </div>
-          <span style={{ fontSize: 20, fontWeight: 700, letterSpacing: -0.5, color: "#F1F5F9" }}>UniPulse</span>
+          <span style={{ fontSize: 20, fontWeight: 700, letterSpacing: -0.5, color: tokens.textPrimary }}>UniPulse</span>
         </div>
         <button onClick={toggleTheme} title="Temayı değiştir" style={{
           width: 40, height: 40, borderRadius: 12,
-          background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)",
-          color: "#F1F5F9", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+          background: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)", 
+          border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.08)",
+          color: tokens.textPrimary, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
           transition: "all 0.2s ease",
         }}
-          onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.1)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.18)"; }}
-          onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.05)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"; }}
+          onMouseEnter={(e) => { e.currentTarget.style.background = isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.06)"; }}
+          onMouseLeave={(e) => { e.currentTarget.style.background = isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)"; }}
         >
-          {resolvedMode === "dark" ? <Sun size={18} /> : <Moon size={18} />}
+          {isDark ? <Sun size={18} /> : <Moon size={18} />}
         </button>
       </div>
 
@@ -243,11 +228,11 @@ export default function LoginPage({ onSwitch }) {
         }}
       >
         <div style={{
-          background: "rgba(15, 22, 35, 0.7)",
+          background: isDark ? "rgba(15, 22, 35, 0.7)" : "rgba(255, 255, 255, 0.7)",
           backdropFilter: "blur(24px) saturate(180%)", WebkitBackdropFilter: "blur(24px) saturate(180%)",
-          borderRadius: 24, border: "1px solid rgba(255,255,255,0.08)",
+          borderRadius: 24, border: isDark ? "1px solid rgba(255,255,255,0.08)" : "1px solid rgba(0,0,0,0.06)",
           padding: "36px 32px 32px", position: "relative",
-          boxShadow: "0 25px 50px -12px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04) inset, 0 0 80px rgba(99,102,241,0.08)",
+          boxShadow: isDark ? "0 25px 50px -12px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04) inset, 0 0 80px rgba(37,99,235,0.08)" : "0 25px 50px -12px rgba(0,0,0,0.05), 0 0 80px rgba(37,99,235,0.04)",
         }}>
           {/* Brand / Title */}
           <div style={{ textAlign: "center", marginBottom: 28 }}>
@@ -261,39 +246,41 @@ export default function LoginPage({ onSwitch }) {
                 WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
               }}
             >Hoş Geldiniz</motion.h1>
-            <p style={{ margin: 0, fontSize: 13, color: "rgba(241,245,249,0.5)", fontWeight: 500 }}>
+            <p style={{ margin: 0, fontSize: 13, color: tokens.textSecondary, fontWeight: 500 }}>
               Devam etmek için bilgilerinizi girin
-            </p>
+            </p>>
           </div>
 
-          {/* Social Login Buttons — 3 columns */}
+          {/* Social Login Buttons — 3 columns: Demo, Google, Apple */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 }}>
-            <button onClick={loginWithGoogle} disabled={loading} title="Google ile giriş yap" style={socialBtnBase}
-              onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.07)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.16)"; e.currentTarget.style.transform = "translateY(-1px)"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.04)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"; e.currentTarget.style.transform = "translateY(0)"; }}
+            <button onClick={() => { login("demo@unipulse.app", "demo123").catch(() => {}); }} disabled={loading} title="Demo hesabı ile giriş yap"
+              style={{ ...socialBtnBase, background: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)", border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.08)", color: "#60A5FA" }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = isDark ? "rgba(96,165,250,0.08)" : "rgba(96,165,250,0.1)"; e.currentTarget.style.transform = "translateY(-1px)"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)"; e.currentTarget.style.transform = "translateY(0)"; }}
+            >
+              <Sparkles size={20} />
+            </button>
+            <button onClick={loginWithGoogle} disabled={loading} title="Google ile giriş yap" 
+              style={{ ...socialBtnBase, background: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)", border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.08)", color: tokens.textPrimary }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = isDark ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.05)"; e.currentTarget.style.transform = "translateY(-1px)"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)"; e.currentTarget.style.transform = "translateY(0)"; }}
             >
               <GoogleIcon size={20} />
             </button>
-            <button onClick={() => loginWithApple?.()} disabled={loading} title="Apple ile giriş yap" style={socialBtnBase}
-              onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.07)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.16)"; e.currentTarget.style.transform = "translateY(-1px)"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.04)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"; e.currentTarget.style.transform = "translateY(0)"; }}
+            <button onClick={() => loginWithApple?.()} disabled={loading} title="Apple ile giriş yap" 
+              style={{ ...socialBtnBase, background: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)", border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.08)", color: tokens.textPrimary }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = isDark ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.05)"; e.currentTarget.style.transform = "translateY(-1px)"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)"; e.currentTarget.style.transform = "translateY(0)"; }}
             >
               <AppleIcon size={20} />
-            </button>
-            <button onClick={() => { login("demo@unipulse.app", "demo123").catch(() => {}); }} disabled={loading} title="Demo hesabı ile giriş yap"
-              style={{ ...socialBtnBase, color: "#60A5FA" }}
-              onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(96,165,250,0.08)"; e.currentTarget.style.borderColor = "rgba(96,165,250,0.25)"; e.currentTarget.style.transform = "translateY(-1px)"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.04)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"; e.currentTarget.style.transform = "translateY(0)"; }}
-            >
-              <Sparkles size={20} />
             </button>
           </div>
 
           {/* Divider */}
           <div style={{ display: "flex", alignItems: "center", margin: "20px 0" }}>
-            <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.06)" }} />
-            <span style={{ padding: "0 14px", fontSize: 11, color: "rgba(241,245,249,0.35)", fontWeight: 600, letterSpacing: 1, textTransform: "uppercase" }}>veya</span>
-            <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.06)" }} />
+            <div style={{ flex: 1, height: 1, background: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)" }} />
+            <span style={{ padding: "0 14px", fontSize: 11, color: tokens.muted, fontWeight: 600, letterSpacing: 1, textTransform: "uppercase" }}>veya</span>
+            <div style={{ flex: 1, height: 1, background: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)" }} />
           </div>
 
           {/* Form */}
@@ -309,9 +296,9 @@ export default function LoginPage({ onSwitch }) {
             <div style={{ marginBottom: 16 }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
                 <label style={{ ...labelStyle, marginBottom: 0 }}>Şifre</label>
-                <button type="button" onClick={() => setForgotOpen(true)} style={{ background: "none", border: "none", fontSize: 11.5, color: INDIGO_LIGHT, cursor: "pointer", fontFamily: "inherit", padding: 0, fontWeight: 600, transition: "color 0.15s" }}
-                  onMouseEnter={(e) => e.target.style.color = "#A5B4FC"}
-                  onMouseLeave={(e) => e.target.style.color = INDIGO_LIGHT}
+                <button type="button" onClick={() => setForgotOpen(true)} style={{ background: "none", border: "none", fontSize: 11.5, color: tokens.primary, cursor: "pointer", fontFamily: "inherit", padding: 0, fontWeight: 600, transition: "color 0.15s" }}
+                  onMouseEnter={(e) => e.target.style.color = tokens.primaryHover}
+                  onMouseLeave={(e) => e.target.style.color = tokens.primary}
                 >Şifremi unuttum</button>
               </div>
               <div style={{ position: "relative" }}>
@@ -361,17 +348,17 @@ export default function LoginPage({ onSwitch }) {
           </form>
 
           {/* Footer */}
-          <div style={{ textAlign: "center", marginTop: 22, fontSize: 13.5, color: "rgba(241,245,249,0.5)" }}>
+          <div style={{ textAlign: "center", marginTop: 24, fontSize: 13, color: tokens.textSecondary }}>
             Hesabın yok mu?{" "}
-            <button type="button" onClick={onSwitch} style={{ background: "none", border: "none", color: INDIGO_LIGHT, cursor: "pointer", fontWeight: 700, fontSize: 13.5, padding: 0, fontFamily: "inherit", transition: "color 0.15s" }}
-              onMouseEnter={(e) => e.target.style.color = "#A5B4FC"}
-              onMouseLeave={(e) => e.target.style.color = INDIGO_LIGHT}
+            <button type="button" onClick={onSwitch} style={{ background: "none", border: "none", color: tokens.primary, cursor: "pointer", fontWeight: 700, fontSize: 13, padding: 0, fontFamily: "inherit", transition: "color 0.15s" }}
+              onMouseEnter={(e) => e.target.style.color = tokens.primaryHover}
+              onMouseLeave={(e) => e.target.style.color = tokens.primary}
             >Kayıt Ol</button>
           </div>
         </div>
 
         {/* Copyright */}
-        <p style={{ textAlign: "center", marginTop: 24, fontSize: 11, color: "rgba(241,245,249,0.25)", fontWeight: 500 }}>
+        <p style={{ textAlign: "center", marginTop: 24, fontSize: 11, color: tokens.muted, fontWeight: 500 }}>
           © 2026 UniPulse — Tüm Hakları Saklıdır
         </p>
       </motion.div>
@@ -396,41 +383,32 @@ export default function LoginPage({ onSwitch }) {
               exit={{ opacity: 0, scale: 0.95, y: 10 }}
               onClick={(e) => e.stopPropagation()}
               style={{
-                width: 400, maxWidth: "90vw",
-                background: "rgba(15, 22, 35, 0.92)",
+                width: 420, maxWidth: "90vw",
+                background: isDark ? "rgba(15, 22, 35, 0.9)" : "rgba(255, 255, 255, 0.95)",
                 backdropFilter: "blur(24px) saturate(180%)", WebkitBackdropFilter: "blur(24px) saturate(180%)",
-                borderRadius: 20, border: "1px solid rgba(255,255,255,0.08)",
-                padding: "30px 32px", position: "relative", zIndex: 1,
-                boxShadow: "0 25px 50px -12px rgba(0,0,0,0.6), 0 0 60px rgba(99,102,241,0.06)",
+                borderRadius: 24, border: isDark ? "1px solid rgba(255,255,255,0.08)" : "1px solid rgba(0,0,0,0.06)",
+                padding: "32px 32px 28px", position: "relative", zIndex: 1,
+                boxShadow: isDark ? "0 25px 50px -12px rgba(0,0,0,0.6), 0 0 60px rgba(37,99,235,0.06)" : "0 25px 50px -12px rgba(0,0,0,0.1)",
               }}
             >
-              <button onClick={closeForgot} style={{
-                position: "absolute", top: 14, right: 14,
-                background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)",
-                color: "rgba(241,245,249,0.5)", borderRadius: 8, width: 30, height: 30,
-                cursor: "pointer", fontSize: 14, display: "flex", alignItems: "center", justifyContent: "center",
-                fontFamily: "inherit", transition: "all 0.2s",
-              }}
-                onMouseEnter={(e) => { e.currentTarget.style.color = "#F1F5F9"; e.currentTarget.style.background = "rgba(255,255,255,0.1)"; }}
-                onMouseLeave={(e) => { e.currentTarget.style.color = "rgba(241,245,249,0.5)"; e.currentTarget.style.background = "rgba(255,255,255,0.05)"; }}
-              >✕</button>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 22 }}>
+                <h2 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: tokens.textPrimary, letterSpacing: -0.3 }}>
+                  Şifremi Unuttum
+                </h2>
+                <button onClick={closeForgot} style={{
+                  background: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)", 
+                  border: isDark ? "1px solid rgba(255,255,255,0.08)" : "1px solid rgba(0,0,0,0.08)",
+                  color: tokens.muted, borderRadius: 8, width: 30, height: 30,
+                  cursor: "pointer", fontSize: 14, display: "flex", alignItems: "center", justifyContent: "center",
+                  fontFamily: "inherit", transition: "all 0.2s",
+                }}
+                  onMouseEnter={(e) => { e.currentTarget.style.color = tokens.textPrimary; e.currentTarget.style.background = isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.06)"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.color = tokens.muted; e.currentTarget.style.background = isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)"; }}
+                >✕</button>
+              </div>
 
               {!forgotSent ? (
                 <>
-                  <div style={{ textAlign: "center", marginBottom: 22 }}>
-                    <div style={{
-                      width: 52, height: 52, borderRadius: 16,
-                      background: "rgba(99,102,241,0.1)", border: "1px solid rgba(99,102,241,0.22)",
-                      display: "flex", alignItems: "center", justifyContent: "center",
-                      margin: "0 auto 16px",
-                    }}>
-                      <Lock size={22} color={INDIGO_LIGHT} />
-                    </div>
-                    <h2 style={{ margin: "0 0 6px", fontSize: 19, fontWeight: 700, color: "#F1F5F9", letterSpacing: -0.3 }}>Şifre Sıfırlama</h2>
-                    <p style={{ margin: 0, fontSize: 12.5, color: "rgba(241,245,249,0.5)", lineHeight: 1.55 }}>
-                      E-posta adresinizi girin, size şifre sıfırlama bağlantısı göndereceğiz.
-                    </p>
-                  </div>
                   <form onSubmit={handleForgotPassword}>
                     <div style={{ marginBottom: 16 }}>
                       <label style={labelStyle}>E-posta</label>
@@ -440,14 +418,14 @@ export default function LoginPage({ onSwitch }) {
                       <div style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", borderRadius: 8, padding: "8px 12px", marginBottom: 12, color: "#FCA5A5", fontSize: 11.5 }}>{forgotError}</div>
                     )}
                     <motion.button type="submit" disabled={forgotLoading}
-                      whileHover={!forgotLoading ? { scale: 1.02 } : {}}
-                      whileTap={!forgotLoading ? { scale: 0.98 } : {}}
+                      whileHover={!forgotLoading ? { scale: 1.01 } : {}}
+                      whileTap={!forgotLoading ? { scale: 0.99 } : {}}
                       style={{
-                        width: "100%", height: 46, borderRadius: 12, border: "none",
-                        background: forgotLoading ? "rgba(99,102,241,0.3)" : `linear-gradient(135deg, ${INDIGO} 0%, ${INDIGO_LIGHT} 100%)`,
+                        width: "100%", height: 46, borderRadius: 12, border: "none", marginTop: 12,
+                        background: tokens.primary,
                         color: "#fff", cursor: forgotLoading ? "default" : "pointer",
-                        fontWeight: 600, fontSize: 13.5, fontFamily: "inherit",
-                        boxShadow: forgotLoading ? "none" : "0 8px 20px rgba(99,102,241,0.32)",
+                        fontWeight: 600, fontSize: 14, fontFamily: "inherit",
+                        boxShadow: `0 8px 20px ${isDark ? "rgba(37,99,235,0.32)" : "rgba(37,99,235,0.2)"}`,
                         display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
                       }}
                     >
@@ -465,21 +443,25 @@ export default function LoginPage({ onSwitch }) {
                   }}>
                     <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#34D399" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
                   </div>
-                  <h2 style={{ margin: "0 0 8px", fontSize: 18, fontWeight: 700, color: "#F1F5F9", letterSpacing: -0.3 }}>Bağlantı Gönderildi!</h2>
-                  <p style={{ margin: "0 0 6px", fontSize: 13, color: "rgba(241,245,249,0.6)", lineHeight: 1.55 }}>
-                    <strong style={{ color: "#F1F5F9" }}>{forgotEmail}</strong> adresine şifre sıfırlama bağlantısı gönderdik.
+                  <h2 style={{ margin: "0 0 8px", fontSize: 18, fontWeight: 700, color: tokens.textPrimary, letterSpacing: -0.3 }}>Bağlantı Gönderildi!</h2>
+                  <p style={{ margin: "0 0 6px", fontSize: 13, color: tokens.textSecondary, lineHeight: 1.55 }}>
+                    <strong style={{ color: tokens.textPrimary }}>{forgotEmail}</strong> adresine şifre sıfırlama bağlantısı gönderdik.
                   </p>
-                  <p style={{ margin: "0 0 22px", fontSize: 12, color: "rgba(241,245,249,0.4)", lineHeight: 1.55 }}>
+                  <p style={{ margin: "0 0 22px", fontSize: 12, color: tokens.muted, lineHeight: 1.55 }}>
                     E-posta kutunuzu kontrol edin.
                   </p>
-                  <motion.button onClick={closeForgot}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
+                  <motion.button
+                    type="submit"
+                    disabled={loading}
+                    whileHover={{ scale: 1.01 }}
+                    whileTap={{ scale: 0.99 }}
+                    onClick={closeForgot}
                     style={{
-                      width: "100%", height: 46, borderRadius: 12, border: "none",
-                      background: `linear-gradient(135deg, ${INDIGO} 0%, ${INDIGO_LIGHT} 100%)`,
-                      color: "#fff", cursor: "pointer", fontWeight: 600, fontSize: 13.5,
-                      fontFamily: "inherit", boxShadow: "0 8px 20px rgba(99,102,241,0.32)",
+                      width: "100%", height: 46, borderRadius: 12, border: "none", marginTop: 12,
+                      background: tokens.primary,
+                      color: "#fff", cursor: "pointer", fontWeight: 600, fontSize: 14,
+                      display: "flex", justifyContent: "center", alignItems: "center", gap: 10,
+                      fontFamily: "inherit", boxShadow: `0 8px 20px ${isDark ? "rgba(37,99,235,0.32)" : "rgba(37,99,235,0.2)"}`,
                     }}
                   >Giriş Sayfasına Dön</motion.button>
                 </div>

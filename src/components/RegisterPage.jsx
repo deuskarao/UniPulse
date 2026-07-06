@@ -1,27 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../theme/ThemeProvider";
-import { Mail, Lock, Loader2, ArrowRight, ShieldAlert, User, AtSign, Sun, Moon, Sparkles } from "lucide-react";
+import { Mail, Lock, Loader2, ArrowRight, ShieldAlert, User, AtSign, Sun, Moon, Sparkles, GraduationCap } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-
-const INDIGO = "#6366F1";
-const INDIGO_LIGHT = "#818CF8";
-
-function Logo({ size = 30 }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 64 64" fill="none">
-      <defs>
-        <linearGradient id="logoGradRegister" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor={INDIGO_LIGHT}/>
-          <stop offset="100%" stopColor={INDIGO}/>
-        </linearGradient>
-      </defs>
-      <polyline points="6,34 16,34 22,20 28,48 34,26 38,38 44,30 50,34 58,34"
-        fill="none" stroke="url(#logoGradRegister)" strokeWidth="4.5"
-        strokeLinecap="round" strokeLinejoin="round"/>
-    </svg>
-  );
-}
 
 function AppleIcon({ size = 16 }) {
   return (
@@ -53,7 +34,9 @@ const socialBtnBase = {
 
 export default function RegisterPage({ onSwitch }) {
   const { register, loginWithGoogle, loginWithApple, login } = useAuth();
-  const { toggleTheme, resolvedMode } = useTheme();
+  const { toggleTheme, resolvedMode, tokens } = useTheme();
+  const isDark = resolvedMode === "dark";
+  
   const [fullName, setFullName] = useState("");
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -63,6 +46,7 @@ export default function RegisterPage({ onSwitch }) {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [basarili, setBasarili] = useState(false);
+  const [termsModal, setTermsModal] = useState(null); // 'terms' or 'kvkk'
   const canvasRef = useRef(null);
 
   // ─── Rainbow Trail Canvas Animation ───
@@ -244,8 +228,9 @@ export default function RegisterPage({ onSwitch }) {
             style={{
               width: "100%", height: 48, borderRadius: 12, border: "none",
               background: `linear-gradient(135deg, ${INDIGO} 0%, ${INDIGO_LIGHT} 100%)`,
+              background: tokens.primary,
               color: "#fff", cursor: "pointer", fontWeight: 600, fontSize: 14,
-              fontFamily: "inherit", boxShadow: "0 8px 20px rgba(99,102,241,0.35), 0 0 0 1px rgba(99,102,241,0.2) inset",
+              fontFamily: "inherit", boxShadow: `0 8px 20px ${isDark ? "rgba(37,99,235,0.32)" : "rgba(37,99,235,0.2)"}`,
               display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
             }}
           >Giriş Yap <ArrowRight size={16} /></motion.button>
@@ -257,18 +242,18 @@ export default function RegisterPage({ onSwitch }) {
   // ─── Register Form ───
   return (
     <div style={{
-      minHeight: "100vh", background: "#070B14",
+      minHeight: "100vh", background: tokens.background,
       fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
       display: "flex", alignItems: "center", justifyContent: "center",
       position: "relative", overflow: "hidden",
     }}>
       {/* Rainbow Trail Canvas */}
-      <canvas ref={canvasRef} style={{ position: "fixed", inset: 0, width: "100%", height: "100%", zIndex: 0, pointerEvents: "none" }} />
+      {isDark && <canvas ref={canvasRef} style={{ position: "fixed", inset: 0, width: "100%", height: "100%", zIndex: 0, pointerEvents: "none" }} />}
 
       {/* Background Glows */}
       <div style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 0 }}>
-        <div style={{ position: "absolute", top: "-200px", left: "-200px", width: 720, height: 720, borderRadius: "50%", background: INDIGO, filter: "blur(150px)", opacity: 0.25 }} />
-        <div style={{ position: "absolute", bottom: "-180px", right: "-180px", width: 560, height: 560, borderRadius: "50%", background: "#0EA5E9", filter: "blur(150px)", opacity: 0.18 }} />
+        <div style={{ position: "absolute", top: "-200px", left: "-200px", width: 720, height: 720, borderRadius: "50%", background: tokens.primary, filter: "blur(150px)", opacity: isDark ? 0.2 : 0.08 }} />
+        <div style={{ position: "absolute", bottom: "-180px", right: "-180px", width: 560, height: 560, borderRadius: "50%", background: tokens.success, filter: "blur(150px)", opacity: isDark ? 0.15 : 0.05 }} />
       </div>
 
       {/* Top Header */}
@@ -276,23 +261,24 @@ export default function RegisterPage({ onSwitch }) {
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <div style={{
             width: 40, height: 40, borderRadius: 12,
-            background: "rgba(99,102,241,0.1)", border: "1px solid rgba(99,102,241,0.2)",
-            display: "flex", alignItems: "center", justifyContent: "center",
+            background: isDark ? "rgba(37,99,235,0.1)" : "rgba(37,99,235,0.08)", 
+            display: "flex", alignItems: "center", justifyContent: "center", color: tokens.primary
           }}>
-            <Logo size={24} />
+            <GraduationCap size={24} />
           </div>
-          <span style={{ fontSize: 20, fontWeight: 700, letterSpacing: -0.5, color: "#F1F5F9" }}>UniPulse</span>
+          <span style={{ fontSize: 20, fontWeight: 700, letterSpacing: -0.5, color: tokens.textPrimary }}>UniPulse</span>
         </div>
         <button onClick={toggleTheme} title="Temayı değiştir" style={{
           width: 40, height: 40, borderRadius: 12,
-          background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)",
-          color: "#F1F5F9", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+          background: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)", 
+          border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.08)",
+          color: tokens.textPrimary, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
           transition: "all 0.2s ease",
         }}
-          onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.1)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.18)"; }}
-          onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.05)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"; }}
+          onMouseEnter={(e) => { e.currentTarget.style.background = isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.06)"; }}
+          onMouseLeave={(e) => { e.currentTarget.style.background = isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)"; }}
         >
-          {resolvedMode === "dark" ? <Sun size={18} /> : <Moon size={18} />}
+          {isDark ? <Sun size={18} /> : <Moon size={18} />}
         </button>
       </div>
 
@@ -307,11 +293,11 @@ export default function RegisterPage({ onSwitch }) {
         }}
       >
         <div style={{
-          background: "rgba(15, 22, 35, 0.7)",
+          background: isDark ? "rgba(15, 22, 35, 0.7)" : "rgba(255, 255, 255, 0.7)",
           backdropFilter: "blur(24px) saturate(180%)", WebkitBackdropFilter: "blur(24px) saturate(180%)",
-          borderRadius: 24, border: "1px solid rgba(255,255,255,0.08)",
+          borderRadius: 24, border: isDark ? "1px solid rgba(255,255,255,0.08)" : "1px solid rgba(0,0,0,0.06)",
           padding: "32px 32px 28px", position: "relative",
-          boxShadow: "0 25px 50px -12px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04) inset, 0 0 80px rgba(99,102,241,0.08)",
+          boxShadow: isDark ? "0 25px 50px -12px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04) inset, 0 0 80px rgba(37,99,235,0.08)" : "0 25px 50px -12px rgba(0,0,0,0.05), 0 0 80px rgba(37,99,235,0.04)",
           maxHeight: "92vh", overflowY: "auto",
         }}>
           {/* Brand / Title */}
@@ -326,39 +312,41 @@ export default function RegisterPage({ onSwitch }) {
                 WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
               }}
             >Hesap Oluşturun</motion.h1>
-            <p style={{ margin: 0, fontSize: 13, color: "rgba(241,245,249,0.5)", fontWeight: 500 }}>
+            <p style={{ margin: 0, fontSize: 13, color: tokens.textSecondary, fontWeight: 500 }}>
               UniPulse ailesine katılmak için bilgilerinizi girin
             </p>
           </div>
 
-          {/* Social Login Buttons — 3 columns */}
+          {/* Social Login Buttons — 3 columns: Demo, Google, Apple */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 }}>
-            <button onClick={loginWithGoogle} disabled={loading} title="Google ile kayıt ol" style={socialBtnBase}
-              onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.07)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.16)"; e.currentTarget.style.transform = "translateY(-1px)"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.04)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"; e.currentTarget.style.transform = "translateY(0)"; }}
+            <button onClick={() => { login?.("demo@unipulse.app", "demo123").catch(() => {}); }} disabled={loading} title="Demo hesabı ile giriş yap"
+              style={{ ...socialBtnBase, background: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)", border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.08)", color: "#60A5FA" }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = isDark ? "rgba(96,165,250,0.08)" : "rgba(96,165,250,0.1)"; e.currentTarget.style.transform = "translateY(-1px)"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)"; e.currentTarget.style.transform = "translateY(0)"; }}
+            >
+              <Sparkles size={18} />
+            </button>
+            <button onClick={loginWithGoogle} disabled={loading} title="Google ile kayıt ol" 
+              style={{ ...socialBtnBase, background: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)", border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.08)", color: tokens.textPrimary }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = isDark ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.05)"; e.currentTarget.style.transform = "translateY(-1px)"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)"; e.currentTarget.style.transform = "translateY(0)"; }}
             >
               <GoogleIcon size={18} />
             </button>
-            <button onClick={() => loginWithApple?.()} disabled={loading} title="Apple ile kayıt ol" style={socialBtnBase}
-              onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.07)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.16)"; e.currentTarget.style.transform = "translateY(-1px)"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.04)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"; e.currentTarget.style.transform = "translateY(0)"; }}
+            <button onClick={() => loginWithApple?.()} disabled={loading} title="Apple ile kayıt ol" 
+              style={{ ...socialBtnBase, background: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)", border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.08)", color: tokens.textPrimary }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = isDark ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.05)"; e.currentTarget.style.transform = "translateY(-1px)"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)"; e.currentTarget.style.transform = "translateY(0)"; }}
             >
               <AppleIcon size={18} />
-            </button>
-            <button onClick={() => { login?.("demo@unipulse.app", "demo123").catch(() => {}); }} disabled={loading} title="Demo hesabı ile giriş yap"
-              style={{ ...socialBtnBase, color: "#60A5FA" }}
-              onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(96,165,250,0.08)"; e.currentTarget.style.borderColor = "rgba(96,165,250,0.25)"; e.currentTarget.style.transform = "translateY(-1px)"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.04)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"; e.currentTarget.style.transform = "translateY(0)"; }}
-            >
-              <Sparkles size={18} />
             </button>
           </div>
 
           {/* Divider */}
           <div style={{ display: "flex", alignItems: "center", margin: "18px 0" }}>
-            <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.06)" }} />
-            <span style={{ padding: "0 14px", fontSize: 11, color: "rgba(241,245,249,0.35)", fontWeight: 600, letterSpacing: 1, textTransform: "uppercase" }}>veya</span>
-            <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.06)" }} />
+            <div style={{ flex: 1, height: 1, background: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)" }} />
+            <span style={{ padding: "0 14px", fontSize: 11, color: tokens.muted, fontWeight: 600, letterSpacing: 1, textTransform: "uppercase" }}>veya</span>
+            <div style={{ flex: 1, height: 1, background: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)" }} />
           </div>
 
           {/* Form */}
@@ -410,17 +398,22 @@ export default function RegisterPage({ onSwitch }) {
 
             {/* Agreement */}
             <div style={{ marginBottom: 16 }}>
-              <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: "rgba(241,245,249,0.55)", cursor: "pointer", userSelect: "none" }}>
+              <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: tokens.textSecondary, cursor: "pointer", userSelect: "none" }}>
                 <input type="checkbox" checked={terms} onChange={(e) => setTerms(e.target.checked)} style={{ display: "none" }} />
                 <span style={{
-                  width: 16, height: 16, border: "1.5px solid rgba(255,255,255,0.12)",
+                  width: 16, height: 16, border: isDark ? "1.5px solid rgba(255,255,255,0.12)" : "1.5px solid rgba(0,0,0,0.15)",
                   borderRadius: 5, display: "flex", justifyContent: "center", alignItems: "center",
-                  transition: "all 0.2s ease", background: "rgba(255,255,255,0.04)", flexShrink: 0,
-                  ...(terms ? { background: `linear-gradient(135deg, ${INDIGO}, ${INDIGO_LIGHT})`, borderColor: "transparent" } : {}),
+                  transition: "all 0.2s ease", background: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)", flexShrink: 0,
+                  ...(terms ? { background: tokens.primary, borderColor: "transparent" } : {}),
                 }}>
                   {terms && <svg width="9" height="9" viewBox="0 0 10 10" fill="none"><path d="M2 5L4 7L8 3" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>}
                 </span>
-                <span>Kullanım koşullarını kabul ediyorum</span>
+                <span>
+                  <button type="button" onClick={(e) => { e.preventDefault(); setTermsModal('terms'); }} style={{ background: 'none', border: 'none', color: tokens.primary, cursor: 'pointer', fontWeight: 600, fontSize: 12, padding: 0, fontFamily: 'inherit', textDecoration: 'underline' }}>Kullanım Koşulları</button>
+                  {' '}ve{' '}
+                  <button type="button" onClick={(e) => { e.preventDefault(); setTermsModal('kvkk'); }} style={{ background: 'none', border: 'none', color: tokens.primary, cursor: 'pointer', fontWeight: 600, fontSize: 12, padding: 0, fontFamily: 'inherit', textDecoration: 'underline' }}>KVKK</button>
+                  'yı kabul ediyorum
+                </span>
               </label>
             </div>
 
@@ -442,17 +435,17 @@ export default function RegisterPage({ onSwitch }) {
               )}
             </AnimatePresence>
 
-            <motion.button type="submit" disabled={loading}
-              whileHover={!loading ? { scale: 1.02, y: -1 } : {}}
-              whileTap={!loading ? { scale: 0.98 } : {}}
+            <motion.button
+              type="submit"
+              disabled={loading}
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.99 }}
               style={{
-                width: "100%", height: 46, borderRadius: 12, border: "none",
-                background: loading ? "rgba(99,102,241,0.3)" : `linear-gradient(135deg, ${INDIGO} 0%, ${INDIGO_LIGHT} 100%)`,
-                color: "#fff", cursor: loading ? "default" : "pointer",
-                fontWeight: 600, fontSize: 14, fontFamily: "inherit",
-                transition: "all 0.25s ease",
-                boxShadow: loading ? "none" : "0 8px 20px rgba(99,102,241,0.35), 0 0 0 1px rgba(99,102,241,0.2) inset",
-                display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                width: "100%", height: 44, borderRadius: 12, border: "none", marginTop: 8,
+                background: tokens.primary,
+                color: "#fff", cursor: "pointer", fontWeight: 600, fontSize: 13.5,
+                display: "flex", justifyContent: "center", alignItems: "center", gap: 10,
+                fontFamily: "inherit", boxShadow: `0 8px 20px ${isDark ? "rgba(37,99,235,0.32)" : "rgba(37,99,235,0.2)"}`,
               }}
             >
               {loading ? (
@@ -464,20 +457,112 @@ export default function RegisterPage({ onSwitch }) {
           </form>
 
           {/* Footer */}
-          <div style={{ textAlign: "center", marginTop: 20, fontSize: 13, color: "rgba(241,245,249,0.5)" }}>
+          <div style={{ textAlign: "center", marginTop: 20, fontSize: 13, color: tokens.textSecondary }}>
             Zaten hesabın var mı?{" "}
-            <button type="button" onClick={onSwitch} style={{ background: "none", border: "none", color: INDIGO_LIGHT, cursor: "pointer", fontWeight: 700, fontSize: 13, padding: 0, fontFamily: "inherit", transition: "color 0.15s" }}
-              onMouseEnter={(e) => e.target.style.color = "#A5B4FC"}
-              onMouseLeave={(e) => e.target.style.color = INDIGO_LIGHT}
+            <button type="button" onClick={onSwitch} style={{ background: "none", border: "none", color: tokens.primary, cursor: "pointer", fontWeight: 700, fontSize: 13, padding: 0, fontFamily: "inherit", transition: "color 0.15s" }}
+              onMouseEnter={(e) => e.target.style.color = tokens.primaryHover}
+              onMouseLeave={(e) => e.target.style.color = tokens.primary}
             >Giriş Yap</button>
           </div>
         </div>
 
         {/* Copyright */}
-        <p style={{ textAlign: "center", marginTop: 24, fontSize: 11, color: "rgba(241,245,249,0.25)", fontWeight: 500 }}>
+        <p style={{ textAlign: "center", marginTop: 24, fontSize: 11, color: tokens.muted, fontWeight: 500 }}>
           © 2026 UniPulse — Tüm Hakları Saklıdır
         </p>
       </motion.div>
+
+      {/* Terms / KVKK Modal */}
+      <AnimatePresence>
+        {termsModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setTermsModal(null)}
+            style={{
+              position: "fixed", inset: 0, background: "rgba(7, 11, 20, 0.75)",
+              backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)",
+              display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100,
+            }}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                width: 520, maxWidth: "92vw", maxHeight: "80vh",
+                background: isDark ? "rgba(15, 22, 35, 0.95)" : "rgba(255, 255, 255, 0.98)",
+                backdropFilter: "blur(24px) saturate(180%)", WebkitBackdropFilter: "blur(24px) saturate(180%)",
+                borderRadius: 20, border: isDark ? "1px solid rgba(255,255,255,0.08)" : "1px solid rgba(0,0,0,0.08)",
+                padding: "28px 28px 24px", position: "relative", zIndex: 1,
+                boxShadow: isDark ? "0 25px 50px -12px rgba(0,0,0,0.6), 0 0 60px rgba(37,99,235,0.06)" : "0 25px 50px -12px rgba(0,0,0,0.15), 0 0 60px rgba(37,99,235,0.05)",
+                display: "flex", flexDirection: "column",
+              }}
+            >
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+                <h2 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: tokens.textPrimary, letterSpacing: -0.3 }}>
+                  {termsModal === 'terms' ? 'Kullanım Koşulları' : 'KVKK Aydınlatma Metni'}
+                </h2>
+                <button onClick={() => setTermsModal(null)} style={{
+                  background: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)", 
+                  border: isDark ? "1px solid rgba(255,255,255,0.08)" : "1px solid rgba(0,0,0,0.08)",
+                  color: tokens.muted, borderRadius: 8, width: 30, height: 30,
+                  cursor: "pointer", fontSize: 14, display: "flex", alignItems: "center", justifyContent: "center",
+                  fontFamily: "inherit", transition: "all 0.2s",
+                }}
+                  onMouseEnter={(e) => { e.currentTarget.style.color = tokens.textPrimary; e.currentTarget.style.background = isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.06)"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.color = tokens.muted; e.currentTarget.style.background = isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)"; }}
+                >✕</button>
+              </div>
+              <div style={{ flex: 1, overflowY: "auto", fontSize: 13, color: tokens.textSecondary, lineHeight: 1.7, paddingRight: 8 }}>
+                {termsModal === 'terms' ? (
+                  <>
+                    <h3 style={{ color: tokens.textPrimary, fontSize: 15, fontWeight: 600, margin: "0 0 10px" }}>1. Genel Koşullar</h3>
+                    <p>UniPulse platformuna kayıt olarak aşağıdaki kullanım koşullarını kabul etmiş sayılırsınız. Platform, üniversite öğrencilerine akademik takip ve analiz hizmeti sunmak amacıyla geliştirilmiştir.</p>
+                    <p>Kullanıcılar, hesap bilgilerinin gizliliğinden sorumludur. Şifrenizi üçüncü kişilerle paylaşmayınız. Hesabınızda gerçekleşen tüm işlemlerden siz sorumlusunuz.</p>
+                    <h3 style={{ color: tokens.textPrimary, fontSize: 15, fontWeight: 600, margin: "16px 0 10px" }}>3. Veri Kullanımı</h3>
+                    <p>Platforma girdiğiniz akademik veriler (ders notları, GPA bilgileri vb.) yalnızca size özel analiz ve raporlama amacıyla kullanılır. Verileriniz üçüncü taraflarla paylaşılmaz.</p>
+                    <h3 style={{ color: tokens.textPrimary, fontSize: 15, fontWeight: 600, margin: "16px 0 10px" }}>4. Hizmet Sınırları</h3>
+                    <p>UniPulse, sunduğu hizmetleri önceden bildirimde bulunmaksızın değiştirme, askıya alma veya sonlandırma hakkını saklı tutar. Platform "olduğu gibi" sunulmakta olup herhangi bir garanti verilmemektedir.</p>
+                    <h3 style={{ color: tokens.textPrimary, fontSize: 15, fontWeight: 600, margin: "16px 0 10px" }}>5. Fikri Mülkiyet</h3>
+                    <p>UniPulse platformundaki tüm tasarım, logo, yazılım ve içerikler telif hakkı ile korunmaktadır. İzinsiz kopyalama, dağıtma veya ticari amaçla kullanma yasaktır.</p>
+                    <h3 style={{ color: tokens.textPrimary, fontSize: 15, fontWeight: 600, margin: "16px 0 10px" }}>6. İletişim</h3>
+                    <p>Kullanım koşullarıyla ilgili sorularınız için <strong style={{ color: tokens.textPrimary }}>destek@unipulse.app</strong> adresinden bizimle iletişime geçebilirsiniz.</p>
+                  </>
+                ) : (
+                  <>
+                    <h3 style={{ color: tokens.textPrimary, fontSize: 15, fontWeight: 600, margin: "0 0 10px" }}>Veri Sorumlusu</h3>
+                    <p>UniPulse platformu olarak kişisel verilerinizin korunmasına büyük önem veriyoruz. 6698 sayılı Kişisel Verilerin Korunması Kanunu (KVKK) kapsamında aşağıdaki bilgilendirmeyi sunarız.</p>
+                    <h3 style={{ color: tokens.textPrimary, fontSize: 15, fontWeight: 600, margin: "16px 0 10px" }}>İşlenen Kişisel Veriler</h3>
+                    <p>Kimlik bilgileri (ad, soyad, kullanıcı adı), iletişim bilgileri (e-posta adresi), eğitim bilgileri (üniversite, fakülte, bölüm, ders notları, GPA), hesap güvenlik bilgileri (şifrelenmiş parola, oturum verileri).</p>
+                    <h3 style={{ color: tokens.textPrimary, fontSize: 15, fontWeight: 600, margin: "16px 0 10px" }}>Verilerin İşlenme Amacı</h3>
+                    <p>Toplanan veriler; üyelik işlemlerinin yürütülmesi, akademik performans analizi ve raporlama, platform güvenliğinin sağlanması ve kullanıcı deneyiminin iyileştirilmesi amacıyla işlenmektedir.</p>
+                    <h3 style={{ color: tokens.textPrimary, fontSize: 15, fontWeight: 600, margin: "16px 0 10px" }}>Verilerin Aktarılması</h3>
+                    <p>Kişisel verileriniz, yasal zorunluluklar dışında üçüncü taraflarla paylaşılmaz. Verileriniz Supabase altyapısı üzerinde şifreli olarak saklanmaktadır.</p>
+                    <h3 style={{ color: tokens.textPrimary, fontSize: 15, fontWeight: 600, margin: "16px 0 10px" }}>Haklarınız</h3>
+                    <p>KVKK'nın 11. maddesi uyarınca; kişisel verilerinizin işlenip işlenmediğini öğrenme, düzeltilmesini isteme, silinmesini veya yok edilmesini isteme, üçüncü kişilere aktarılıp aktarılmadığını öğrenme haklarına sahipsiniz.</p>
+                    <h3 style={{ color: tokens.textPrimary, fontSize: 15, fontWeight: 600, margin: "16px 0 10px" }}>İletişim</h3>
+                    <p>KVKK kapsamındaki taleplerinizi <strong style={{ color: tokens.textPrimary }}>kvkk@unipulse.app</strong> adresine iletebilirsiniz.</p>
+                  </>
+                )}
+              </div>
+              <motion.button
+                onClick={() => setTermsModal(null)}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                style={{
+                  width: "100%", height: 44, borderRadius: 12, border: "none", marginTop: 20,
+                  background: tokens.primary,
+                  color: "#fff", cursor: "pointer", fontWeight: 600, fontSize: 13.5,
+                  fontFamily: "inherit", boxShadow: `0 8px 20px ${isDark ? "rgba(37,99,235,0.32)" : "rgba(37,99,235,0.2)"}`,
+                }}
+              >Anladım, Kapat</motion.button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
