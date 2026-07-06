@@ -248,7 +248,7 @@ export default function LoginPage({ onSwitch }) {
             >Hoş Geldiniz</motion.h1>
             <p style={{ margin: 0, fontSize: 13, color: tokens.textSecondary, fontWeight: 500 }}>
               Devam etmek için bilgilerinizi girin
-            </p>>
+            </p>
           </div>
 
           {/* Social Login Buttons — 3 columns: Demo, Google, Apple */}
