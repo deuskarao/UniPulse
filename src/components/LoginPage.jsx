@@ -331,7 +331,7 @@ export default function LoginPage({ onSwitch }) {
               whileTap={!loading ? { scale: 0.98 } : {}}
               style={{
                 width: "100%", height: 48, borderRadius: 12, border: "none",
-                background: loading ? "rgba(99,102,241,0.3)" : `linear-gradient(135deg, ${INDIGO} 0%, ${INDIGO_LIGHT} 100%)`,
+                background: loading ? (isDark ? "rgba(37,99,235,0.3)" : "rgba(37,99,235,0.2)") : tokens.primary,
                 color: "#fff", cursor: loading ? "default" : "pointer",
                 fontWeight: 600, fontSize: 14.5, fontFamily: "inherit",
                 transition: "all 0.25s ease",

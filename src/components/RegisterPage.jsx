@@ -181,7 +181,7 @@ export default function RegisterPage({ onSwitch }) {
       }}>
         <canvas ref={canvasRef} style={{ position: "fixed", inset: 0, width: "100%", height: "100%", zIndex: 0, pointerEvents: "none" }} />
         <div style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 0 }}>
-          <div style={{ position: "absolute", top: "-200px", left: "-200px", width: 720, height: 720, borderRadius: "50%", background: INDIGO, filter: "blur(150px)", opacity: 0.25 }} />
+          <div style={{ position: "absolute", top: "-200px", left: "-200px", width: 720, height: 720, borderRadius: "50%", background: "#2563EB", filter: "blur(150px)", opacity: 0.25 }} />
           <div style={{ position: "absolute", bottom: "-180px", right: "-180px", width: 560, height: 560, borderRadius: "50%", background: "#0EA5E9", filter: "blur(150px)", opacity: 0.18 }} />
         </div>
 
@@ -227,7 +227,6 @@ export default function RegisterPage({ onSwitch }) {
             whileTap={{ scale: 0.98 }}
             style={{
               width: "100%", height: 48, borderRadius: 12, border: "none",
-              background: `linear-gradient(135deg, ${INDIGO} 0%, ${INDIGO_LIGHT} 100%)`,
               background: tokens.primary,
               color: "#fff", cursor: "pointer", fontWeight: 600, fontSize: 14,
               fontFamily: "inherit", boxShadow: `0 8px 20px ${isDark ? "rgba(37,99,235,0.32)" : "rgba(37,99,235,0.2)"}`,
