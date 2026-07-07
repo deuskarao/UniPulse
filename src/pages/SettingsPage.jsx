@@ -5,6 +5,7 @@ import { supabase } from "../lib/supabase";
 import { Overlay, useInputStyle, useWindowSize } from "../components/shared.jsx";
 import { useHedefGano } from "../hooks/useHedefGano";
 import DepartmentSelector from "../components/DepartmentSelector";
+import TermsModal from "../components/TermsModal";
 
 function downloadFile(filename, content, mime) {
   const blob = new Blob([content], { type: mime });
@@ -26,6 +27,7 @@ export default function SettingsPage({ dersler, stats, bolum }) {
   const [isUpdatingDept, setIsUpdatingDept] = useState(false);
   const [hedefInput, setHedefInput] = useState(String(hedefGano.toFixed(2)));
   const [hedefError, setHedefError] = useState("");
+  const [termsModal, setTermsModal] = useState(null); // 'terms' or 'kvkk'
 
   useEffect(() => { setHedefInput(hedefGano.toFixed(2)); }, [hedefGano]);
 
@@ -267,10 +269,10 @@ export default function SettingsPage({ dersler, stats, bolum }) {
   const initials = (profile?.full_name || user?.email || "?")[0]?.toUpperCase() || "?";
 
   const infoItems = [
-    { icon: <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>, label: "Rol", value: profile?.role === "admin" ? "Yönetici" : "Öğrenci" },
     { icon: <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/></svg>, label: "Üniversite", value: universityName },
     { icon: <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 1.66 2.69 3 6 3s6-1.34 6-3v-5"/></svg>, label: "Fakülte", value: facultyName },
     { icon: <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>, label: "Bölüm", value: bolum?.ad || profile?.department_id ? (bolum?.ad || "Yükleniyor…") : null },
+    { icon: <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>, label: "Rol", value: profile?.role === "admin" ? "Yönetici" : "Öğrenci" },
   ];
 
   return (
@@ -517,14 +519,14 @@ export default function SettingsPage({ dersler, stats, bolum }) {
               <span style={{ fontSize: 13, fontWeight: 600, color: tokens.textPrimary }}>Sürüm</span>
               <span style={{ fontSize: 12, color: tokens.muted, fontWeight: 500 }}>v1.0.0</span>
             </div>
-            <a href="#" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", textDecoration: "none", color: tokens.textPrimary, paddingBottom: 8, borderBottom: `1px solid ${tokens.border}` }}>
+            <button type="button" onClick={() => setTermsModal('kvkk')} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: "none", border: "none", width: "100%", textAlign: "left", padding: "0 0 8px 0", borderBottom: `1px solid ${tokens.border}`, cursor: "pointer", color: tokens.textPrimary, fontFamily: "inherit" }}>
               <span style={{ fontSize: 13, fontWeight: 600 }}>KVKK & Aydınlatma Metni</span>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={tokens.muted} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-            </a>
-            <a href="#" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", textDecoration: "none", color: tokens.textPrimary, paddingBottom: 8, borderBottom: `1px solid ${tokens.border}` }}>
+            </button>
+            <button type="button" onClick={() => setTermsModal('terms')} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: "none", border: "none", width: "100%", textAlign: "left", padding: "0 0 8px 0", borderBottom: `1px solid ${tokens.border}`, cursor: "pointer", color: tokens.textPrimary, fontFamily: "inherit" }}>
               <span style={{ fontSize: 13, fontWeight: 600 }}>Kullanıcı Sözleşmesi</span>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={tokens.muted} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-            </a>
+            </button>
             <a href="mailto:contact@lifeos.com" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", textDecoration: "none", color: tokens.primary }}>
               <span style={{ fontSize: 13, fontWeight: 600 }}>İletişim (Destek)</span>
               <span style={{ fontSize: 12, color: tokens.primary, fontWeight: 500 }}>contact@lifeos.com</span>
@@ -1035,11 +1037,20 @@ export default function SettingsPage({ dersler, stats, bolum }) {
           </div>
         </Overlay>
       )}
+
+      {/* Ortak Terms / KVKK Modalı */}
+      <TermsModal
+        isOpen={!!termsModal}
+        onClose={() => setTermsModal(null)}
+        type={termsModal}
+        tokens={tokens}
+        isDark={mode === "dark"}
+      />
     </div>
   );
 }
 
-function SettingCard({ tokens, icon, title, children, defaultOpen = true }) {
+function SettingCard({ tokens, icon, title, children, defaultOpen = false }) {
   const [isOpen, setIsOpen] = useState(defaultOpen);
   return (
     <div style={{

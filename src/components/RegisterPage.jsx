@@ -3,6 +3,7 @@ import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../theme/ThemeProvider";
 import { Mail, Lock, Loader2, ArrowRight, ShieldAlert, User, AtSign, Sun, Moon, Sparkles, GraduationCap } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import TermsModal from "./TermsModal";
 
 function AppleIcon({ size = 16 }) {
   return (
@@ -471,97 +472,13 @@ export default function RegisterPage({ onSwitch }) {
         </p>
       </motion.div>
 
-      {/* Terms / KVKK Modal */}
-      <AnimatePresence>
-        {termsModal && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setTermsModal(null)}
-            style={{
-              position: "fixed", inset: 0, background: "rgba(7, 11, 20, 0.75)",
-              backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)",
-              display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100,
-            }}
-          >
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 10 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 10 }}
-              onClick={(e) => e.stopPropagation()}
-              style={{
-                width: 520, maxWidth: "92vw", maxHeight: "80vh",
-                background: isDark ? "rgba(15, 22, 35, 0.95)" : "rgba(255, 255, 255, 0.98)",
-                backdropFilter: "blur(24px) saturate(180%)", WebkitBackdropFilter: "blur(24px) saturate(180%)",
-                borderRadius: 20, border: isDark ? "1px solid rgba(255,255,255,0.08)" : "1px solid rgba(0,0,0,0.08)",
-                padding: "28px 28px 24px", position: "relative", zIndex: 1,
-                boxShadow: isDark ? "0 25px 50px -12px rgba(0,0,0,0.6), 0 0 60px rgba(37,99,235,0.06)" : "0 25px 50px -12px rgba(0,0,0,0.15), 0 0 60px rgba(37,99,235,0.05)",
-                display: "flex", flexDirection: "column",
-              }}
-            >
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-                <h2 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: tokens.textPrimary, letterSpacing: -0.3 }}>
-                  {termsModal === 'terms' ? 'Kullanım Koşulları' : 'KVKK Aydınlatma Metni'}
-                </h2>
-                <button onClick={() => setTermsModal(null)} style={{
-                  background: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)", 
-                  border: isDark ? "1px solid rgba(255,255,255,0.08)" : "1px solid rgba(0,0,0,0.08)",
-                  color: tokens.muted, borderRadius: 8, width: 30, height: 30,
-                  cursor: "pointer", fontSize: 14, display: "flex", alignItems: "center", justifyContent: "center",
-                  fontFamily: "inherit", transition: "all 0.2s",
-                }}
-                  onMouseEnter={(e) => { e.currentTarget.style.color = tokens.textPrimary; e.currentTarget.style.background = isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.06)"; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.color = tokens.muted; e.currentTarget.style.background = isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)"; }}
-                >✕</button>
-              </div>
-              <div style={{ flex: 1, overflowY: "auto", fontSize: 13, color: tokens.textSecondary, lineHeight: 1.7, paddingRight: 8 }}>
-                {termsModal === 'terms' ? (
-                  <>
-                    <h3 style={{ color: tokens.textPrimary, fontSize: 15, fontWeight: 600, margin: "0 0 10px" }}>1. Genel Koşullar</h3>
-                    <p>UniPulse platformuna kayıt olarak aşağıdaki kullanım koşullarını kabul etmiş sayılırsınız. Platform, üniversite öğrencilerine akademik takip ve analiz hizmeti sunmak amacıyla geliştirilmiştir.</p>
-                    <p>Kullanıcılar, hesap bilgilerinin gizliliğinden sorumludur. Şifrenizi üçüncü kişilerle paylaşmayınız. Hesabınızda gerçekleşen tüm işlemlerden siz sorumlusunuz.</p>
-                    <h3 style={{ color: tokens.textPrimary, fontSize: 15, fontWeight: 600, margin: "16px 0 10px" }}>3. Veri Kullanımı</h3>
-                    <p>Platforma girdiğiniz akademik veriler (ders notları, GPA bilgileri vb.) yalnızca size özel analiz ve raporlama amacıyla kullanılır. Verileriniz üçüncü taraflarla paylaşılmaz.</p>
-                    <h3 style={{ color: tokens.textPrimary, fontSize: 15, fontWeight: 600, margin: "16px 0 10px" }}>4. Hizmet Sınırları</h3>
-                    <p>UniPulse, sunduğu hizmetleri önceden bildirimde bulunmaksızın değiştirme, askıya alma veya sonlandırma hakkını saklı tutar. Platform "olduğu gibi" sunulmakta olup herhangi bir garanti verilmemektedir.</p>
-                    <h3 style={{ color: tokens.textPrimary, fontSize: 15, fontWeight: 600, margin: "16px 0 10px" }}>5. Fikri Mülkiyet</h3>
-                    <p>UniPulse platformundaki tüm tasarım, logo, yazılım ve içerikler telif hakkı ile korunmaktadır. İzinsiz kopyalama, dağıtma veya ticari amaçla kullanma yasaktır.</p>
-                    <h3 style={{ color: tokens.textPrimary, fontSize: 15, fontWeight: 600, margin: "16px 0 10px" }}>6. İletişim</h3>
-                    <p>Kullanım koşullarıyla ilgili sorularınız için <strong style={{ color: tokens.textPrimary }}>destek@unipulse.app</strong> adresinden bizimle iletişime geçebilirsiniz.</p>
-                  </>
-                ) : (
-                  <>
-                    <h3 style={{ color: tokens.textPrimary, fontSize: 15, fontWeight: 600, margin: "0 0 10px" }}>Veri Sorumlusu</h3>
-                    <p>UniPulse platformu olarak kişisel verilerinizin korunmasına büyük önem veriyoruz. 6698 sayılı Kişisel Verilerin Korunması Kanunu (KVKK) kapsamında aşağıdaki bilgilendirmeyi sunarız.</p>
-                    <h3 style={{ color: tokens.textPrimary, fontSize: 15, fontWeight: 600, margin: "16px 0 10px" }}>İşlenen Kişisel Veriler</h3>
-                    <p>Kimlik bilgileri (ad, soyad, kullanıcı adı), iletişim bilgileri (e-posta adresi), eğitim bilgileri (üniversite, fakülte, bölüm, ders notları, GPA), hesap güvenlik bilgileri (şifrelenmiş parola, oturum verileri).</p>
-                    <h3 style={{ color: tokens.textPrimary, fontSize: 15, fontWeight: 600, margin: "16px 0 10px" }}>Verilerin İşlenme Amacı</h3>
-                    <p>Toplanan veriler; üyelik işlemlerinin yürütülmesi, akademik performans analizi ve raporlama, platform güvenliğinin sağlanması ve kullanıcı deneyiminin iyileştirilmesi amacıyla işlenmektedir.</p>
-                    <h3 style={{ color: tokens.textPrimary, fontSize: 15, fontWeight: 600, margin: "16px 0 10px" }}>Verilerin Aktarılması</h3>
-                    <p>Kişisel verileriniz, yasal zorunluluklar dışında üçüncü taraflarla paylaşılmaz. Verileriniz Supabase altyapısı üzerinde şifreli olarak saklanmaktadır.</p>
-                    <h3 style={{ color: tokens.textPrimary, fontSize: 15, fontWeight: 600, margin: "16px 0 10px" }}>Haklarınız</h3>
-                    <p>KVKK'nın 11. maddesi uyarınca; kişisel verilerinizin işlenip işlenmediğini öğrenme, düzeltilmesini isteme, silinmesini veya yok edilmesini isteme, üçüncü kişilere aktarılıp aktarılmadığını öğrenme haklarına sahipsiniz.</p>
-                    <h3 style={{ color: tokens.textPrimary, fontSize: 15, fontWeight: 600, margin: "16px 0 10px" }}>İletişim</h3>
-                    <p>KVKK kapsamındaki taleplerinizi <strong style={{ color: tokens.textPrimary }}>kvkk@unipulse.app</strong> adresine iletebilirsiniz.</p>
-                  </>
-                )}
-              </div>
-              <motion.button
-                onClick={() => setTermsModal(null)}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                style={{
-                  width: "100%", height: 44, borderRadius: 12, border: "none", marginTop: 20,
-                  background: tokens.primary,
-                  color: "#fff", cursor: "pointer", fontWeight: 600, fontSize: 13.5,
-                  fontFamily: "inherit", boxShadow: `0 8px 20px ${isDark ? "rgba(37,99,235,0.32)" : "rgba(37,99,235,0.2)"}`,
-                }}
-              >Anladım, Kapat</motion.button>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <TermsModal
+        isOpen={!!termsModal}
+        onClose={() => setTermsModal(null)}
+        type={termsModal}
+        tokens={tokens}
+        isDark={isDark}
+      />
     </div>
   );
 }
