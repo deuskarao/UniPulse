@@ -51,14 +51,22 @@ const IconBtn = ({ tokens, label, onClick, children, active }) => (
 );
 
 export default function Header({ sidebarWidth, onOpenMobileSidebar, pageTitle, donemler, aktifDonem, onDonemChange }) {
-  const { tokens, mode, toggleTheme } = useTheme();
-  const { user, profile, logout } = useAuth();
+  const { tokens, mode, toggleTheme, setMode } = useTheme();
+  const { user, profile, logout, updateProfile } = useAuth();
   const [notifMenuOpen, setNotifMenuOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const w = useWindowSize();
   const mobil = w < 768;
 
   const initial = ((profile?.full_name || user?.email || "?")[0] || "?").toUpperCase();
+
+  const handleThemeToggle = async () => {
+    const newMode = mode === "dark" ? "light" : "dark";
+    toggleTheme(); // This handles local storage and CSS instantly
+    if (updateProfile) {
+      await updateProfile({ theme_preference: newMode });
+    }
+  };
 
   return (
     <header
@@ -129,7 +137,7 @@ export default function Header({ sidebarWidth, onOpenMobileSidebar, pageTitle, d
           </select>
         )}
 
-        <IconBtn tokens={tokens} label="Temayı değiştir" onClick={toggleTheme}>
+        <IconBtn tokens={tokens} label="Temayı değiştir" onClick={handleThemeToggle}>
           <ThemeIcon mode={mode} />
         </IconBtn>
 

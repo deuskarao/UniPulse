@@ -119,7 +119,7 @@ export function useDersler({ bolumProp, departmentId }) {
       console.error("Dönem güncellenirken hata:", e);
     }
   }, [profile, updateProfile]);
-  const aktifProgramDonemi = profile?.aktif_program_donemi || 1;
+  const aktifProgramDonemi = profile?.aktif_program_donemi !== undefined ? profile.aktif_program_donemi : 1;
   const [modal, setModal] = useState(null);
   const [form, setForm] = useState(() => (bosDers ? { ...bosDers } : null));
   const [silOnay, setSilOnay] = useState(null);
@@ -292,7 +292,7 @@ export function useDersler({ bolumProp, departmentId }) {
   }
 
   const filtreliDersler = useMemo(() => {
-    const programFiltreli = dersler.filter((d) => d.donem <= aktifProgramDonemi);
+    const programFiltreli = aktifProgramDonemi === 0 ? dersler : dersler.filter((d) => d.donem <= aktifProgramDonemi);
     return aktifDonem === "tumu" ? programFiltreli : programFiltreli.filter((d) => d.donem === Number(aktifDonem));
   }, [dersler, aktifDonem, aktifProgramDonemi]);
 
@@ -315,7 +315,7 @@ export function useDersler({ bolumProp, departmentId }) {
   const stats = useMemo(() => {
     const aktifDonemler = new Set(dersler.filter((d) => d.vize > 0 || d.odev > 0 || d.proje > 0 || d.final > 0 || d.harfNotu).map((d) => d.donem));
     const list = dersler
-      .filter((d) => aktifDonemler.has(d.donem) && d.donem <= aktifProgramDonemi)
+      .filter((d) => aktifDonemler.has(d.donem) && (aktifProgramDonemi === 0 || d.donem <= aktifProgramDonemi))
       .map((d) => {
         const ort = hesaplaDönemOrt(d);
         const harf = d.harfNotu ? (harfNotlari.find((h) => h.harf === d.harfNotu) || { harf: d.harfNotu, katsayi: 0 }) : hesaplaHarf(ort, harfNotlari);

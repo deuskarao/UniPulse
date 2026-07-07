@@ -380,6 +380,39 @@ export default function SettingsPage({ dersler, stats, bolum }) {
           </button>
         </SettingCard>
 
+        {/* Eğitim */}
+        <SettingCard
+          tokens={tokens}
+          icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 1.66 2.69 3 6 3s6-1.34 6-3v-5"/></svg>}
+          title="Eğitim"
+        >
+          <p style={{ fontSize: 12, color: tokens.muted, margin: "0 0 12px", lineHeight: 1.5 }}>
+            Farklı bir üniversite veya bölüme geçmek isterseniz buradan değiştirebilirsiniz.
+          </p>
+          <button
+            onClick={handleResetDepartmentClick}
+            disabled={isUpdatingDept}
+            style={{
+              padding: "9px 14px", borderRadius: 10, background: tokens.primary + "12",
+              border: `1px solid ${tokens.primary}40`, color: tokens.primary,
+              fontSize: 12.5, fontWeight: 600, cursor: isUpdatingDept ? "wait" : "pointer",
+              transition: "all 0.2s", width: "100%",
+              display: "flex", alignItems: "center", gap: 8,
+              fontFamily: "inherit",
+            }}
+            onMouseEnter={(e) => { if (!isUpdatingDept) { e.currentTarget.style.background = tokens.primary + "20"; e.currentTarget.style.borderColor = tokens.primary + "60"; } }}
+            onMouseLeave={(e) => { if (!isUpdatingDept) { e.currentTarget.style.background = tokens.primary + "12"; e.currentTarget.style.borderColor = tokens.primary + "40"; } }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M23 4v6h-6"/>
+              <path d="M1 20v-6h6"/>
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10"/>
+              <path d="M20.49 15a9 9 0 0 1-14.85 3.36L1 14"/>
+            </svg>
+            {isUpdatingDept ? "Güncelleniyor..." : "Bölümü Değiştir"}
+          </button>
+        </SettingCard>
+
         {/* Hesap Yönetimi (Silme ve Dışa Aktarma) */}
         <SettingCard
           tokens={tokens}
