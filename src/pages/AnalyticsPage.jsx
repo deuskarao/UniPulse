@@ -59,7 +59,7 @@ export default function AnalyticsPage({ dersler, harfNotlari, stats }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <Card title="GPA Geçmişi"><GpaHistoryChart data={trendData} /></Card>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 16 }}>
         <Card title="Dönem Karşılaştırması">
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             {donemStats.length === 0 && <div style={{ fontSize: 13, color: tokens.muted }}>Henüz veri yok.</div>}

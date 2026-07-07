@@ -331,91 +331,6 @@ export default function SettingsPage({ dersler, stats, bolum }) {
       {/* ── Alt Grid ── */}
       <div style={{ display: "grid", gridTemplateColumns: mobil ? "1fr" : "repeat(auto-fit, minmax(340px, 1fr))", gap: 20, alignItems: "start" }}>
 
-        {/* Bildirimler */}
-        <SettingCard
-          tokens={tokens}
-          icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>}
-          title="Bildirimler"
-        >
-          <ToggleRow
-            tokens={tokens}
-            label="E-posta Bildirimleri"
-            sub="Önemli güncellemeler"
-            checked={notifEmail}
-            onChange={setNotifEmail}
-          />
-          <ToggleRow
-            tokens={tokens}
-            label="Not Güncellemeleri"
-            sub="Not eklenince bildirim al"
-            checked={notifGrade}
-            onChange={setNotifGrade}
-          />
-        </SettingCard>
-
-        {/* Güvenlik */}
-        <SettingCard
-          tokens={tokens}
-          icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>}
-          title="Güvenlik"
-        >
-          <p style={{ fontSize: 12, color: tokens.muted, margin: "0 0 12px", lineHeight: 1.5 }}>
-            Hesabınızın şifresini değiştirmek için butona tıklayın.
-          </p>
-          <button
-            onClick={handlePasswordChangeClick}
-            style={{
-              padding: "9px 14px", borderRadius: 10, background: tokens.warning + "12",
-              border: `1px solid ${tokens.warning}40`, color: tokens.warning,
-              fontSize: 12.5, fontWeight: 600, cursor: "pointer",
-              transition: "all 0.2s", width: "100%",
-              display: "flex", alignItems: "center", gap: 8,
-              fontFamily: "inherit",
-            }}
-            onMouseEnter={(e) => { e.currentTarget.style.background = tokens.warning + "20"; e.currentTarget.style.borderColor = tokens.warning + "60"; }}
-            onMouseLeave={(e) => { e.currentTarget.style.background = tokens.warning + "12"; e.currentTarget.style.borderColor = tokens.warning + "40"; }}
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-            </svg>
-            Şifre Değiştir
-          </button>
-        </SettingCard>
-
-        {/* Eğitim */}
-        <SettingCard
-          tokens={tokens}
-          icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 1.66 2.69 3 6 3s6-1.34 6-3v-5"/></svg>}
-          title="Eğitim"
-        >
-          <p style={{ fontSize: 12, color: tokens.muted, margin: "0 0 12px", lineHeight: 1.5 }}>
-            Farklı bir üniversite veya bölüme geçmek isterseniz buradan değiştirebilirsiniz.
-          </p>
-          <button
-            onClick={handleResetDepartmentClick}
-            disabled={isUpdatingDept}
-            style={{
-              padding: "9px 14px", borderRadius: 10, background: tokens.primary + "12",
-              border: `1px solid ${tokens.primary}40`, color: tokens.primary,
-              fontSize: 12.5, fontWeight: 600, cursor: isUpdatingDept ? "wait" : "pointer",
-              transition: "all 0.2s", width: "100%",
-              display: "flex", alignItems: "center", gap: 8,
-              fontFamily: "inherit",
-            }}
-            onMouseEnter={(e) => { if (!isUpdatingDept) { e.currentTarget.style.background = tokens.primary + "20"; e.currentTarget.style.borderColor = tokens.primary + "60"; } }}
-            onMouseLeave={(e) => { if (!isUpdatingDept) { e.currentTarget.style.background = tokens.primary + "12"; e.currentTarget.style.borderColor = tokens.primary + "40"; } }}
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M23 4v6h-6"/>
-              <path d="M1 20v-6h6"/>
-              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10"/>
-              <path d="M20.49 15a9 9 0 0 1-14.85 3.36L1 14"/>
-            </svg>
-            {isUpdatingDept ? "Güncelleniyor..." : "Bölümü Değiştir"}
-          </button>
-        </SettingCard>
-
         {/* Hedef GPA */}
         <SettingCard
           tokens={tokens}
@@ -508,30 +423,89 @@ export default function SettingsPage({ dersler, stats, bolum }) {
           </div>
         </SettingCard>
 
-        {/* Hakkında */}
+        {/* Güvenlik */}
         <SettingCard
           tokens={tokens}
-          icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>}
-          title="Hakkında"
+          icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>}
+          title="Güvenlik"
         >
-          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingBottom: 8, borderBottom: `1px solid ${tokens.border}` }}>
-              <span style={{ fontSize: 13, fontWeight: 600, color: tokens.textPrimary }}>Sürüm</span>
-              <span style={{ fontSize: 12, color: tokens.muted, fontWeight: 500 }}>v1.0.0</span>
-            </div>
-            <button type="button" onClick={() => setTermsModal('kvkk')} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: "none", border: "none", width: "100%", textAlign: "left", padding: "0 0 8px 0", borderBottom: `1px solid ${tokens.border}`, cursor: "pointer", color: tokens.textPrimary, fontFamily: "inherit" }}>
-              <span style={{ fontSize: 13, fontWeight: 600 }}>KVKK & Aydınlatma Metni</span>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={tokens.muted} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-            </button>
-            <button type="button" onClick={() => setTermsModal('terms')} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: "none", border: "none", width: "100%", textAlign: "left", padding: "0 0 8px 0", borderBottom: `1px solid ${tokens.border}`, cursor: "pointer", color: tokens.textPrimary, fontFamily: "inherit" }}>
-              <span style={{ fontSize: 13, fontWeight: 600 }}>Kullanıcı Sözleşmesi</span>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={tokens.muted} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-            </button>
-            <a href="mailto:contact@lifeos.com" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", textDecoration: "none", color: tokens.primary }}>
-              <span style={{ fontSize: 13, fontWeight: 600 }}>İletişim (Destek)</span>
-              <span style={{ fontSize: 12, color: tokens.primary, fontWeight: 500 }}>contact@lifeos.com</span>
-            </a>
-          </div>
+          <p style={{ fontSize: 12, color: tokens.muted, margin: "0 0 12px", lineHeight: 1.5 }}>
+            Hesabınızın şifresini değiştirmek için butona tıklayın.
+          </p>
+          <button
+            onClick={handlePasswordChangeClick}
+            style={{
+              padding: "9px 14px", borderRadius: 10, background: tokens.warning + "12",
+              border: `1px solid ${tokens.warning}40`, color: tokens.warning,
+              fontSize: 12.5, fontWeight: 600, cursor: "pointer",
+              transition: "all 0.2s", width: "100%",
+              display: "flex", alignItems: "center", gap: 8,
+              fontFamily: "inherit",
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = tokens.warning + "20"; e.currentTarget.style.borderColor = tokens.warning + "60"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = tokens.warning + "12"; e.currentTarget.style.borderColor = tokens.warning + "40"; }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+            Şifre Değiştir
+          </button>
+        </SettingCard>
+
+        {/* Eğitim */}
+        <SettingCard
+          tokens={tokens}
+          icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 1.66 2.69 3 6 3s6-1.34 6-3v-5"/></svg>}
+          title="Eğitim"
+        >
+          <p style={{ fontSize: 12, color: tokens.muted, margin: "0 0 12px", lineHeight: 1.5 }}>
+            Farklı bir üniversite veya bölüme geçmek isterseniz buradan değiştirebilirsiniz.
+          </p>
+          <button
+            onClick={handleResetDepartmentClick}
+            disabled={isUpdatingDept}
+            style={{
+              padding: "9px 14px", borderRadius: 10, background: tokens.primary + "12",
+              border: `1px solid ${tokens.primary}40`, color: tokens.primary,
+              fontSize: 12.5, fontWeight: 600, cursor: isUpdatingDept ? "wait" : "pointer",
+              transition: "all 0.2s", width: "100%",
+              display: "flex", alignItems: "center", gap: 8,
+              fontFamily: "inherit",
+            }}
+            onMouseEnter={(e) => { if (!isUpdatingDept) { e.currentTarget.style.background = tokens.primary + "20"; e.currentTarget.style.borderColor = tokens.primary + "60"; } }}
+            onMouseLeave={(e) => { if (!isUpdatingDept) { e.currentTarget.style.background = tokens.primary + "12"; e.currentTarget.style.borderColor = tokens.primary + "40"; } }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M23 4v6h-6"/>
+              <path d="M1 20v-6h6"/>
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10"/>
+              <path d="M20.49 15a9 9 0 0 1-14.85 3.36L1 14"/>
+            </svg>
+            {isUpdatingDept ? "Güncelleniyor..." : "Bölümü Değiştir"}
+          </button>
+        </SettingCard>
+
+        {/* Bildirimler */}
+        <SettingCard
+          tokens={tokens}
+          icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>}
+          title="Bildirimler"
+        >
+          <ToggleRow
+            tokens={tokens}
+            label="E-posta Bildirimleri"
+            sub="Önemli güncellemeler"
+            checked={notifEmail}
+            onChange={setNotifEmail}
+          />
+          <ToggleRow
+            tokens={tokens}
+            label="Not Güncellemeleri"
+            sub="Not eklenince bildirim al"
+            checked={notifGrade}
+            onChange={setNotifGrade}
+          />
         </SettingCard>
 
         {/* Hesap Yönetimi (Silme ve Dışa Aktarma) */}
@@ -573,6 +547,32 @@ export default function SettingsPage({ dersler, stats, bolum }) {
               </svg>
               Hesabı Kalıcı Olarak Sil
             </button>
+          </div>
+        </SettingCard>
+
+        {/* Hakkında */}
+        <SettingCard
+          tokens={tokens}
+          icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>}
+          title="Hakkında"
+        >
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingBottom: 8, borderBottom: `1px solid ${tokens.border}` }}>
+              <span style={{ fontSize: 13, fontWeight: 600, color: tokens.textPrimary }}>Sürüm</span>
+              <span style={{ fontSize: 12, color: tokens.muted, fontWeight: 500 }}>v1.0.0</span>
+            </div>
+            <button type="button" onClick={() => setTermsModal('kvkk')} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: "none", border: "none", width: "100%", textAlign: "left", padding: "0 0 8px 0", borderBottom: `1px solid ${tokens.border}`, cursor: "pointer", color: tokens.textPrimary, fontFamily: "inherit" }}>
+              <span style={{ fontSize: 13, fontWeight: 600 }}>KVKK & Aydınlatma Metni</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={tokens.muted} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            </button>
+            <button type="button" onClick={() => setTermsModal('terms')} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: "none", border: "none", width: "100%", textAlign: "left", padding: "0 0 8px 0", borderBottom: `1px solid ${tokens.border}`, cursor: "pointer", color: tokens.textPrimary, fontFamily: "inherit" }}>
+              <span style={{ fontSize: 13, fontWeight: 600 }}>Kullanıcı Sözleşmesi</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={tokens.muted} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            </button>
+            <a href="mailto:contact@lifeos.com" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", textDecoration: "none", color: tokens.primary }}>
+              <span style={{ fontSize: 13, fontWeight: 600 }}>İletişim (Destek)</span>
+              <span style={{ fontSize: 12, color: tokens.primary, fontWeight: 500 }}>contact@lifeos.com</span>
+            </a>
           </div>
         </SettingCard>
       </div>

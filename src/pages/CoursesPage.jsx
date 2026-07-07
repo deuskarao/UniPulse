@@ -16,7 +16,7 @@ export default function CoursesPage({ bolum, profile, harfNotlari, harfRenk, sir
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
         <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Ders ara…" style={{ ...inputStyle, maxWidth: 280 }} />
-        {canEdit && !mobil && <button onClick={() => modalAc("ekle")} style={{ padding: "9px 18px", borderRadius: 10, border: "none", background: `linear-gradient(135deg, ${tokens.primary}, ${tokens.primaryHover})`, color: "#fff", cursor: "pointer", fontWeight: 600, fontSize: 13, display: "inline-flex", alignItems: "center", gap: 6, boxShadow: `0 4px 12px ${tokens.primary}30`, transition: "all 0.15s" }} onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-1px)"; e.currentTarget.style.boxShadow = `0 6px 16px ${tokens.primary}40`; }} onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = `0 4px 12px ${tokens.primary}30`; }}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Ders Ekle</button>}
+        {canEdit && <button onClick={() => modalAc("ekle")} style={{ padding: "9px 18px", borderRadius: 10, border: "none", background: `linear-gradient(135deg, ${tokens.primary}, ${tokens.primaryHover})`, color: "#fff", cursor: "pointer", fontWeight: 600, fontSize: 13, display: "inline-flex", alignItems: "center", gap: 6, boxShadow: `0 4px 12px ${tokens.primary}30`, transition: "all 0.15s", whiteSpace: "nowrap" }} onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-1px)"; e.currentTarget.style.boxShadow = `0 6px 16px ${tokens.primary}40`; }} onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = `0 4px 12px ${tokens.primary}30`; }}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Ders Ekle</button>}
       </div>
       <div style={{ background: tokens.card, border: `1px solid ${tokens.border}`, borderRadius: 16, overflow: "hidden", boxShadow: tokens.shadowSm }}>
         <div style={{ overflowX: "auto" }}>
@@ -103,14 +103,14 @@ export default function CoursesPage({ bolum, profile, harfNotlari, harfRenk, sir
       )}
       {modal && form && (
         <Overlay onClick={() => setModal(null)}>
-          <div style={{ background: tokens.card, border: `1px solid ${tokens.border}`, borderRadius: 20, padding: 28, maxWidth: 560, width: "95%", maxHeight: "92vh", overflowY: "auto" }} onClick={(e) => e.stopPropagation()}>
+          <div style={{ background: tokens.card, border: `1px solid ${tokens.border}`, borderRadius: 20, padding: mobil ? 20 : 28, maxWidth: 560, width: "95%", maxHeight: "92vh", overflowY: "auto" }} onClick={(e) => e.stopPropagation()}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
               <h2 style={{ margin: 0, color: tokens.textPrimary, fontSize: 18, fontWeight: 700 }}>{modal.tip === "ekle" ? "Yeni Ders Ekle" : "Dersi Düzenle"}</h2>
               <button onClick={() => setModal(null)} style={{ background: tokens.sidebarHover, border: `1px solid ${tokens.border}`, color: tokens.muted, borderRadius: 8, padding: "4px 10px", cursor: "pointer" }}>✕</button>
             </div>
             <div style={{ display: "grid", gap: 16 }}>
               <Field label="Ders Adı"><input value={form.ad || ""} onChange={(e) => formDegistir("ad", e.target.value)} onFocus={(e) => setTimeout(() => e.target.select(), 10)} placeholder="Ders adını girin…" style={inputStyle} /></Field>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
+              <div style={{ display: "grid", gridTemplateColumns: mobil ? "1fr" : "1fr 1fr 1fr", gap: 12 }}>
                 <Field label="Dönem">
                   <div style={{ position: "relative" }}>
                     <select value={form.donem} onChange={(e) => formDegistir("donem", Number(e.target.value))} style={{ ...inputStyle, appearance: "none", paddingRight: 28, cursor: "pointer", fontWeight: 600 }}>{Array.from({ length: bolum.toplamDonem }, (_, i) => i + 1).map((d) => <option key={d} value={d}>{d}. Dönem</option>)}</select>
@@ -122,7 +122,7 @@ export default function CoursesPage({ bolum, profile, harfNotlari, harfRenk, sir
               </div>
               <div style={{ background: tokens.primary + "0c", border: `1px solid ${tokens.primary}25`, borderRadius: 14, padding: 16 }}>
                 <div style={{ fontSize: 11, color: tokens.primary, fontWeight: 700, marginBottom: 12, textTransform: "uppercase", letterSpacing: 0.6 }}>Değerlendirme Ağırlıkları</div>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 14 }}>
+                <div style={{ display: "grid", gridTemplateColumns: mobil ? "1fr 1fr" : "1fr 1fr 1fr 1fr", gap: 14 }}>
                   {[["vizeYuzde", "Vize"], ["odevYuzde", "Ödev"], ["projeYuzde", "Proje"], ["finalYuzde", "Final"]].map(([alan, label]) => (
                     <div key={alan}>
                       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
@@ -136,7 +136,7 @@ export default function CoursesPage({ bolum, profile, harfNotlari, harfRenk, sir
               </div>
               <div style={{ background: tokens.sidebarHover, border: `1px solid ${tokens.border}`, borderRadius: 14, padding: 16 }}>
                 <div style={{ fontSize: 11, color: tokens.primary, fontWeight: 700, marginBottom: 12, textTransform: "uppercase", letterSpacing: 0.6 }}>Notlar (0–100)</div>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr 1fr", gap: 10 }}>
+                <div style={{ display: "grid", gridTemplateColumns: mobil ? "repeat(auto-fit, minmax(70px, 1fr))" : "1fr 1fr 1fr 1fr 1fr", gap: 10 }}>
                   {[["vize", "Vize"], ["odev", "Ödev"], ["proje", "Proje"], ["final", "Final"]].map(([alan, label]) => (
                     <Field key={alan} label={label}><input type="number" min="0" max="100" value={form[alan] === 0 ? "" : (form[alan] || "")} placeholder="0" onChange={(e) => formDegistir(alan, e.target.value === "" ? 0 : Math.min(100, Math.max(0, Number(e.target.value))))} onFocus={(e) => setTimeout(() => e.target.select(), 10)} style={inputStyle} /></Field>
                   ))}

@@ -90,7 +90,7 @@ export default function Header({ sidebarWidth, onOpenMobileSidebar, pageTitle, d
           onClick={onOpenMobileSidebar}
           className="up-mobile-only"
           style={{
-            display: "none",
+            display: mobil ? "flex" : "none",
             width: 36,
             height: 36,
             borderRadius: 10,
