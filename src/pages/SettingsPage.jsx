@@ -506,6 +506,32 @@ export default function SettingsPage({ dersler, stats, bolum }) {
           </div>
         </SettingCard>
 
+        {/* Hakkında */}
+        <SettingCard
+          tokens={tokens}
+          icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>}
+          title="Hakkında"
+        >
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingBottom: 8, borderBottom: `1px solid ${tokens.border}` }}>
+              <span style={{ fontSize: 13, fontWeight: 600, color: tokens.textPrimary }}>Sürüm</span>
+              <span style={{ fontSize: 12, color: tokens.muted, fontWeight: 500 }}>v1.0.0</span>
+            </div>
+            <a href="#" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", textDecoration: "none", color: tokens.textPrimary, paddingBottom: 8, borderBottom: `1px solid ${tokens.border}` }}>
+              <span style={{ fontSize: 13, fontWeight: 600 }}>KVKK & Aydınlatma Metni</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={tokens.muted} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            </a>
+            <a href="#" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", textDecoration: "none", color: tokens.textPrimary, paddingBottom: 8, borderBottom: `1px solid ${tokens.border}` }}>
+              <span style={{ fontSize: 13, fontWeight: 600 }}>Kullanıcı Sözleşmesi</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={tokens.muted} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            </a>
+            <a href="mailto:contact@lifeos.com" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", textDecoration: "none", color: tokens.primary }}>
+              <span style={{ fontSize: 13, fontWeight: 600 }}>İletişim (Destek)</span>
+              <span style={{ fontSize: 12, color: tokens.primary, fontWeight: 500 }}>contact@lifeos.com</span>
+            </a>
+          </div>
+        </SettingCard>
+
         {/* Hesap Yönetimi (Silme ve Dışa Aktarma) */}
         <SettingCard
           tokens={tokens}
