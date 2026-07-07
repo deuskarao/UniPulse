@@ -267,6 +267,7 @@ export default function SettingsPage({ dersler, stats, bolum }) {
   const initials = (profile?.full_name || user?.email || "?")[0]?.toUpperCase() || "?";
 
   const infoItems = [
+    { icon: <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>, label: "Rol", value: profile?.role === "admin" ? "Yönetici" : "Öğrenci" },
     { icon: <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/></svg>, label: "Üniversite", value: universityName },
     { icon: <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 1.66 2.69 3 6 3s6-1.34 6-3v-5"/></svg>, label: "Fakülte", value: facultyName },
     { icon: <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>, label: "Bölüm", value: bolum?.ad || profile?.department_id ? (bolum?.ad || "Yükleniyor…") : null },
@@ -326,7 +327,7 @@ export default function SettingsPage({ dersler, stats, bolum }) {
       </div>
 
       {/* ── Alt Grid ── */}
-      <div style={{ display: "grid", gridTemplateColumns: mobil ? "1fr" : "1fr 1fr 1fr 1fr", gap: 16 }}>
+      <div style={{ display: "grid", gridTemplateColumns: mobil ? "1fr" : "repeat(auto-fit, minmax(340px, 1fr))", gap: 20, alignItems: "start" }}>
 
         {/* Bildirimler */}
         <SettingCard
@@ -411,47 +412,6 @@ export default function SettingsPage({ dersler, stats, bolum }) {
             </svg>
             {isUpdatingDept ? "Güncelleniyor..." : "Bölümü Değiştir"}
           </button>
-        </SettingCard>
-
-        {/* Hesap Yönetimi (Silme ve Dışa Aktarma) */}
-        <SettingCard
-          tokens={tokens}
-          icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>}
-          title="Hesap"
-        >
-          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            <ExportButton onClick={exportJSON} tokens={tokens} color="#F59E0B" icon="{ }">
-              Verileri JSON İndir
-            </ExportButton>
-            <ExportButton onClick={exportCSV} tokens={tokens} color="#10B981" icon="⊞">
-              Verileri CSV İndir
-            </ExportButton>
-            <button
-              onClick={() => {
-                if (window.confirm("Hesabınızı silmek istediğinize emin misiniz? Bu işlem geri alınamaz ve tüm verileriniz kalıcı olarak silinir!")) {
-                  if (typeof deleteUser === "function" && user?.id) {
-                    deleteUser(user.id);
-                  } else {
-                    alert("Hesap silme özelliği henüz aktif değil.");
-                  }
-                }
-              }}
-              style={{
-                display: "flex", alignItems: "center", gap: 8,
-                padding: "9px 14px", borderRadius: 10, border: `1px solid ${tokens.danger}30`,
-                background: tokens.danger + "10", color: tokens.danger,
-                fontWeight: 600, fontSize: 12.5, cursor: "pointer",
-                fontFamily: "inherit", transition: "all 0.2s", width: "100%", marginTop: 8
-              }}
-              onMouseEnter={e => { e.currentTarget.style.background = tokens.danger + "20"; e.currentTarget.style.borderColor = tokens.danger + "50"; }}
-              onMouseLeave={e => { e.currentTarget.style.background = tokens.danger + "10"; e.currentTarget.style.borderColor = tokens.danger + "30"; }}
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-              </svg>
-              Hesabı Kalıcı Olarak Sil
-            </button>
-          </div>
         </SettingCard>
 
         {/* Hedef GPA */}
@@ -543,6 +503,48 @@ export default function SettingsPage({ dersler, stats, bolum }) {
                 Sıfırla
               </button>
             )}
+          </div>
+        </SettingCard>
+
+        {/* Hesap Yönetimi (Silme ve Dışa Aktarma) */}
+        <SettingCard
+          tokens={tokens}
+          icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>}
+          title="Hesap"
+          defaultOpen={false}
+        >
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            <ExportButton onClick={exportJSON} tokens={tokens} color="#F59E0B" icon="{ }">
+              Verileri JSON İndir
+            </ExportButton>
+            <ExportButton onClick={exportCSV} tokens={tokens} color="#10B981" icon="⊞">
+              Verileri CSV İndir
+            </ExportButton>
+            <button
+              onClick={() => {
+                if (window.confirm("Hesabınızı silmek istediğinize emin misiniz? Bu işlem geri alınamaz ve tüm verileriniz kalıcı olarak silinir!")) {
+                  if (typeof deleteUser === "function" && user?.id) {
+                    deleteUser(user.id);
+                  } else {
+                    alert("Hesap silme özelliği henüz aktif değil.");
+                  }
+                }
+              }}
+              style={{
+                display: "flex", alignItems: "center", gap: 8,
+                padding: "9px 14px", borderRadius: 10, border: `1px solid ${tokens.danger}30`,
+                background: tokens.danger + "10", color: tokens.danger,
+                fontWeight: 600, fontSize: 12.5, cursor: "pointer",
+                fontFamily: "inherit", transition: "all 0.2s", width: "100%", marginTop: 8
+              }}
+              onMouseEnter={e => { e.currentTarget.style.background = tokens.danger + "20"; e.currentTarget.style.borderColor = tokens.danger + "50"; }}
+              onMouseLeave={e => { e.currentTarget.style.background = tokens.danger + "10"; e.currentTarget.style.borderColor = tokens.danger + "30"; }}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+              </svg>
+              Hesabı Kalıcı Olarak Sil
+            </button>
           </div>
         </SettingCard>
       </div>
@@ -1011,19 +1013,38 @@ export default function SettingsPage({ dersler, stats, bolum }) {
   );
 }
 
-function SettingCard({ tokens, icon, title, children }) {
+function SettingCard({ tokens, icon, title, children, defaultOpen = true }) {
+  const [isOpen, setIsOpen] = useState(defaultOpen);
   return (
     <div style={{
       background: tokens.card, border: `1px solid ${tokens.border}`,
       borderRadius: 16, overflow: "hidden",
+      boxShadow: tokens.shadowSm,
     }}>
-      <div style={{ padding: "14px 18px", borderBottom: `1px solid ${tokens.border}`, display: "flex", alignItems: "center", gap: 8 }}>
-        <div style={{ width: 28, height: 28, borderRadius: 8, background: tokens.primary + "18", display: "flex", alignItems: "center", justifyContent: "center", color: tokens.primary }}>
+      <div 
+        onClick={() => setIsOpen(!isOpen)}
+        style={{ 
+          padding: "16px 20px", 
+          borderBottom: isOpen ? `1px solid ${tokens.border}` : "none", 
+          display: "flex", alignItems: "center", gap: 12, 
+          cursor: "pointer", transition: "background 0.2s" 
+        }}
+        onMouseEnter={(e) => e.currentTarget.style.background = tokens.primary + "05"}
+        onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
+      >
+        <div style={{ width: 32, height: 32, borderRadius: 10, background: tokens.primary + "18", display: "flex", alignItems: "center", justifyContent: "center", color: tokens.primary }}>
           {icon}
         </div>
-        <span style={{ fontSize: 13, fontWeight: 700, color: tokens.textPrimary }}>{title}</span>
+        <span style={{ fontSize: 14, fontWeight: 700, color: tokens.textPrimary, flex: 1 }}>{title}</span>
+        <svg style={{ transform: isOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s" }} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={tokens.muted} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="6 9 12 15 18 9" />
+        </svg>
       </div>
-      <div style={{ padding: "14px 18px" }}>{children}</div>
+      {isOpen && (
+        <div style={{ padding: "18px 20px" }}>
+          {children}
+        </div>
+      )}
     </div>
   );
 }
