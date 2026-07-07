@@ -324,12 +324,7 @@ export function useDersler({ bolumProp, departmentId }) {
     const ganoList = list.filter((d) => d.harf.harf !== "EK");
     const tk = ganoList.reduce((a, d) => a + d.kredi, 0);
     const gano = ganoList.reduce((a, d) => a + d.harf.katsayi * d.kredi, 0) / (tk || 1);
-    const tumDersler = dersler.map((d) => {
-      const ort = hesaplaDönemOrt(d);
-      const harf = d.harfNotu ? (harfNotlari.find((h) => h.harf === d.harfNotu) || { harf: d.harfNotu, katsayi: 0 }) : hesaplaHarf(ort, harfNotlari);
-      return { ...d, ort, harf };
-    });
-    const gecenDersler = tumDersler.filter((d) => {
+    const gecenDersler = list.filter((d) => {
       const h = d.harf.harf;
       if (h === "FF") return false;
       if ((h === "DD" || h === "DC") && gano < 2.0) return false;
@@ -341,11 +336,11 @@ export function useDersler({ bolumProp, departmentId }) {
     const seciliKredi = seciliGanoList ? seciliGanoList.reduce((a, d) => a + d.kredi, 0) : 0;
     const secilDonemGano = seciliGanoList ? seciliGanoList.reduce((a, d) => a + d.harf.katsayi * d.kredi, 0) / (seciliKredi || 1) : 0;
 
-    const riskli = tumDersler.filter((d) => d.ort > 0 && d.ort < 60 && d.final === 0).sort((a, b) => a.ort - b.ort);
-    const yaklasan = tumDersler.filter((d) => d.ort >= 50 && d.ort < 60 && d.final === 0);
-    const guclu = tumDersler.filter((d) => d.ort >= 85).sort((a, b) => b.ort - a.ort);
-    const enYuksek = [...tumDersler].filter((d) => d.ort > 0).sort((a, b) => b.ort - a.ort)[0] || null;
-    const enDusuk = [...tumDersler].filter((d) => d.ort > 0).sort((a, b) => a.ort - b.ort)[0] || null;
+    const riskli = list.filter((d) => d.ort > 0 && d.ort < 60 && d.final === 0).sort((a, b) => a.ort - b.ort);
+    const yaklasan = list.filter((d) => d.ort >= 50 && d.ort < 60 && d.final === 0);
+    const guclu = list.filter((d) => d.ort >= 85).sort((a, b) => b.ort - a.ort);
+    const enYuksek = [...list].filter((d) => d.ort > 0).sort((a, b) => b.ort - a.ort)[0] || null;
+    const enDusuk = [...list].filter((d) => d.ort > 0).sort((a, b) => a.ort - b.ort)[0] || null;
 
     return {
       gano: gano.toFixed(2),

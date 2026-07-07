@@ -117,7 +117,7 @@ export default function AppShell({ bolumProp, departmentId }) {
           aktifDonem={d.aktifDonem}
           onDonemChange={d.setAktifDonem}
         />
-        <main style={{ padding: mobil ? "16px 16px 88px" : "24px 28px 40px" }}>
+        <main style={{ padding: mobil ? "16px 16px 88px" : "24px 28px 40px", maxWidth: 1200, margin: "0 auto", width: "100%", boxSizing: "border-box" }}>
           {needsDepartment ? (
             <div style={{
               display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",

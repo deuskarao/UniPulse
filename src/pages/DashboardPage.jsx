@@ -193,20 +193,20 @@ export default function DashboardPage({ dersler, stats, harfNotlari, bolum, akti
           icon={ICONS.overall(genelGano >= hedefGano ? tokens.success : tokens.warning)}
         />
         <KpiCard
-          label="Geçilen / Alınan Dersler"
-          fraction={stats.gecen}
-          fractionTotal={stats.toplam}
-          accent={tokens.success}
-          iconColor={tokens.success}
-          icon={ICONS.courses(tokens.success)}
-        />
-        <KpiCard
-          label="Geçilen / Alınan Kredi"
+          label="Kredi (Kazanılan / Toplam)"
           fraction={stats.gecenKredi}
           fractionTotal={stats.alinanKredi}
           accent={tokens.primary}
           iconColor={tokens.textSecondary}
           icon={ICONS.credits(tokens.textSecondary)}
+        />
+        <KpiCard
+          label="Dersler (Geçilen / Toplam)"
+          fraction={stats.gecen}
+          fractionTotal={stats.toplam}
+          accent={tokens.success}
+          iconColor={tokens.success}
+          icon={ICONS.courses(tokens.success)}
         />
       </div>
 
