@@ -251,7 +251,7 @@ export default function LoginPage({ onSwitch }) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
         style={{
-          width: "100%", maxWidth: 448, margin: "0 auto", padding: "0 24px",
+          width: "100%", maxWidth: 512, margin: "40px auto 0", padding: "0 24px",
           position: "relative", zIndex: 1,
         }}
       >
@@ -275,7 +275,7 @@ export default function LoginPage({ onSwitch }) {
               }}
             >Hoş Geldiniz</motion.h1>
             <p style={{ margin: 0, fontSize: 13, color: tokens.textSecondary, fontWeight: 500 }}>
-              Devam etmek için bilgilerinizi girin
+              Kampüs hayatınızın dijital asistanı ile üretkenliğinizi zirveye taşıyın.
             </p>
           </div>
 
@@ -387,7 +387,7 @@ export default function LoginPage({ onSwitch }) {
           </form>
 
           {/* Footer */}
-          <div style={{ textAlign: "center", marginTop: 24, fontSize: 13, color: tokens.textSecondary }}>
+          <div style={{ textAlign: "center", marginTop: 20, fontSize: 13, color: tokens.textSecondary }}>
             Hesabınız yok mu?{" "}
             <button type="button" onClick={onSwitch} style={{ background: "none", border: "none", color: tokens.primary, cursor: "pointer", fontWeight: 700, fontSize: 13, padding: 0, fontFamily: "inherit", transition: "color 0.15s" }}
               onMouseEnter={(e) => e.target.style.color = tokens.primaryHover}
@@ -395,16 +395,16 @@ export default function LoginPage({ onSwitch }) {
             >Hemen Kayıt Ol</button>
           </div>
 
-          <div style={{ marginTop: 24, textAlign: "center", fontSize: 11, color: tokens.muted, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
+          <div style={{ marginTop: 12, borderTop: isDark ? "1px solid rgba(255,255,255,0.05)" : "1px solid rgba(0,0,0,0.05)", paddingTop: 12, textAlign: "center", fontSize: 11, color: tokens.muted, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
             <ShieldCheck size={14} /> Tüm verileriniz 256-bit SSL şifreleme ile korunmaktadır.
           </div>
         </div>
-
-        {/* Copyright */}
-        <p style={{ textAlign: "center", marginTop: 24, fontSize: 11, color: tokens.muted, fontWeight: 500 }}>
-          © 2026 UniPulse — Tüm Hakları Saklıdır
-        </p>
       </motion.div>
+
+      {/* Copyright Footer */}
+      <div style={{ position: "absolute", bottom: 28, left: 32, fontSize: 11, color: tokens.muted, fontWeight: 500, zIndex: 10 }} className="hidden-mobile">
+        © 2026 UniPulse — Tüm Hakları Saklıdır
+      </div>
 
       {/* Forgot Password Modal */}
       <AnimatePresence>

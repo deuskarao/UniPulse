@@ -259,8 +259,8 @@ export default function RegisterPage({ onSwitch }) {
     <div style={{
       minHeight: "100vh", background: tokens.background,
       fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
-      display: "flex", alignItems: "flex-start", justifyContent: "center",
-      position: "relative", overflow: "auto", padding: "100px 0 60px",
+      display: "flex", alignItems: "center", justifyContent: "center",
+      position: "relative", overflow: "hidden",
     }}>
       {/* Rainbow Trail Canvas */}
       {isDark && <canvas ref={canvasRef} style={{ position: "fixed", inset: 0, width: "100%", height: "100%", zIndex: 0, pointerEvents: "none" }} />}
@@ -308,7 +308,7 @@ export default function RegisterPage({ onSwitch }) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
         style={{
-          width: "100%", maxWidth: 448, margin: "0 auto", padding: "0 24px",
+          width: "100%", maxWidth: 576, margin: "40px auto 0", padding: "0 24px",
           position: "relative", zIndex: 1,
         }}
       >
@@ -332,7 +332,7 @@ export default function RegisterPage({ onSwitch }) {
               }}
             >Hesap Oluşturun</motion.h1>
             <p style={{ margin: 0, fontSize: 13, color: tokens.textSecondary, fontWeight: 500 }}>
-              UniPulse ailesine katılmak için bilgilerinizi girin
+              Kampüs deneyiminizi dijitalleştirmek için bilgilerinizi girin
             </p>
           </div>
 
@@ -363,12 +363,21 @@ export default function RegisterPage({ onSwitch }) {
 
           {/* Form */}
           <form onSubmit={handleSubmit}>
-            {/* Ad Soyad */}
-            <div style={{ marginBottom: 12 }}>
-              <label style={labelStyle}>Ad Soyad</label>
-              <div style={{ position: "relative" }}>
-                <User size={15} style={iconStyle} />
-                <input type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Adınız Soyadınız" required style={inputStyle} {...focusHandlers} />
+            {/* Ad Soyad / Kullanıcı Adı */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 12 }}>
+              <div>
+                <label style={labelStyle}>Ad Soyad</label>
+                <div style={{ position: "relative" }}>
+                  <User size={15} style={iconStyle} />
+                  <input type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Adınız Soyadınız" required style={inputStyle} {...focusHandlers} />
+                </div>
+              </div>
+              <div>
+                <label style={labelStyle}>Kullanıcı Adı</label>
+                <div style={{ position: "relative" }}>
+                  <AtSign size={15} style={iconStyle} />
+                  <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} placeholder="kullanici_adi" required style={inputStyle} {...focusHandlers} />
+                </div>
               </div>
             </div>
 
@@ -396,15 +405,6 @@ export default function RegisterPage({ onSwitch }) {
                   <Lock size={15} style={iconStyle} />
                   <input type="password" autoComplete="new-password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="••••••••" required minLength={6} style={inputStyle} {...focusHandlers} />
                 </div>
-              </div>
-            </div>
-
-            {/* Kullanıcı Adı */}
-            <div style={{ marginBottom: 14 }}>
-              <label style={labelStyle}>Kullanıcı Adı</label>
-              <div style={{ position: "relative" }}>
-                <AtSign size={15} style={iconStyle} />
-                <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} placeholder="kullanici_adi" required style={inputStyle} {...focusHandlers} />
               </div>
             </div>
 
@@ -484,16 +484,16 @@ export default function RegisterPage({ onSwitch }) {
             >Giriş Yap</button>
           </div>
 
-          <div style={{ marginTop: 24, textAlign: "center", fontSize: 11, color: tokens.muted, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
+          <div style={{ marginTop: 12, borderTop: isDark ? "1px solid rgba(255,255,255,0.05)" : "1px solid rgba(0,0,0,0.05)", paddingTop: 12, textAlign: "center", fontSize: 11, color: tokens.muted, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
             <ShieldCheck size={14} /> Tüm verileriniz 256-bit SSL şifreleme ile korunmaktadır.
           </div>
         </div>
-
-        {/* Copyright */}
-        <p style={{ textAlign: "center", marginTop: 24, fontSize: 11, color: tokens.muted, fontWeight: 500 }}>
-          © 2026 UniPulse — Tüm Hakları Saklıdır
-        </p>
       </motion.div>
+
+      {/* Copyright Footer */}
+      <div style={{ position: "absolute", bottom: 28, left: 32, fontSize: 11, color: tokens.muted, fontWeight: 500, zIndex: 10 }} className="hidden-mobile">
+        © 2026 UniPulse — Tüm Hakları Saklıdır
+      </div>
 
       <TermsModal
         isOpen={!!termsModal}
