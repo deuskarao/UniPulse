@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../theme/ThemeProvider";
-import { Mail, Lock, Loader2, ArrowRight, ShieldAlert, Sun, Moon, Sparkles, GraduationCap } from "lucide-react";
+import { Mail, Lock, Loader2, ArrowRight, ShieldAlert, Sun, Moon, Sparkles, GraduationCap, ShieldCheck } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 // Google SVG icon
@@ -42,6 +42,7 @@ export default function LoginPage({ onSwitch }) {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const [forgotOpen, setForgotOpen] = useState(false);
   const [forgotEmail, setForgotEmail] = useState("");
   const [forgotLoading, setForgotLoading] = useState(false);
@@ -114,18 +115,40 @@ export default function LoginPage({ onSwitch }) {
     };
   }, []);
 
-  async function handleSubmit(e) {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setLoading(true);
     try {
       await login(email, password);
     } catch (err) {
-      setError(err.message === "Invalid login credentials" ? "E-posta veya şifre hatalı" : err.message);
+      if (err.message.includes("Invalid login credentials")) {
+        setError("E-posta veya şifre hatalı.");
+      } else {
+        setError(err.message || "Giriş yapılırken bir hata oluştu.");
+      }
     } finally {
       setLoading(false);
     }
-  }
+  };
+
+  const handleDemoLogin = async () => {
+    setEmail("demo@unipulse.app");
+    setPassword("demo123");
+    setError("");
+    setLoading(true);
+    try {
+      await login("demo@unipulse.app", "demo123");
+    } catch (err) {
+      if (err.message?.includes("Invalid login credentials") || err.message?.includes("bulunamadı")) {
+        setError("Demo hesabı henüz oluşturulmamış veya şifresi yanlış.");
+      } else {
+        setError(err.message || "Demo girişi yapılırken bir hata oluştu.");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   async function handleForgotPassword(e) {
     e.preventDefault();
@@ -193,7 +216,12 @@ export default function LoginPage({ onSwitch }) {
 
       {/* Top Header */}
       <div style={{ position: "fixed", top: 0, left: 0, width: "100%", padding: "28px 32px", display: "flex", justifyContent: "space-between", alignItems: "center", zIndex: 10 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <motion.a 
+          href="/"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", cursor: "pointer" }}
+        >
           <div style={{
             width: 40, height: 40, borderRadius: 12,
             background: isDark ? "rgba(37,99,235,0.1)" : "rgba(37,99,235,0.08)", 
@@ -202,7 +230,7 @@ export default function LoginPage({ onSwitch }) {
             <GraduationCap size={24} />
           </div>
           <span style={{ fontSize: 20, fontWeight: 700, letterSpacing: -0.5, color: tokens.textPrimary }}>UniPulse</span>
-        </div>
+        </motion.a>
         <button onClick={toggleTheme} title="Temayı değiştir" style={{
           width: 40, height: 40, borderRadius: 12,
           background: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)", 
@@ -223,7 +251,7 @@ export default function LoginPage({ onSwitch }) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
         style={{
-          width: "100%", maxWidth: 420, margin: "0 auto", padding: "0 24px",
+          width: "100%", maxWidth: 448, margin: "0 auto", padding: "0 24px",
           position: "relative", zIndex: 1,
         }}
       >
@@ -253,33 +281,33 @@ export default function LoginPage({ onSwitch }) {
 
           {/* Social Login Buttons — 3 columns: Demo, Google, Apple */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 }}>
-            <button onClick={() => { login("demo@unipulse.app", "demo123").catch(() => {}); }} disabled={loading} title="Demo hesabı ile giriş yap"
-              style={{ ...socialBtnBase, background: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)", border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.08)", color: "#60A5FA" }}
+            <button type="button" onClick={handleDemoLogin} disabled={loading} title="Demo hesabı ile giriş yap"
+              style={{ ...socialBtnBase, height: 50, background: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)", border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.08)", color: "#60A5FA" }}
               onMouseEnter={(e) => { e.currentTarget.style.background = isDark ? "rgba(96,165,250,0.08)" : "rgba(96,165,250,0.1)"; e.currentTarget.style.transform = "translateY(-1px)"; }}
               onMouseLeave={(e) => { e.currentTarget.style.background = isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)"; e.currentTarget.style.transform = "translateY(0)"; }}
             >
-              <Sparkles size={20} />
+              <Sparkles size={24} />
             </button>
-            <button onClick={loginWithGoogle} disabled={loading} title="Google ile giriş yap" 
-              style={{ ...socialBtnBase, background: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)", border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.08)", color: tokens.textPrimary }}
+            <button type="button" onClick={loginWithGoogle} disabled={loading} title="Google ile giriş yap" 
+              style={{ ...socialBtnBase, height: 50, background: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)", border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.08)", color: tokens.textPrimary }}
               onMouseEnter={(e) => { e.currentTarget.style.background = isDark ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.05)"; e.currentTarget.style.transform = "translateY(-1px)"; }}
               onMouseLeave={(e) => { e.currentTarget.style.background = isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)"; e.currentTarget.style.transform = "translateY(0)"; }}
             >
-              <GoogleIcon size={20} />
+              <GoogleIcon size={24} />
             </button>
-            <button onClick={() => loginWithApple?.()} disabled={loading} title="Apple ile giriş yap" 
-              style={{ ...socialBtnBase, background: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)", border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.08)", color: tokens.textPrimary }}
+            <button type="button" onClick={() => setError("Apple ile Giriş özelliği çok yakında eklenecektir.")} disabled={loading} title="Apple ile giriş yap" 
+              style={{ ...socialBtnBase, height: 50, background: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)", border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.08)", color: tokens.textPrimary }}
               onMouseEnter={(e) => { e.currentTarget.style.background = isDark ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.05)"; e.currentTarget.style.transform = "translateY(-1px)"; }}
               onMouseLeave={(e) => { e.currentTarget.style.background = isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)"; e.currentTarget.style.transform = "translateY(0)"; }}
             >
-              <AppleIcon size={20} />
+              <AppleIcon size={24} />
             </button>
           </div>
 
           {/* Divider */}
-          <div style={{ display: "flex", alignItems: "center", margin: "20px 0" }}>
+          <div style={{ display: "flex", alignItems: "center", margin: "18px 0" }}>
             <div style={{ flex: 1, height: 1, background: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)" }} />
-            <span style={{ padding: "0 14px", fontSize: 11, color: tokens.muted, fontWeight: 600, letterSpacing: 1, textTransform: "uppercase" }}>veya</span>
+            <span style={{ padding: "0 14px", fontSize: 10, color: tokens.muted, fontWeight: 600, letterSpacing: 1 }}>veya</span>
             <div style={{ flex: 1, height: 1, background: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)" }} />
           </div>
 
@@ -294,16 +322,27 @@ export default function LoginPage({ onSwitch }) {
             </div>
 
             <div style={{ marginBottom: 16 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-                <label style={{ ...labelStyle, marginBottom: 0 }}>Şifre</label>
-                <button type="button" onClick={() => setForgotOpen(true)} style={{ background: "none", border: "none", fontSize: 11.5, color: tokens.primary, cursor: "pointer", fontFamily: "inherit", padding: 0, fontWeight: 600, transition: "color 0.15s" }}
+              <label style={labelStyle}>Şifre</label>
+              <div style={{ position: "relative", marginBottom: 10 }}>
+                <Lock size={16} style={iconStyle} />
+                <input type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" required minLength={6} style={inputStyle} {...focusHandlers} />
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "2px 0" }}>
+                <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}>
+                  <div style={{
+                    width: 18, height: 18, borderRadius: 5,
+                    border: rememberMe ? `1px solid ${tokens.primary}` : (isDark ? "1px solid rgba(255,255,255,0.2)" : "1px solid rgba(0,0,0,0.2)"),
+                    background: rememberMe ? tokens.primary : (isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.02)"),
+                    display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.2s"
+                  }} onClick={() => setRememberMe(!rememberMe)}>
+                    {rememberMe && <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
+                  </div>
+                  <span style={{ fontSize: 13, color: tokens.textSecondary, fontWeight: 500 }} onClick={() => setRememberMe(!rememberMe)}>Beni hatırla</span>
+                </label>
+                <button type="button" onClick={() => setForgotOpen(true)} style={{ background: "none", border: "none", fontSize: 13, color: tokens.primary, cursor: "pointer", fontFamily: "inherit", padding: 0, fontWeight: 600, transition: "color 0.15s" }}
                   onMouseEnter={(e) => e.target.style.color = tokens.primaryHover}
                   onMouseLeave={(e) => e.target.style.color = tokens.primary}
                 >Şifremi unuttum</button>
-              </div>
-              <div style={{ position: "relative" }}>
-                <Lock size={16} style={iconStyle} />
-                <input type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" required minLength={6} style={inputStyle} {...focusHandlers} />
               </div>
             </div>
 
@@ -349,11 +388,15 @@ export default function LoginPage({ onSwitch }) {
 
           {/* Footer */}
           <div style={{ textAlign: "center", marginTop: 24, fontSize: 13, color: tokens.textSecondary }}>
-            Hesabın yok mu?{" "}
+            Hesabınız yok mu?{" "}
             <button type="button" onClick={onSwitch} style={{ background: "none", border: "none", color: tokens.primary, cursor: "pointer", fontWeight: 700, fontSize: 13, padding: 0, fontFamily: "inherit", transition: "color 0.15s" }}
               onMouseEnter={(e) => e.target.style.color = tokens.primaryHover}
               onMouseLeave={(e) => e.target.style.color = tokens.primary}
-            >Kayıt Ol</button>
+            >Hemen Kayıt Ol</button>
+          </div>
+
+          <div style={{ marginTop: 24, textAlign: "center", fontSize: 11, color: tokens.muted, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
+            <ShieldCheck size={14} /> Tüm verileriniz 256-bit SSL şifreleme ile korunmaktadır.
           </div>
         </div>
 

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../theme/ThemeProvider";
-import { Mail, Lock, Loader2, ArrowRight, ShieldAlert, User, AtSign, Sun, Moon, Sparkles, GraduationCap } from "lucide-react";
+import { Mail, Lock, Loader2, ArrowRight, ShieldAlert, User, AtSign, Sun, Moon, Sparkles, GraduationCap, ShieldCheck } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import TermsModal from "./TermsModal";
 
@@ -48,6 +48,7 @@ export default function RegisterPage({ onSwitch }) {
   const [loading, setLoading] = useState(false);
   const [basarili, setBasarili] = useState(false);
   const [termsModal, setTermsModal] = useState(null); // 'terms' or 'kvkk'
+  const [agreedContracts, setAgreedContracts] = useState({ terms: false, kvkk: false });
   const canvasRef = useRef(null);
 
   // ─── Rainbow Trail Canvas Animation ───
@@ -115,16 +116,16 @@ export default function RegisterPage({ onSwitch }) {
     };
   }, []);
 
-  async function handleSubmit(e) {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
     if (password !== confirmPassword) {
-      setError("Şifreler eşleşmiyor");
+      setError("Şifreler eşleşmiyor.");
       return;
     }
     if (!terms) {
-      setError("Kullanım koşullarını kabul etmeniz gerekiyor");
+      setError("Lütfen Kullanım Koşulları ve KVKK Aydınlatma Metni'ni kabul edin.");
       return;
     }
     if (!username || !/^[a-zA-Z0-9_.-]+$/.test(username)) {
@@ -135,9 +136,7 @@ export default function RegisterPage({ onSwitch }) {
     setLoading(true);
     try {
       const data = await register(email, password, fullName, username, null);
-      if (data.session) {
-        // Otomatik giriş yapıldı
-      } else {
+      if (!data.session) {
         setBasarili(true);
       }
     } catch (err) {
@@ -145,7 +144,23 @@ export default function RegisterPage({ onSwitch }) {
     } finally {
       setLoading(false);
     }
-  }
+  };
+
+  const handleDemoLogin = async () => {
+    setError("");
+    setLoading(true);
+    try {
+      await login?.("demo@unipulse.app", "demo123");
+    } catch (err) {
+      if (err.message?.includes("Invalid login credentials") || err.message?.includes("bulunamadı")) {
+        setError("Demo hesabı henüz oluşturulmamış veya şifresi yanlış.");
+      } else {
+        setError(err.message || "Demo girişi yapılırken bir hata oluştu.");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const inputStyle = {
     width: "100%", height: 44, padding: "0 14px 0 40px", borderRadius: 12,
@@ -244,8 +259,8 @@ export default function RegisterPage({ onSwitch }) {
     <div style={{
       minHeight: "100vh", background: tokens.background,
       fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
-      display: "flex", alignItems: "center", justifyContent: "center",
-      position: "relative", overflow: "hidden",
+      display: "flex", alignItems: "flex-start", justifyContent: "center",
+      position: "relative", overflow: "auto", padding: "100px 0 60px",
     }}>
       {/* Rainbow Trail Canvas */}
       {isDark && <canvas ref={canvasRef} style={{ position: "fixed", inset: 0, width: "100%", height: "100%", zIndex: 0, pointerEvents: "none" }} />}
@@ -258,7 +273,12 @@ export default function RegisterPage({ onSwitch }) {
 
       {/* Top Header */}
       <div style={{ position: "fixed", top: 0, left: 0, width: "100%", padding: "28px 32px", display: "flex", justifyContent: "space-between", alignItems: "center", zIndex: 10 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <motion.a 
+          href="/"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", cursor: "pointer" }}
+        >
           <div style={{
             width: 40, height: 40, borderRadius: 12,
             background: isDark ? "rgba(37,99,235,0.1)" : "rgba(37,99,235,0.08)", 
@@ -267,7 +287,7 @@ export default function RegisterPage({ onSwitch }) {
             <GraduationCap size={24} />
           </div>
           <span style={{ fontSize: 20, fontWeight: 700, letterSpacing: -0.5, color: tokens.textPrimary }}>UniPulse</span>
-        </div>
+        </motion.a>
         <button onClick={toggleTheme} title="Temayı değiştir" style={{
           width: 40, height: 40, borderRadius: 12,
           background: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)", 
@@ -288,7 +308,7 @@ export default function RegisterPage({ onSwitch }) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
         style={{
-          width: "100%", maxWidth: 460, margin: "0 auto", padding: "0 24px",
+          width: "100%", maxWidth: 448, margin: "0 auto", padding: "0 24px",
           position: "relative", zIndex: 1,
         }}
       >
@@ -298,7 +318,6 @@ export default function RegisterPage({ onSwitch }) {
           borderRadius: 24, border: isDark ? "1px solid rgba(255,255,255,0.08)" : "1px solid rgba(0,0,0,0.06)",
           padding: "32px 32px 28px", position: "relative",
           boxShadow: isDark ? "0 25px 50px -12px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04) inset, 0 0 80px rgba(37,99,235,0.08)" : "0 25px 50px -12px rgba(0,0,0,0.05), 0 0 80px rgba(37,99,235,0.04)",
-          maxHeight: "92vh", overflowY: "auto",
         }}>
           {/* Brand / Title */}
           <div style={{ textAlign: "center", marginBottom: 24 }}>
@@ -317,35 +336,28 @@ export default function RegisterPage({ onSwitch }) {
             </p>
           </div>
 
-          {/* Social Login Buttons — 3 columns: Demo, Google, Apple */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 }}>
-            <button onClick={() => { login?.("demo@unipulse.app", "demo123").catch(() => {}); }} disabled={loading} title="Demo hesabı ile giriş yap"
-              style={{ ...socialBtnBase, background: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)", border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.08)", color: "#60A5FA" }}
-              onMouseEnter={(e) => { e.currentTarget.style.background = isDark ? "rgba(96,165,250,0.08)" : "rgba(96,165,250,0.1)"; e.currentTarget.style.transform = "translateY(-1px)"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)"; e.currentTarget.style.transform = "translateY(0)"; }}
-            >
-              <Sparkles size={18} />
-            </button>
-            <button onClick={loginWithGoogle} disabled={loading} title="Google ile kayıt ol" 
-              style={{ ...socialBtnBase, background: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)", border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.08)", color: tokens.textPrimary }}
+          {/* Social Login Buttons — 2 columns: Google, Apple */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+            <button type="button" onClick={loginWithGoogle} disabled={loading} title="Google ile kayıt ol" 
+              style={{ ...socialBtnBase, height: 50, background: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)", border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.08)", color: tokens.textPrimary }}
               onMouseEnter={(e) => { e.currentTarget.style.background = isDark ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.05)"; e.currentTarget.style.transform = "translateY(-1px)"; }}
               onMouseLeave={(e) => { e.currentTarget.style.background = isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)"; e.currentTarget.style.transform = "translateY(0)"; }}
             >
-              <GoogleIcon size={18} />
+              <GoogleIcon size={24} />
             </button>
-            <button onClick={() => loginWithApple?.()} disabled={loading} title="Apple ile kayıt ol" 
-              style={{ ...socialBtnBase, background: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)", border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.08)", color: tokens.textPrimary }}
+            <button type="button" onClick={() => setError("Apple ile Giriş özelliği çok yakında eklenecektir.")} disabled={loading} title="Apple ile kayıt ol" 
+              style={{ ...socialBtnBase, height: 50, background: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)", border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.08)", color: tokens.textPrimary }}
               onMouseEnter={(e) => { e.currentTarget.style.background = isDark ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.05)"; e.currentTarget.style.transform = "translateY(-1px)"; }}
               onMouseLeave={(e) => { e.currentTarget.style.background = isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)"; e.currentTarget.style.transform = "translateY(0)"; }}
             >
-              <AppleIcon size={18} />
+              <AppleIcon size={24} />
             </button>
           </div>
 
           {/* Divider */}
           <div style={{ display: "flex", alignItems: "center", margin: "18px 0" }}>
             <div style={{ flex: 1, height: 1, background: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)" }} />
-            <span style={{ padding: "0 14px", fontSize: 11, color: tokens.muted, fontWeight: 600, letterSpacing: 1, textTransform: "uppercase" }}>veya</span>
+            <span style={{ padding: "0 14px", fontSize: 10, color: tokens.muted, fontWeight: 600, letterSpacing: 1 }}>veya</span>
             <div style={{ flex: 1, height: 1, background: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)" }} />
           </div>
 
@@ -399,20 +411,27 @@ export default function RegisterPage({ onSwitch }) {
             {/* Agreement */}
             <div style={{ marginBottom: 16 }}>
               <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: tokens.textSecondary, cursor: "pointer", userSelect: "none" }}>
-                <input type="checkbox" checked={terms} onChange={(e) => setTerms(e.target.checked)} style={{ display: "none" }} />
+                <input type="checkbox" checked={terms} onChange={(e) => {
+                  if (!terms && (!agreedContracts.terms || !agreedContracts.kvkk)) {
+                    alert("Önce Kullanım Koşulları ve KVKK metinlerini okuyup onaylamanız gerekmektedir.");
+                    e.preventDefault();
+                    return;
+                  }
+                  setTerms(e.target.checked);
+                }} style={{ display: "none" }} />
                 <span style={{
-                  width: 16, height: 16, border: isDark ? "1.5px solid rgba(255,255,255,0.12)" : "1.5px solid rgba(0,0,0,0.15)",
-                  borderRadius: 5, display: "flex", justifyContent: "center", alignItems: "center",
-                  transition: "all 0.2s ease", background: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)", flexShrink: 0,
+                  width: 18, height: 18, border: isDark ? "1.5px solid rgba(255,255,255,0.2)" : "1.5px solid rgba(0,0,0,0.2)",
+                  borderRadius: 6, display: "flex", justifyContent: "center", alignItems: "center",
+                  transition: "all 0.2s ease", background: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.02)", flexShrink: 0,
                   ...(terms ? { background: tokens.primary, borderColor: "transparent" } : {}),
                 }}>
-                  {terms && <svg width="9" height="9" viewBox="0 0 10 10" fill="none"><path d="M2 5L4 7L8 3" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                  {terms && <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
                 </span>
                 <span>
                   <button type="button" onClick={(e) => { e.preventDefault(); setTermsModal('terms'); }} style={{ background: 'none', border: 'none', color: tokens.primary, cursor: 'pointer', fontWeight: 600, fontSize: 12, padding: 0, fontFamily: 'inherit', textDecoration: 'underline' }}>Kullanım Koşulları</button>
                   {' '}ve{' '}
-                  <button type="button" onClick={(e) => { e.preventDefault(); setTermsModal('kvkk'); }} style={{ background: 'none', border: 'none', color: tokens.primary, cursor: 'pointer', fontWeight: 600, fontSize: 12, padding: 0, fontFamily: 'inherit', textDecoration: 'underline' }}>KVKK</button>
-                  'yı kabul ediyorum
+                  <button type="button" onClick={(e) => { e.preventDefault(); setTermsModal('kvkk'); }} style={{ background: 'none', border: 'none', color: tokens.primary, cursor: 'pointer', fontWeight: 600, fontSize: 12, padding: 0, fontFamily: 'inherit', textDecoration: 'underline' }}>KVKK Aydınlatma Metni</button>
+                  'ni kabul ediyorum
                 </span>
               </label>
             </div>
@@ -464,6 +483,10 @@ export default function RegisterPage({ onSwitch }) {
               onMouseLeave={(e) => e.target.style.color = tokens.primary}
             >Giriş Yap</button>
           </div>
+
+          <div style={{ marginTop: 24, textAlign: "center", fontSize: 11, color: tokens.muted, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
+            <ShieldCheck size={14} /> Tüm verileriniz 256-bit SSL şifreleme ile korunmaktadır.
+          </div>
         </div>
 
         {/* Copyright */}
@@ -478,6 +501,20 @@ export default function RegisterPage({ onSwitch }) {
         type={termsModal}
         tokens={tokens}
         isDark={isDark}
+        onApprove={() => {
+          const newAgreed = { ...agreedContracts, [termsModal]: true };
+          setAgreedContracts(newAgreed);
+          if (newAgreed.terms && newAgreed.kvkk) {
+            setTerms(true);
+          }
+          setTermsModal(null);
+        }}
+        onDecline={() => {
+          const newAgreed = { ...agreedContracts, [termsModal]: false };
+          setAgreedContracts(newAgreed);
+          setTerms(false);
+          setTermsModal(null);
+        }}
       />
     </div>
   );

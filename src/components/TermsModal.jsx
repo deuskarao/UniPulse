@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 
-export default function TermsModal({ isOpen, onClose, type, tokens, isDark }) {
+export default function TermsModal({ isOpen, onClose, type, tokens, isDark, onApprove, onDecline }) {
   if (!isOpen) return null;
 
   return (
@@ -80,17 +80,31 @@ export default function TermsModal({ isOpen, onClose, type, tokens, isDark }) {
               </>
             )}
           </div>
-          <motion.button
-            onClick={onClose}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            style={{
-              width: "100%", height: 44, borderRadius: 12, border: "none", marginTop: 20,
-              background: tokens.primary,
-              color: "#fff", cursor: "pointer", fontWeight: 600, fontSize: 13.5,
-              fontFamily: "inherit", boxShadow: `0 8px 20px ${isDark ? "rgba(37,99,235,0.32)" : "rgba(37,99,235,0.2)"}`,
-            }}
-          >Anladım, Kapat</motion.button>
+          <div style={{ display: "flex", gap: 12, marginTop: 20 }}>
+            <motion.button
+              onClick={onDecline}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              style={{
+                flex: 1, height: 44, borderRadius: 12,
+                background: "transparent",
+                border: isDark ? "1px solid rgba(255,255,255,0.15)" : "1px solid rgba(0,0,0,0.15)",
+                color: tokens.textPrimary, cursor: "pointer", fontWeight: 600, fontSize: 13.5,
+                fontFamily: "inherit",
+              }}
+            >Vazgeç</motion.button>
+            <motion.button
+              onClick={onApprove}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              style={{
+                flex: 1, height: 44, borderRadius: 12, border: "none",
+                background: tokens.primary,
+                color: "#fff", cursor: "pointer", fontWeight: 600, fontSize: 13.5,
+                fontFamily: "inherit", boxShadow: `0 8px 20px ${isDark ? "rgba(37,99,235,0.32)" : "rgba(37,99,235,0.2)"}`,
+              }}
+            >Onaylıyorum</motion.button>
+          </div>
         </motion.div>
       </motion.div>
     </AnimatePresence>
