@@ -207,10 +207,10 @@ export default function LoginPage({ onSwitch }) {
       position: "relative", overflow: "hidden",
     }}>
       {/* Rainbow Trail Canvas */}
-      {isDark && <canvas ref={canvasRef} style={{ position: "fixed", inset: 0, width: "100%", height: "100%", zIndex: 0, pointerEvents: "none" }} />}
+      {isDark && <canvas className="hidden-mobile" ref={canvasRef} style={{ position: "fixed", inset: 0, width: "100%", height: "100%", zIndex: 0, pointerEvents: "none" }} />}
 
       {/* Background Glows */}
-      <div style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 0 }}>
+      <div className="hidden-mobile" style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 0 }}>
         <div style={{ position: "absolute", top: "-200px", left: "-200px", width: 720, height: 720, borderRadius: "50%", background: tokens.primary, filter: "blur(150px)", opacity: isDark ? 0.2 : 0.08 }} />
         <div style={{ position: "absolute", bottom: "-180px", right: "-180px", width: 560, height: 560, borderRadius: "50%", background: tokens.success, filter: "blur(150px)", opacity: isDark ? 0.15 : 0.05 }} />
       </div>
