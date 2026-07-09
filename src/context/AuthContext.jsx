@@ -13,7 +13,7 @@ export function useAuth() {
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const profileRequestRef = useRef(0);
   const inactivityTimerRef = useRef(null);
   const logoutRef = useRef(null);

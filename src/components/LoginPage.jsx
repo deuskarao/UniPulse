@@ -200,11 +200,11 @@ export default function LoginPage({ onSwitch }) {
   };
 
   return (
-    <div style={{
+    <div className="auth-layout" style={{
       minHeight: "100vh", background: tokens.background,
       fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
       display: "flex", flexDirection: "column",
-      position: "relative", overflowX: "hidden", overflowY: "auto",
+      position: "relative", overflowX: "hidden",
     }}>
       {/* Rainbow Trail Canvas */}
       {isDark && <canvas className="hidden-mobile" ref={canvasRef} style={{ position: "fixed", inset: 0, width: "100%", height: "100%", zIndex: 0, pointerEvents: "none" }} />}

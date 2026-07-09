@@ -150,3 +150,18 @@
   background-size: 48px 48px;
   background-position: center;
 }
+
+@media (max-width: 768px) {
+  .hidden-mobile {
+    display: none !important;
+  }
+}
+
+.auth-layout {
+  overflow-y: auto;
+}
+@media (min-width: 1024px) {
+  .auth-layout {
+    overflow-y: hidden !important;
+  }
+}
