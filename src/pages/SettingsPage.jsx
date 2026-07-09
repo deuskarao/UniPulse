@@ -523,10 +523,16 @@ export default function SettingsPage({ dersler, stats, bolum }) {
               Verileri CSV İndir
             </ExportButton>
             <button
-              onClick={() => {
+              onClick={async () => {
                 if (window.confirm("Hesabınızı silmek istediğinize emin misiniz? Bu işlem geri alınamaz ve tüm verileriniz kalıcı olarak silinir!")) {
                   if (typeof deleteUser === "function" && user?.id) {
-                    deleteUser(user.id);
+                    try {
+                      await deleteUser(user.id);
+                      alert("Hesabınız ve tüm verileriniz başarıyla silindi.");
+                      if (typeof logout === "function") await logout();
+                    } catch (err) {
+                      alert("Hesap silinirken bir hata oluştu: " + err.message);
+                    }
                   } else {
                     alert("Hesap silme özelliği henüz aktif değil.");
                   }

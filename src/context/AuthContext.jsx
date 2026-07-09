@@ -321,8 +321,18 @@ export function AuthProvider({ children }) {
   }
 
   async function deleteUser(targetUserId) {
-    const { error } = await supabase.rpc("delete_user", { target_id: targetUserId });
-    if (error) throw error;
+    try {
+      // 1. Kullanıcıya ait ilişkili verileri (notlar, loglar vb.) önyüzden temizle
+      await supabase.from("student_grades").delete().eq("user_id", targetUserId);
+      await supabase.from("activity_logs").delete().eq("user_id", targetUserId);
+
+      // 2. Kullanıcının kendisini sil (RPC fonksiyonu)
+      const { error } = await supabase.rpc("delete_user", { target_id: targetUserId });
+      if (error) throw error;
+    } catch (err) {
+      console.error("Hesap silme hatası:", err);
+      throw err;
+    }
   }
 
   async function fetchAllProfiles() {
