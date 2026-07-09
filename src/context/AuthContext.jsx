@@ -211,24 +211,19 @@ export function AuthProvider({ children }) {
   }
 
   async function loginAsDemo() {
-    const { data, error } = await supabase.functions.invoke('demo-login', {
-      method: 'POST',
+    // Edge Function yerine sabit bir demo hesabı kullanıyoruz (Seçenek 2)
+    // Şifreyi kodda tutmak demo hesapları için kabul edilebilir bir risktir.
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: 'demo@unipulse.com',
+      password: 'DemoUser123!',
     });
 
     if (error) {
       console.error("Demo giriş hatası:", error);
-      throw new Error("Demo giriş işlemi başlatılamadı.");
+      throw new Error("Demo giriş işlemi başarısız oldu. Lütfen internet bağlantınızı kontrol edin.");
     }
-
-    if (data?.error) {
-      throw new Error(data.error);
-    }
-
-    if (data?.action_link) {
-      window.location.href = data.action_link;
-    } else {
-      throw new Error("Geçerli bir giriş bağlantısı alınamadı.");
-    }
+    
+    return data;
   }
 
   async function loginWithGoogle() {
