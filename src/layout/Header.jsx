@@ -71,7 +71,7 @@ export default function Header({ sidebarWidth, onOpenMobileSidebar, pageTitle, d
   return (
     <header
       style={{
-        position: "sticky",
+        position: mobil ? "relative" : "sticky",
         top: 0,
         zIndex: 150,
         height: 64,
