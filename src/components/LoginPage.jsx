@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../theme/ThemeProvider";
-import { Mail, Lock, Loader2, ArrowRight, ShieldAlert, Sun, Moon, Sparkles, GraduationCap, ShieldCheck } from "lucide-react";
+import { Mail, Lock, Loader2, ArrowRight, ShieldAlert, Sun, Moon, Sparkles, GraduationCap, ShieldCheck, Eye, EyeOff } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 // Google SVG icon
@@ -48,6 +48,7 @@ export default function LoginPage({ onSwitch }) {
   const [forgotLoading, setForgotLoading] = useState(false);
   const [forgotSent, setForgotSent] = useState(false);
   const [forgotError, setForgotError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const canvasRef = useRef(null);
 
   // ─── Rainbow Trail Canvas Animation ───
@@ -133,8 +134,6 @@ export default function LoginPage({ onSwitch }) {
   };
 
   const handleDemoLogin = async () => {
-    setEmail("demo@unipulse.app");
-    setPassword("demo123");
     setError("");
     setLoading(true);
     try {
@@ -325,7 +324,14 @@ export default function LoginPage({ onSwitch }) {
               <label style={labelStyle}>Şifre</label>
               <div style={{ position: "relative", marginBottom: 10 }}>
                 <Lock size={16} style={iconStyle} />
-                <input type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" required minLength={6} style={inputStyle} {...focusHandlers} />
+                <input type={showPassword ? "text" : "password"} autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" required minLength={6} style={{...inputStyle, paddingRight: 40}} {...focusHandlers} />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  style={{ position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: tokens.muted, cursor: "pointer", padding: 0, display: "flex", alignItems: "center" }}
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
               </div>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "2px 0" }}>
                 <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}>
