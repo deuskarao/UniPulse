@@ -34,7 +34,7 @@ const socialBtnBase = {
 };
 
 export default function RegisterPage({ onSwitch }) {
-  const { register, loginWithGoogle, loginWithApple, login } = useAuth();
+  const { register, loginAsDemo, loginWithGoogle, loginWithApple, login } = useAuth();
   const { toggleTheme, resolvedMode, tokens } = useTheme();
   const isDark = resolvedMode === "dark";
   
