@@ -9,6 +9,15 @@ import { useWindowSize, hexToRgb, Overlay } from './components/shared.jsx';
 import AppShell from './layout/AppShell';
 import { ThemeProvider } from './theme/ThemeProvider';
 
+const LoadingScreen = ({ text = "Yükleniyor..." }) => {
+  const isDark = typeof window !== "undefined" && window.localStorage.getItem("unipulse-theme") === "light" ? false : true;
+  return (
+    <div style={{ minHeight: "100vh", background: isDark ? "#0A0F1C" : "#F8FAFC", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Inter', -apple-system, sans-serif" }}>
+      <div style={{ color: isDark ? "#94A3B8" : "#64748B", fontSize: 14, fontWeight: 500 }}>{text}</div>
+    </div>
+  );
+};
+
 function BolumSecim({ onSecim }) {
   const { user, profile, logout } = useAuth();
   const { universities, faculties, facultyDepartments } = useAppData();
@@ -76,7 +85,7 @@ function BolumSecim({ onSecim }) {
       ? "Fakülteni seç"
       : null;
 
-  if (loading) return <div style={{ minHeight:"100vh", background:"#080d1a", display:"flex", alignItems:"center", justifyContent:"center" }}><div style={{ color:"#475569", fontSize:14 }}>Yükleniyor...</div></div>;
+  if (loading) return <LoadingScreen />;
 
   return (
     <div style={{ minHeight:"100vh", background:"#080d1a", fontFamily:"'Inter', system-ui, sans-serif", display:"flex", flexDirection:"column", alignItems:"center", padding: mobil ? "60px 12px 40px" : "40px 20px", position:"relative", overflow:"hidden" }}>
@@ -229,7 +238,7 @@ export default function App() {
   const [authPage, setAuthPage] = useState("login");
   const [aktifBolum, setAktifBolum] = useState(null);
 
-  if (authLoading) return <div style={{ minHeight:"100vh", background:"#080d1a", display:"flex", alignItems:"center", justifyContent:"center" }}><div style={{ color:"#475569", fontSize:14 }}>Yükleniyor...</div></div>;
+  if (authLoading) return <LoadingScreen />;
 
   if (!user) {
     if (authPage === "login") return <ThemeWrapper><LoginPage onSwitch={() => setAuthPage("register")} /></ThemeWrapper>;
@@ -262,7 +271,7 @@ export default function App() {
 
 function AppDataGate({ children }) {
   const { appDataLoading, appDataError, harfNotlari, bosDers } = useAppData();
-  if (appDataLoading) return <div style={{ minHeight:"100vh", background:"#080d1a", display:"flex", alignItems:"center", justifyContent:"center" }}><div style={{ color:"#475569", fontSize:14 }}>Uygulama verileri yükleniyor...</div></div>;
+  if (appDataLoading) return <LoadingScreen text="Uygulama verileri yükleniyor..." />;
   if (appDataError || harfNotlari.length === 0 || !bosDers) return <div style={{ minHeight:"100vh", background:"#080d1a", display:"flex", alignItems:"center", justifyContent:"center", fontFamily:"'Inter', system-ui, sans-serif", padding:24 }}><div style={{ textAlign:"center", maxWidth:420 }}><h1 style={{ margin:"0 0 12px", color:"#f1f5f9", fontSize:22 }}>Uygulama verisi eksik</h1><p style={{ margin:0, color:"#64748b", fontSize:14, lineHeight:1.6 }}>{appDataError || "Supabase yapılandırma tabloları eksik veya boş."}</p></div></div>;
   return children;
 }
@@ -274,7 +283,7 @@ function ThemeWrapper({ children }) {
 
 function AuthenticatedApp({ profile, selectDepartment, aktifBolum, setAktifBolum }) {
   if (profile?.role === "admin") return <AdminPanel onBackToUser={() => setAktifBolum(null)} />;
-  if (!profile) return <div style={{ minHeight:"100vh", background:"#080d1a", display:"flex", alignItems:"center", justifyContent:"center" }}><div style={{ color:"#475569", fontSize:14 }}>Profil yükleniyor...</div></div>;
+  if (!profile) return <LoadingScreen text="Profil yükleniyor..." />;
   if (aktifBolum) return <Dashboard bolum={aktifBolum} />;
   if (profile.department_id) return <Dashboard departmentId={profile.department_id} />;
   return <BolumSecim onSecim={async (b, fakulte) => { try { await selectDepartment(b.id, fakulte?.id || null); setAktifBolum(b); } catch (err) { console.error("Bölüm seçilirken hata:", err); } }} />;
