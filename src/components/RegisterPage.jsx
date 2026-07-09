@@ -53,6 +53,8 @@ export default function RegisterPage({ onSwitch }) {
 
   // ─── Rainbow Trail Canvas Animation ───
   useEffect(() => {
+    if (window.innerWidth < 768) return; // Disable on mobile for performance
+
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
@@ -308,7 +310,7 @@ export default function RegisterPage({ onSwitch }) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
         style={{
-          width: "100%", maxWidth: 576, margin: "40px auto 0", padding: "0 24px",
+          width: "100%", maxWidth: 576, margin: "100px auto 40px", padding: "0 24px",
           position: "relative", zIndex: 1,
         }}
       >
