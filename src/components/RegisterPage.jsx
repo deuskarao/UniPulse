@@ -150,9 +150,7 @@ export default function RegisterPage({ onSwitch }) {
     setError("");
     setLoading(true);
     try {
-      const demoEmail = import.meta.env.VITE_DEMO_EMAIL || "";
-      const demoPassword = import.meta.env.VITE_DEMO_PASSWORD || "";
-      await login(demoEmail, demoPassword);
+      await login?.("demo@unipulse.app", "demo123");
     } catch (err) {
       if (err.message?.includes("Invalid login credentials") || err.message?.includes("bulunamadı")) {
         setError("Demo hesabı henüz oluşturulmamış veya şifresi yanlış.");
