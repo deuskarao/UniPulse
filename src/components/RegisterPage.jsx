@@ -150,10 +150,10 @@ export default function RegisterPage({ onSwitch }) {
     setError("");
     setLoading(true);
     try {
-      await login?.("demo@unipulse.app", "demo123");
+      await loginAsDemo();
     } catch (err) {
-      if (err.message?.includes("Invalid login credentials") || err.message?.includes("bulunamadı")) {
-        setError("Demo hesabı henüz oluşturulmamış veya şifresi yanlış.");
+      if (err.message?.includes("Sistemde")) {
+        setError("Demo hesabı bulunamadı.");
       } else {
         setError(err.message || "Demo girişi yapılırken bir hata oluştu.");
       }

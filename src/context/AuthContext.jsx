@@ -210,6 +210,27 @@ export function AuthProvider({ children }) {
     return data;
   }
 
+  async function loginAsDemo() {
+    const { data, error } = await supabase.functions.invoke('demo-login', {
+      method: 'POST',
+    });
+
+    if (error) {
+      console.error("Demo giriş hatası:", error);
+      throw new Error("Demo giriş işlemi başlatılamadı.");
+    }
+
+    if (data?.error) {
+      throw new Error(data.error);
+    }
+
+    if (data?.action_link) {
+      window.location.href = data.action_link;
+    } else {
+      throw new Error("Geçerli bir giriş bağlantısı alınamadı.");
+    }
+  }
+
   async function loginWithGoogle() {
     const redirectUrl = import.meta.env.PROD 
       ? 'https://unipulse.perainc.online'
@@ -268,9 +289,6 @@ export function AuthProvider({ children }) {
     const updates = { department_id: deptId };
 
     if (facultyId) {
-      // Kullanıcının seçtiği fakülte biliniyorsa, doğrudan onu kullan.
-      // Bu, aynı slug'a (örn. "eczacilik") birden fazla üniversitede
-      // rastlanan bölümlerde yanlış/rastgele eşleşmeyi önler.
       const { data: fac, error: facErr } = await supabase
         .from("faculties")
         .select("id, university_id")
@@ -281,8 +299,6 @@ export function AuthProvider({ children }) {
         updates.university_id = fac.university_id;
       }
     } else {
-      // Geriye dönük uyumluluk: fakülte belirtilmemişse slug üzerinden bul.
-      // Birden fazla eşleşme olabileceğinden .maybeSingle() yerine liste kullanılır.
       const { data: fdList, error: fdErr } = await supabase
         .from("faculty_departments")
         .select("faculty_id, faculties!inner(id, university_id)")
@@ -292,9 +308,6 @@ export function AuthProvider({ children }) {
         updates.faculty_id = fdList[0].faculty_id;
         updates.university_id = fdList[0].faculties.university_id;
       }
-      // fdList.length > 1 ise (birden fazla üniversitede aynı slug) hangi
-      // fakültenin doğru olduğu belirsizdir; faculty_id/university_id boş
-      // bırakılır ki yanlış bir üniversiteye otomatik atanmasın.
     }
 
     const { error } = await supabase.from("profiles").update(updates).eq("id", user.id);
@@ -340,7 +353,7 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, profile, loading, register, login, loginWithGoogle, logout, resetPassword, updateProfile, selectDepartment, updateUserEmail, deleteUser, fetchAllProfiles, fetchAllGrades, fetchUserCourses }}>
+    <AuthContext.Provider value={{ user, profile, loading, register, login, loginAsDemo, loginWithGoogle, logout, resetPassword, updateProfile, selectDepartment, updateUserEmail, deleteUser, fetchAllProfiles, fetchAllGrades, fetchUserCourses }}>
       {children}
     </AuthContext.Provider>
   );
