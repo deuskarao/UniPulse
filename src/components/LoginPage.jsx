@@ -283,23 +283,25 @@ export default function LoginPage({ onSwitch }) {
             <button type="button" onClick={handleDemoLogin} disabled={loading} title="Demo hesabı ile giriş yap"
               style={{ ...socialBtnBase, height: 50, background: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)", border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.08)", color: "#60A5FA" }}
               onMouseEnter={(e) => { e.currentTarget.style.background = isDark ? "rgba(96,165,250,0.08)" : "rgba(96,165,250,0.1)"; e.currentTarget.style.transform = "translateY(-1px)"; }}
+              style={socialBtnBase}
+              onMouseEnter={(e) => { e.currentTarget.style.background = isDark ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.05)"; e.currentTarget.style.transform = "translateY(-1px)"; }}
               onMouseLeave={(e) => { e.currentTarget.style.background = isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)"; e.currentTarget.style.transform = "translateY(0)"; }}
             >
-              <Sparkles size={24} />
+              <Sparkles size={64} />
             </button>
             <button type="button" onClick={loginWithGoogle} disabled={loading} title="Google ile giriş yap" 
-              style={{ ...socialBtnBase, height: 50, background: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)", border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.08)", color: tokens.textPrimary }}
+              style={socialBtnBase}
               onMouseEnter={(e) => { e.currentTarget.style.background = isDark ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.05)"; e.currentTarget.style.transform = "translateY(-1px)"; }}
               onMouseLeave={(e) => { e.currentTarget.style.background = isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)"; e.currentTarget.style.transform = "translateY(0)"; }}
             >
-              <GoogleIcon size={24} />
+              <GoogleIcon size={64} />
             </button>
             <button type="button" onClick={() => setError("Apple ile Giriş özelliği çok yakında eklenecektir.")} disabled={loading} title="Apple ile giriş yap" 
-              style={{ ...socialBtnBase, height: 50, background: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)", border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.08)", color: tokens.textPrimary }}
+              style={socialBtnBase}
               onMouseEnter={(e) => { e.currentTarget.style.background = isDark ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.05)"; e.currentTarget.style.transform = "translateY(-1px)"; }}
               onMouseLeave={(e) => { e.currentTarget.style.background = isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)"; e.currentTarget.style.transform = "translateY(0)"; }}
             >
-              <AppleIcon size={24} />
+              <AppleIcon size={64} />
             </button>
           </div>
 
