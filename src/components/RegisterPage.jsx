@@ -277,8 +277,8 @@ export default function RegisterPage({ onSwitch }) {
       <div style={{ 
         position: "fixed", top: 0, left: 0, width: "100%", padding: "20px 24px", 
         display: "flex", justifyContent: "space-between", alignItems: "center", zIndex: 50,
-        background: isDark ? "rgba(10, 15, 28, 0.85)" : "rgba(248, 250, 252, 0.85)", 
-        backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)",
+        background: isDark ? "rgba(10, 15, 28, 0.15)" : "rgba(255, 255, 255, 0.25)", 
+        backdropFilter: "blur(24px) saturate(180%)", WebkitBackdropFilter: "blur(24px) saturate(180%)",
         borderBottom: isDark ? "1px solid rgba(255,255,255,0.05)" : "1px solid rgba(0,0,0,0.05)"
       }}>
         <motion.a 
