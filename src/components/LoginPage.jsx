@@ -203,8 +203,8 @@ export default function LoginPage({ onSwitch }) {
     <div style={{
       minHeight: "100vh", background: tokens.background,
       fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
-      display: "flex", alignItems: "center", justifyContent: "center",
-      position: "relative", overflow: "hidden",
+      display: "flex", flexDirection: "column",
+      position: "relative", overflowX: "hidden", overflowY: "auto",
     }}>
       {/* Rainbow Trail Canvas */}
       {isDark && <canvas className="hidden-mobile" ref={canvasRef} style={{ position: "fixed", inset: 0, width: "100%", height: "100%", zIndex: 0, pointerEvents: "none" }} />}
@@ -217,11 +217,8 @@ export default function LoginPage({ onSwitch }) {
 
       {/* Top Header */}
       <div style={{ 
-        position: "fixed", top: 0, left: 0, width: "100%", padding: "20px 24px", 
-        display: "flex", justifyContent: "space-between", alignItems: "center", zIndex: 50,
-        background: isDark ? "rgba(10, 15, 28, 0.15)" : "rgba(255, 255, 255, 0.25)", 
-        backdropFilter: "blur(24px) saturate(180%)", WebkitBackdropFilter: "blur(24px) saturate(180%)",
-        borderBottom: isDark ? "1px solid rgba(255,255,255,0.05)" : "1px solid rgba(0,0,0,0.05)"
+        position: "absolute", top: 0, left: 0, width: "100%", padding: "24px 32px", 
+        display: "flex", justifyContent: "space-between", alignItems: "center", zIndex: 10,
       }}>
         <motion.a 
           href="/"
@@ -258,7 +255,7 @@ export default function LoginPage({ onSwitch }) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
         style={{
-          width: "100%", maxWidth: 512, margin: "100px auto 40px", padding: "0 24px",
+          width: "100%", maxWidth: 512, margin: "auto", padding: "120px 24px 60px",
           position: "relative", zIndex: 1,
         }}
       >
