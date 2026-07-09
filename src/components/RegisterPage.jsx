@@ -495,6 +495,11 @@ export default function RegisterPage({ onSwitch }) {
         </div>
       </motion.div>
 
+      {/* Mobile-only Footer */}
+      <div className="mobile-only" style={{ textAlign: "center", paddingBottom: 24, fontSize: 10, color: tokens.muted, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.5px" }}>
+        © 2026 UniPulse — Tüm Hakları Saklıdır
+      </div>
+
       {/* Copyright Footer */}
       <div style={{ position: "absolute", bottom: 28, left: 32, fontSize: 11, color: tokens.muted, fontWeight: 500, zIndex: 10 }} className="hidden-mobile">
         © 2026 UniPulse — Tüm Hakları Saklıdır

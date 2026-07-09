@@ -157,6 +157,12 @@
   }
 }
 
+@media (min-width: 769px) {
+  .mobile-only {
+    display: none !important;
+  }
+}
+
 .auth-layout {
   overflow-y: auto;
 }
