@@ -184,8 +184,6 @@ export default function Header({ sidebarWidth, pageTitle, donemler, aktifDonem, 
                   {profile?.username && <div style={{ fontSize: 11, color: tokens.primary, marginTop: 3, fontWeight: 600 }}>@{profile.username}</div>}
                   <div style={{ fontSize: 11, color: tokens.muted, marginTop: 3 }}>{user?.email}</div>
                 </div>
-                <a href="#" style={{ display: "block", padding: "10px 16px", color: tokens.textPrimary, textDecoration: "none", fontSize: 14 }}>{t("Hesabım")}</a>
-                <a href="#" style={{ display: "block", padding: "10px 16px", color: tokens.textPrimary, textDecoration: "none", fontSize: 14 }}>{t("Ayarlar")}</a>
                 <div style={{ height: 1, background: tokens.border, margin: "4px 0" }} />
                 <button
                   onClick={logout}
