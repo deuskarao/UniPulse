@@ -12,8 +12,6 @@ Siteyi test etmek için:
 2. **Kayıt Ol** — email ve şifre ile yeni bir hesap oluştur
 3. Fakülte ve bölüm seçimi yap
 4. Derslere not gir, GANO hesapla
-5. Admin olarak giriş yapmak için: `admin@test.com` / `admin123`
-
 ## Proje Yapısı
 
 ```
