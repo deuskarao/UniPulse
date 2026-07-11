@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useTheme } from "../theme/ThemeProvider";
 import { supabase } from "../lib/supabase";
 import { motion, AnimatePresence } from "framer-motion";
+import { useI18n } from "../context/I18nContext";
 
 /**
  * Üniversite logosu — SVG tabanlı baş harf rozeti.
@@ -84,6 +85,7 @@ function UniversityLogo({ university, size = 36 }) {
 }
 
 export default function DepartmentSelector({ onSelect, initialValue = null, tokens }) {
+  const { t } = useI18n();
   const [universities, setUniversities] = useState([]);
   const [faculties, setFaculties] = useState([]);
   const [departments, setDepartments] = useState([]);
@@ -217,7 +219,7 @@ export default function DepartmentSelector({ onSelect, initialValue = null, toke
   if (loading) {
     return (
       <div className="rounded-xl p-6" style={{ background: tokens.card, border: `1px solid ${tokens.border}` }}>
-        <div className="text-center py-8" style={{ color: tokens.muted }}>Yükleniyor...</div>
+        <div className="text-center py-8" style={{ color: tokens.muted }}>{t("Yükleniyor...")}</div>
       </div>
     );
   }

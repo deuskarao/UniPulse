@@ -2,7 +2,7 @@
   "name": "unipulse",
   "private": true,
   "version": "1.0.0",
-  "homepage": "https://deuskarao.github.io/UniPulse/",
+  "homepage": "https://unipulse.perainc.online",
   "type": "module",
   "scripts": {
     "dev": "vite",

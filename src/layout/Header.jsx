@@ -70,15 +70,18 @@ export default function Header({ sidebarWidth, pageTitle, donemler, aktifDonem, 
   };
 
   return (
+    <div style={{
+      position: "sticky",
+      top: 0,
+      zIndex: 150,
+      paddingTop: mobil ? 0 : 20,
+      marginLeft: mobil ? 0 : sidebarWidth + 20,
+      marginRight: mobil ? 0 : 20,
+      background: tokens.background, // Match app background to hide scrolling text above header
+    }}>
       <header
         style={{
-          position: mobil ? "relative" : "sticky",
-          top: 20,
-          marginTop: mobil ? 0 : 20,
-          zIndex: 150,
           height: 72,
-          marginLeft: mobil ? 0 : sidebarWidth + 20,
-          marginRight: mobil ? 0 : 20,
           borderRadius: mobil ? 0 : 24,
           display: "flex",
           alignItems: "center",
@@ -87,8 +90,9 @@ export default function Header({ sidebarWidth, pageTitle, donemler, aktifDonem, 
           background: mode === "dark" ? "rgba(15, 22, 35, 0.7)" : "rgba(255, 255, 255, 0.7)",
           backdropFilter: "blur(24px)",
           WebkitBackdropFilter: "blur(24px)",
-          borderBottom: `1px solid ${tokens.border}`,
-          transition: "margin-left 300ms cubic-bezier(0.4, 0, 0.2, 1)",
+          border: `1px solid ${tokens.border}`,
+          boxShadow: "0 4px 6px -1px rgba(0,0,0,0.05)",
+          transition: "all 300ms cubic-bezier(0.4, 0, 0.2, 1)",
         }}
         className="up-header"
       >
@@ -208,5 +212,6 @@ export default function Header({ sidebarWidth, pageTitle, donemler, aktifDonem, 
         </div>
       </div>
     </header>
+    </div>
   );
 }

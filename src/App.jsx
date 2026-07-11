@@ -7,6 +7,7 @@ import { AppDataProvider, useAppData } from './context/AppDataContext.jsx';
 import { useWindowSize, hexToRgb, Overlay } from './components/shared.jsx';
 import AppShell from './layout/AppShell';
 import { ThemeProvider } from './theme/ThemeProvider';
+import { useI18n } from './context/I18nContext';
 
 const LoadingScreen = ({ text = "Yükleniyor..." }) => {
   const isDark = typeof window !== "undefined" && window.localStorage.getItem("unipulse-theme") === "light" ? false : true;
@@ -84,7 +85,8 @@ function BolumSecim({ onSecim }) {
       ? "Fakülteni seç"
       : null;
 
-  if (loading) return <LoadingScreen />;
+  const { t } = useI18n();
+  if (loading) return <LoadingScreen text={t("Bölümler yükleniyor...")} />;
 
   return (
     <div style={{ minHeight:"100vh", background:"#080d1a", fontFamily:"'Inter', system-ui, sans-serif", display:"flex", flexDirection:"column", alignItems:"center", padding: mobil ? "60px 12px 40px" : "40px 20px", position:"relative", overflow:"hidden" }}>
@@ -237,7 +239,8 @@ export default function App() {
   const [authPage, setAuthPage] = useState("login");
   const [aktifBolum, setAktifBolum] = useState(null);
 
-  if (authLoading) return <LoadingScreen />;
+  const { t } = useI18n();
+  if (authLoading) return <LoadingScreen text={t("Yükleniyor...")} />;
 
   if (!user) {
     return <ThemeWrapper><AuthPage initialMode={authPage} /></ThemeWrapper>;
@@ -269,7 +272,8 @@ export default function App() {
 
 function AppDataGate({ children }) {
   const { appDataLoading, appDataError, harfNotlari, bosDers } = useAppData();
-  if (appDataLoading) return <LoadingScreen text="Uygulama verileri yükleniyor..." />;
+  const { t } = useI18n();
+  if (appDataLoading) return <LoadingScreen text={t("Uygulama verileri yükleniyor...")} />;
   if (appDataError || harfNotlari.length === 0 || !bosDers) return <div style={{ minHeight:"100vh", background:"#080d1a", display:"flex", alignItems:"center", justifyContent:"center", fontFamily:"'Inter', system-ui, sans-serif", padding:24 }}><div style={{ textAlign:"center", maxWidth:420 }}><h1 style={{ margin:"0 0 12px", color:"#f1f5f9", fontSize:22 }}>Uygulama verisi eksik</h1><p style={{ margin:0, color:"#64748b", fontSize:14, lineHeight:1.6 }}>{appDataError || "Supabase yapılandırma tabloları eksik veya boş."}</p></div></div>;
   return children;
 }
@@ -280,8 +284,9 @@ function ThemeWrapper({ children }) {
 }
 
 function AuthenticatedApp({ profile, selectDepartment, aktifBolum, setAktifBolum }) {
+  const { t } = useI18n();
   if (profile?.role === "admin") return <AdminPanel onBackToUser={() => setAktifBolum(null)} />;
-  if (!profile) return <LoadingScreen text="Profil yükleniyor..." />;
+  if (!profile) return <LoadingScreen text={t("Profil yükleniyor...")} />;
   if (aktifBolum) return <Dashboard bolum={aktifBolum} />;
   if (profile.department_id) return <Dashboard departmentId={profile.department_id} />;
   return <BolumSecim onSecim={async (b, fakulte) => { try { await selectDepartment(b.id, fakulte?.id || null); setAktifBolum(b); } catch (err) { console.error("Bölüm seçilirken hata:", err); } }} />;

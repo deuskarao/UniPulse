@@ -2,13 +2,13 @@
 
 Üniversite not takip sistemi. Öğrenciler bölümlerine göre derslerini görüntüleyebilir, notlarını girebilir ve GANO hesaplayabilir. Admin paneli üzerinden tüm kullanıcılar yönetilebilir.
 
-**Canlı Demo:** [https://deuskarao.github.io/UniPulse/](https://deuskarao.github.io/UniPulse/)
+**Canlı Demo:** [https://unipulse.perainc.online](https://unipulse.perainc.online)
 
 ## Deneme
 
 Siteyi test etmek için:
 
-1. [https://deuskarao.github.io/UniPulse/](https://deuskarao.github.io/UniPulse/) adresine git
+1. [https://unipulse.perainc.online](https://unipulse.perainc.online) adresine git
 2. **Kayıt Ol** — email ve şifre ile yeni bir hesap oluştur
 3. Fakülte ve bölüm seçimi yap
 4. Derslere not gir, GANO hesapla

@@ -2,8 +2,10 @@ import { useState, useEffect } from "react";
 import { useTheme } from "../theme/ThemeProvider";
 import { useWindowSize, Overlay } from "../components/shared.jsx";
 import { supabase } from "../lib/supabase";
+import { useI18n } from "../context/I18nContext";
 
 export default function DepartmentPage() {
+  const { t } = useI18n();
   const { tokens } = useTheme();
   const w = useWindowSize();
   const mobil = w < 768;
@@ -57,7 +59,7 @@ export default function DepartmentPage() {
         <div style={{ padding: "14px 14px", borderBottom: `1px solid ${tokens.border}` }}>
           <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Bölüm ara…" style={{ width: "100%", padding: "9px 12px", borderRadius: 10, background: tokens.surface, border: `1px solid ${tokens.border}`, color: tokens.textPrimary, fontSize: 13, outline: "none", boxSizing: "border-box" }} />
         </div>
-        {loading ? <div style={{ padding: 40, textAlign: "center", color: tokens.muted }}>Yükleniyor…</div> : filtreliBolumler.length === 0 ? <div style={{ padding: 40, textAlign: "center", color: tokens.muted }}>Bölüm bulunamadı</div> : (
+        {loading ? <div style={{ padding: 40, textAlign: "center", color: tokens.muted }}>{t("Yükleniyor…")}</div> : filtreliBolumler.length === 0 ? <div style={{ padding: 40, textAlign: "center", color: tokens.muted }}>{t("Bölüm bulunamadı")}</div> : (
           <div style={{ padding: "12px" }}>
             {filtreliBolumler.map((b) => (
               <div key={b.id} onClick={() => setSecili(b)} style={{ background: secili?.id === b.id ? tokens.primary + "15" : "transparent", border: `1px solid ${secili?.id === b.id ? tokens.primary : tokens.border}`, borderRadius: 12, padding: "14px 16px", marginBottom: 10, cursor: "pointer", transition: "all 150ms ease" }}>
