@@ -98,6 +98,16 @@ export default function AuthPage({ initialMode = 'login' }) {
 
   const canvasRef = useRef(null)
 
+  useEffect(() => {
+    const handlePageShow = (e) => {
+      if (e.persisted) {
+        setLoading(false);
+      }
+    };
+    window.addEventListener('pageshow', handlePageShow);
+    return () => window.removeEventListener('pageshow', handlePageShow);
+  }, []);
+
   // Rainbow Trail Animasyonu
   useEffect(() => {
     if (window.innerWidth < 768) return; 
@@ -569,6 +579,18 @@ export default function AuthPage({ initialMode = 'login' }) {
                 >
                   <ShieldCheck className="h-4 w-4 shrink-0 mt-0.5" />
                   <p className="leading-tight">{error}</p>
+                </motion.div>
+              )}
+
+              {info && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex items-start gap-2 text-xs rounded-lg p-3"
+                  style={{ background: `${tokens.primary}15`, color: tokens.primary, border: `1px solid ${tokens.primary}30` }}
+                >
+                  <Sparkles className="h-4 w-4 shrink-0 mt-0.5" />
+                  <p className="leading-tight">{info}</p>
                 </motion.div>
               )}
 
