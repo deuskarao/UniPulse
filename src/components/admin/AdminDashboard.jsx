@@ -71,7 +71,7 @@ export default function AdminDashboard({ users, onUserSelect }) {
 
       const [totalUsers, activeUsers, newUsers, admins, blockedUsers, totalApps] = await Promise.all([
         supabase.from("profiles").select("id", { count: "exact", head: true }),
-        supabase.from("profiles").select("id", { count: "exact", head: true }).eq("is_allowed", true),
+        supabase.from("profiles").select("id", { count: "exact", head: true }).eq("is_online", true),
         supabase.from("profiles").select("id", { count: "exact", head: true }).gte("created_at", sevenDaysAgo.toISOString()),
         supabase.from("profiles").select("id", { count: "exact", head: true }).eq("role", "admin"),
         supabase.from("profiles").select("id", { count: "exact", head: true }).eq("is_allowed", false),

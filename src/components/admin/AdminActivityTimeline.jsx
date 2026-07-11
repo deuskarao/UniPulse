@@ -38,9 +38,13 @@ export default function AdminActivityTimeline({ userId, isFullPage }) {
 
   const fetchActivities = useCallback(async () => {
     setLoading(true);
+    const threeDaysAgo = new Date();
+    threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+
     let query = supabase
       .from("activity_logs")
       .select("*, profiles!activity_logs_user_id_fkey(full_name, email)")
+      .gte("created_at", threeDaysAgo.toISOString())
       .order("created_at", { ascending: false })
       .limit(isFullPage ? 50 : 10);
 

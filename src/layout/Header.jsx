@@ -51,7 +51,7 @@ const IconBtn = ({ tokens, label, onClick, children, active }) => (
   </button>
 );
 
-export default function Header({ sidebarWidth, pageTitle, donemler, aktifDonem, onDonemChange, onToggleCollapsed, collapsed }) {
+export default function Header({ sidebarWidth, pageTitle, donemler, aktifDonem, onDonemChange, onToggleCollapsed, collapsed, centerContent }) {
   const { tokens, mode, toggleTheme, setMode } = useTheme();
   const { user, profile, logout, updateProfile } = useAuth();
   const { language, setLanguage, t } = useI18n();
@@ -99,6 +99,12 @@ export default function Header({ sidebarWidth, pageTitle, donemler, aktifDonem, 
       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
         <span style={{ fontSize: 15, fontWeight: 700, color: tokens.textPrimary, letterSpacing: -0.2 }}>{t(pageTitle)}</span>
       </div>
+
+      {centerContent && (
+        <div style={{ flex: 1, display: "flex", justifyContent: "center", padding: "0 20px" }}>
+          {centerContent}
+        </div>
+      )}
 
       <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
         {mobil && donemler && (

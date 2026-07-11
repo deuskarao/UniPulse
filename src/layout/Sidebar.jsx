@@ -93,14 +93,15 @@ export default function Sidebar({
   aktifDonem,
   onDonemChange,
   isAdmin,
+  customNavItems,
 }) {
   const { tokens, mode } = useTheme();
   const { t } = useI18n();
 
-  const navItems = isAdmin ? [...NAV_ITEMS, ADMIN_ITEM, DEPARTMENT_ITEM] : NAV_ITEMS;
+  const navItems = customNavItems ? customNavItems : (isAdmin ? [...NAV_ITEMS, ADMIN_ITEM, DEPARTMENT_ITEM] : NAV_ITEMS);
   // Admin & departments go into a separate "Yönetim" group
-  const primaryNav = NAV_ITEMS;
-  const adminNav = isAdmin ? [ADMIN_ITEM, DEPARTMENT_ITEM] : [];
+  const primaryNav = customNavItems ? customNavItems : NAV_ITEMS;
+  const adminNav = customNavItems ? [] : (isAdmin ? [ADMIN_ITEM, DEPARTMENT_ITEM] : []);
 
   return (
     <>

@@ -41,6 +41,7 @@ export function AuthProvider({ children }) {
           details: {},
           ip_address: null,
         });
+        await supabase.from("profiles").update({ is_online: false }).eq("id", session.user.id);
       }
     } catch {}
     await supabase.auth.signOut();
@@ -137,10 +138,17 @@ export function AuthProvider({ children }) {
       });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
+      async (_event, session) => {
         if (!active) return;
         setUser(session?.user ?? null);
-        if (session?.user) fetchProfile(session.user.id);
+        if (session?.user) {
+          fetchProfile(session.user.id);
+          if (_event === 'SIGNED_IN') {
+            try {
+              await supabase.from("profiles").update({ is_online: true }).eq("id", session.user.id);
+            } catch {}
+          }
+        }
         else clearAuthState();
       }
     );
@@ -212,6 +220,7 @@ export function AuthProvider({ children }) {
           details: { email: data.user.email },
           ip_address: null,
         });
+        await supabase.from("profiles").update({ is_online: true }).eq("id", data.user.id);
       } catch {}
     }
     return data;
@@ -228,6 +237,12 @@ export function AuthProvider({ children }) {
     if (error) {
       console.error("Demo giriş hatası:", error);
       throw new Error("Demo giriş işlemi başarısız oldu. Lütfen internet bağlantınızı kontrol edin.");
+    }
+    
+    if (data.user) {
+      try {
+        await supabase.from("profiles").update({ is_online: true }).eq("id", data.user.id);
+      } catch {}
     }
     
     return data;
