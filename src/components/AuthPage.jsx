@@ -88,6 +88,8 @@ export default function AuthPage({ initialMode = 'login' }) {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [info, setInfo] = useState('')
+  const [rememberMe, setRememberMe] = useState(true)
   const [termsAccepted, setTermsAccepted] = useState(false)
   const [termsModal, setTermsModal] = useState(null)
   const [agreedContracts, setAgreedContracts] = useState({ terms: false, kvkk: false })
@@ -245,7 +247,7 @@ export default function AuthPage({ initialMode = 'login' }) {
   }
 
   function handleAppleLogin() {
-    alert(t('Apple ile Giriş özelliği çok yakında eklenecektir.'));
+    setInfo(t('Apple ile Giriş özelliği çok yakında eklenecektir.'));
   }
 
   if (basarili) {
@@ -498,14 +500,16 @@ export default function AuthPage({ initialMode = 'login' }) {
                           <Checkbox
                             id="rememberMe"
                             className="border-primary"
+                            checked={rememberMe}
+                            onCheckedChange={setRememberMe}
                           />
-                          <Label htmlFor="rememberMe" className="text-[11.5px] font-semibold tracking-wide opacity-80 cursor-pointer">
+                          <Label htmlFor="rememberMe" onClick={() => setRememberMe(!rememberMe)} className="text-[11.5px] font-semibold tracking-wide opacity-80 cursor-pointer">
                             {t('Beni Hatırla')}
                           </Label>
                         </div>
                         <button 
                           type="button" 
-                          onClick={() => { setMode('forgot-password'); setError(''); }} 
+                          onClick={() => { setMode('forgot-password'); setError(''); setInfo(''); }} 
                           className="text-[13px] font-semibold text-blue-500 hover:text-blue-600 hover:underline focus-visible:outline-none rounded"
                         >
                           {t('Şifremi Unuttum')}
@@ -585,6 +589,7 @@ export default function AuthPage({ initialMode = 'login' }) {
                     onClick={() => {
                       setMode(mode === 'login' ? 'register' : 'login')
                       setError('')
+                      setInfo('')
                     }}
                     className="text-blue-500 hover:underline focus:outline-none font-bold tracking-wide"
                   >
