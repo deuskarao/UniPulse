@@ -451,14 +451,14 @@ export default function AuthPage({ initialMode = 'login' }) {
 
               <div className="space-y-1 text-left">
                 <Label htmlFor="email" className="text-[12px] font-bold tracking-wide opacity-90">
-                  {t('E-posta Adresiniz')}
+                  {mode === 'login' ? t('E-posta veya Kullanıcı Adı') : t('E-posta Adresiniz')}
                 </Label>
                 <div className="relative">
-                  <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 opacity-50" />
+                  {mode === 'login' ? <User className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 opacity-50" /> : <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 opacity-50" />}
                   <Input
                     id="email"
                     type={mode === 'register' ? 'email' : 'text'}
-                    placeholder={t('E-posta Adresiniz')}
+                    placeholder={mode === 'login' ? t('E-posta veya Kullanıcı Adı') : t('E-posta Adresiniz')}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="pl-10 h-12 text-[14px] transition-colors rounded-xl border"
