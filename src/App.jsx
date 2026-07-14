@@ -21,6 +21,7 @@ const LoadingScreen = ({ text = "Yükleniyor..." }) => {
 function BolumSecim({ onSecim }) {
   const { user, profile, logout } = useAuth();
   const { universities, faculties, facultyDepartments } = useAppData();
+  const { t } = useI18n();
   const [hoverId, setHoverId] = useState(null);
   const [bolumler, setBolumler] = useState([]);
   const [seciliUni, setSeciliUni] = useState(null);
@@ -84,8 +85,6 @@ function BolumSecim({ onSecim }) {
     : seciliUni
       ? t("app.select_faculty")
       : null;
-
-  const { t } = useI18n();
   if (loading) return <LoadingScreen text={t("Bölümler yükleniyor...")} />;
 
   return (
