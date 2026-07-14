@@ -77,12 +77,12 @@ function BolumSecim({ onSecim }) {
     ? seciliFakulte.ad
     : seciliUni
       ? seciliUni.ad
-      : "Üniversiteni Seç";
+      : t("app.select_university");
 
   const stepSubtitle = seciliFakulte
-    ? "Bölümünü seç"
+    ? t("app.select_department")
     : seciliUni
-      ? "Fakülteni seç"
+      ? t("app.select_faculty")
       : null;
 
   const { t } = useI18n();
@@ -126,7 +126,7 @@ function BolumSecim({ onSecim }) {
                   {done ? "✓" : i + 1}
                 </div>
                 <span style={{ fontSize:11, color: active ? "#818cf8" : done ? "#6366f1" : "#334155", fontWeight:600 }}>
-                  {s === "uni" ? "Üniversite" : s === "fac" ? "Fakülte" : "Bölüm"}
+                  {s === "uni" ? t("app.university") : s === "fac" ? t("app.faculty") : t("app.department")}
                 </span>
                 {i < 2 && <span style={{ color:"#1e293b", fontSize:14 }}>›</span>}
               </div>
@@ -136,7 +136,7 @@ function BolumSecim({ onSecim }) {
 
         {(seciliUni || seciliFakulte) ? (
           <div style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:12 }}>
-            <button onClick={goBack} style={{ background:"rgba(99,102,241,0.12)", border:"1px solid rgba(99,102,241,0.25)", color:"#818cf8", padding:"6px 14px", borderRadius:10, cursor:"pointer", fontSize:12, fontWeight:600, display:"flex", alignItems:"center", gap:6, transition:"all 0.15s" }} onMouseEnter={e => { e.currentTarget.style.background = "rgba(99,102,241,0.22)"; }} onMouseLeave={e => { e.currentTarget.style.background = "rgba(99,102,241,0.12)"; }}>← Geri</button>
+            <button onClick={goBack} style={{ background:"rgba(99,102,241,0.12)", border:"1px solid rgba(99,102,241,0.25)", color:"#818cf8", padding:"6px 14px", borderRadius:10, cursor:"pointer", fontSize:12, fontWeight:600, display:"flex", alignItems:"center", gap:6, transition:"all 0.15s" }} onMouseEnter={e => { e.currentTarget.style.background = "rgba(99,102,241,0.22)"; }} onMouseLeave={e => { e.currentTarget.style.background = "rgba(99,102,241,0.12)"; }}>{t("app.back")}</button>
             <div style={{ textAlign:"left" }}>
               <div style={{ fontSize: mobil ? 22 : 32, fontWeight:900, color:"#f1f5f9", letterSpacing:-1 }}>{stepTitle}</div>
               {stepSubtitle && <div style={{ fontSize:12, color:"#475569", marginTop:2 }}>{stepSubtitle}</div>}
@@ -173,7 +173,7 @@ function BolumSecim({ onSecim }) {
         /* Fakülte listesi */
         <div style={{ display:"grid", gridTemplateColumns: mobil ? "1fr" : "repeat(auto-fit, minmax(260px, 1fr))", gap: mobil ? 14 : 20, maxWidth:1100, width:"100%", position:"relative", zIndex:1 }}>
           {uniFakulteler.length === 0 ? (
-            <div style={{ gridColumn:"1/-1", textAlign:"center", padding:60, color:"#475569" }}>Bu üniversiteye bağlı fakülte bulunamadı</div>
+            <div style={{ gridColumn:"1/-1", textAlign:"center", padding:60, color:"#475569" }}>{t("app.no_faculty")}</div>
           ) : uniFakulteler.map((f) => {
             const aktif = hoverId === f.id;
             const renk = f.renk || "#6366f1";
@@ -197,7 +197,7 @@ function BolumSecim({ onSecim }) {
         <div style={{ maxWidth:1100, width:"100%", position:"relative", zIndex:1 }}>
           <div style={{ display:"grid", gridTemplateColumns: mobil ? "1fr" : "repeat(auto-fit, minmax(280px, 1fr))", gap: mobil ? 14 : 24, width:"100%" }}>
             {fakulteBolumleri.length === 0 ? (
-              <div style={{ gridColumn:"1/-1", textAlign:"center", padding:60, color:"#475569" }}>Bu fakülteye bağlı bölüm bulunamadı</div>
+              <div style={{ gridColumn:"1/-1", textAlign:"center", padding:60, color:"#475569" }}>{t("app.no_department")}</div>
             ) : fakulteBolumleri.map((b) => {
               const aktif = hoverId === b.slug;
               const fRenk = seciliFakulte?.renk || "#6366f1";
@@ -251,9 +251,9 @@ export default function App() {
       <div style={{ minHeight:"100vh", background:"#080d1a", display:"flex", alignItems:"center", justifyContent:"center", fontFamily:"'Inter', system-ui, sans-serif" }}>
         <div style={{ textAlign:"center", maxWidth:400, padding:40 }}>
           <div style={{ fontSize:64, marginBottom:20 }}>🚫</div>
-          <h1 style={{ margin:"0 0 12px", fontSize:22, fontWeight:800, color:"#f1f5f9" }}>Erişiminiz Engellendi</h1>
-          <p style={{ margin:"0 0 24px", fontSize:14, color:"#475569", lineHeight:1.6 }}>Hesabınız admin tarafından devre dışı bırakılmıştır. Lütfen yönetici ile iletişime geçin.</p>
-          <button onClick={logout} style={{ padding:"10px 24px", borderRadius:10, border:"1px solid rgba(239,68,68,0.25)", background:"rgba(239,68,68,0.08)", color:"#f87171", cursor:"pointer", fontWeight:600, fontSize:13 }}>Çıkış Yap</button>
+          <h1 style={{ margin:"0 0 12px", fontSize:22, fontWeight:800, color:"#f1f5f9" }}>{t("app.access_denied")}</h1>
+          <p style={{ margin:"0 0 24px", fontSize:14, color:"#475569", lineHeight:1.6 }}>{t("app.account_disabled")}</p>
+          <button onClick={logout} style={{ padding:"10px 24px", borderRadius:10, border:"1px solid rgba(239,68,68,0.25)", background:"rgba(239,68,68,0.08)", color:"#f87171", cursor:"pointer", fontWeight:600, fontSize:13 }}>{t("app.logout")}</button>
         </div>
       </div>
     </ThemeWrapper>
@@ -274,7 +274,7 @@ function AppDataGate({ children }) {
   const { appDataLoading, appDataError, harfNotlari, bosDers } = useAppData();
   const { t } = useI18n();
   if (appDataLoading) return <LoadingScreen text={t("Uygulama verileri yükleniyor...")} />;
-  if (appDataError || harfNotlari.length === 0 || !bosDers) return <div style={{ minHeight:"100vh", background:"#080d1a", display:"flex", alignItems:"center", justifyContent:"center", fontFamily:"'Inter', system-ui, sans-serif", padding:24 }}><div style={{ textAlign:"center", maxWidth:420 }}><h1 style={{ margin:"0 0 12px", color:"#f1f5f9", fontSize:22 }}>Uygulama verisi eksik</h1><p style={{ margin:0, color:"#64748b", fontSize:14, lineHeight:1.6 }}>{appDataError || "Supabase yapılandırma tabloları eksik veya boş."}</p></div></div>;
+  if (appDataError || harfNotlari.length === 0 || !bosDers) return <div style={{ minHeight:"100vh", background:"#080d1a", display:"flex", alignItems:"center", justifyContent:"center", fontFamily:"'Inter', system-ui, sans-serif", padding:24 }}><div style={{ textAlign:"center", maxWidth:420 }}><h1 style={{ margin:"0 0 12px", color:"#f1f5f9", fontSize:22 }}>{t("app.data_missing")}</h1><p style={{ margin:0, color:"#64748b", fontSize:14, lineHeight:1.6 }}>{appDataError || t("app.supabase_error")}</p></div></div>;
   return children;
 }
 

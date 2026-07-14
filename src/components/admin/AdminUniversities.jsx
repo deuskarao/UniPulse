@@ -1,3 +1,4 @@
+import { useI18n } from "../../context/I18nContext";
 import { useState, useEffect } from "react";
 import { useTheme } from "../../theme/ThemeProvider";
 import { supabase } from "../../lib/supabase";
@@ -70,8 +71,8 @@ export default function AdminUniversities() {
               🏛️
             </div>
             <div>
-              <h2 style={{ margin: 0, fontSize: 20, fontWeight: 800, color: tokens.textPrimary }}>Üniversiteler</h2>
-              <p style={{ margin: "4px 0 0", fontSize: 13, color: tokens.muted }}>Üniversite → Fakülte → Bölüm hiyerarşisi</p>
+              <h2 style={{ margin: 0, fontSize: 20, fontWeight: 800, color: tokens.textPrimary }}>{t("admin.universities")}</h2>
+              <p style={{ margin: "4px 0 0", fontSize: 13, color: tokens.muted }}>{t("admin.uni_hierarchy")}</p>
             </div>
           </div>
           <div className="flex gap-4 mt-5">
@@ -150,11 +151,11 @@ export default function AdminUniversities() {
                       <div className="flex gap-3">
                         <div className="flex-1 rounded-lg p-2 text-center" style={{ background: tokens.surface }}>
                           <div style={{ fontSize: 16, fontWeight: 800, color: tokens.primary }}>{uniFaculties.length}</div>
-                          <div style={{ fontSize: 9, color: tokens.muted, fontWeight: 600, textTransform: "uppercase" }}>Fakülte</div>
+                          <div style={{ fontSize: 9, color: tokens.muted, fontWeight: 600, textTransform: "uppercase" }}>{t("admin.faculty")}</div>
                         </div>
                         <div className="flex-1 rounded-lg p-2 text-center" style={{ background: tokens.surface }}>
                           <div style={{ fontSize: 16, fontWeight: 800, color: tokens.success }}>{deptCount}</div>
-                          <div style={{ fontSize: 9, color: tokens.muted, fontWeight: 600, textTransform: "uppercase" }}>Bölüm</div>
+                          <div style={{ fontSize: 9, color: tokens.muted, fontWeight: 600, textTransform: "uppercase" }}>{t("admin.department")}</div>
                         </div>
                       </div>
                     </motion.div>
@@ -169,7 +170,7 @@ export default function AdminUniversities() {
             {selectedFaculties.length === 0 ? (
               <div className="col-span-full text-center py-12" style={{ color: tokens.muted }}>
                 <div style={{ fontSize: 36, marginBottom: 12, opacity: 0.3 }}>🏛️</div>
-                <div style={{ fontSize: 14, fontWeight: 600 }}>Bu üniversiteye bağlı fakülte bulunamadı</div>
+                <div style={{ fontSize: 14, fontWeight: 600 }}>{t("admin.no_faculty")}</div>
               </div>
             ) : selectedFaculties.map((f, i) => {
               const depts = getDeptsForFaculty(f.id);
@@ -200,7 +201,7 @@ export default function AdminUniversities() {
                   <div className="flex gap-3">
                     <div className="flex-1 rounded-lg p-2 text-center" style={{ background: tokens.surface }}>
                       <div style={{ fontSize: 16, fontWeight: 800, color: tokens.primary }}>{depts.length}</div>
-                      <div style={{ fontSize: 9, color: tokens.muted, fontWeight: 600, textTransform: "uppercase" }}>Bölüm</div>
+                      <div style={{ fontSize: 9, color: tokens.muted, fontWeight: 600, textTransform: "uppercase" }}>{t("admin.department")}</div>
                     </div>
                     <div className="flex-1 rounded-lg p-2 text-center" style={{ background: tokens.surface }}>
                       <div style={{ fontSize: 16, fontWeight: 800, color: tokens.success }}>{courseCount}</div>
@@ -219,7 +220,7 @@ export default function AdminUniversities() {
             {selectedDepts.length === 0 ? (
               <div className="col-span-full text-center py-12" style={{ color: tokens.muted }}>
                 <div style={{ fontSize: 36, marginBottom: 12, opacity: 0.3 }}>📚</div>
-                <div style={{ fontSize: 14, fontWeight: 600 }}>Bu fakülteye bağlı bölüm bulunamadı</div>
+                <div style={{ fontSize: 14, fontWeight: 600 }}>{t("admin.no_department")}</div>
               </div>
             ) : selectedDepts.map((d, i) => (
               <motion.div

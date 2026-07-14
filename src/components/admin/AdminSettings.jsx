@@ -1,3 +1,4 @@
+import { useI18n } from "../../context/I18nContext";
 import { useState, useEffect } from "react";
 import { useTheme } from "../../theme/ThemeProvider";
 import { useAuth } from "../../context/AuthContext";
@@ -28,7 +29,7 @@ export default function AdminSettings({ showToast }) {
     setMode(newMode);
     try {
       await supabase.from("profiles").update({ theme_preference: newMode }).eq("id", user.id);
-      showToast("Tema tercihi kaydedildi");
+      showToast(t("admin.theme_saved"));
     } catch (e) {
       console.error("Theme save error:", e);
     }
@@ -44,7 +45,7 @@ export default function AdminSettings({ showToast }) {
         style={{ background: tokens.card, border: `1px solid ${tokens.border}` }}
       >
         <div style={{ padding: "20px 24px", borderBottom: `1px solid ${tokens.border}` }}>
-          <h3 style={{ fontSize: 15, fontWeight: 700, color: tokens.textPrimary }}>Tema Tercihi</h3>
+          <h3 style={{ fontSize: 15, fontWeight: 700, color: tokens.textPrimary }}>{t("admin.theme_preference")}</h3>
           <p style={{ fontSize: 12, color: tokens.muted, marginTop: 4 }}>Tema tercihiniz veritabanında saklanır ve tüm oturumlarda senkronize edilir.</p>
         </div>
         <div className="p-5">
@@ -89,24 +90,24 @@ export default function AdminSettings({ showToast }) {
         style={{ background: tokens.card, border: `1px solid ${tokens.border}` }}
       >
         <div style={{ padding: "20px 24px", borderBottom: `1px solid ${tokens.border}` }}>
-          <h3 style={{ fontSize: 15, fontWeight: 700, color: tokens.textPrimary }}>Admin Hesabı</h3>
+          <h3 style={{ fontSize: 15, fontWeight: 700, color: tokens.textPrimary }}>{t("admin.admin_account")}</h3>
         </div>
         <div className="p-5">
           <div className="flex flex-col gap-3">
             <div className="flex items-center justify-between py-2.5" style={{ borderBottom: `1px solid ${tokens.border}` }}>
-              <span style={{ fontSize: 12, color: tokens.muted }}>Ad Soyad</span>
+              <span style={{ fontSize: 12, color: tokens.muted }}>{t("admin.full_name")}</span>
               <span style={{ fontSize: 13, fontWeight: 600, color: tokens.textPrimary }}>{profile?.full_name || "—"}</span>
             </div>
             <div className="flex items-center justify-between py-2.5" style={{ borderBottom: `1px solid ${tokens.border}` }}>
-              <span style={{ fontSize: 12, color: tokens.muted }}>E-posta</span>
+              <span style={{ fontSize: 12, color: tokens.muted }}>{t("admin.email")}</span>
               <span style={{ fontSize: 13, fontWeight: 600, color: tokens.textPrimary }}>{user?.email || "—"}</span>
             </div>
             <div className="flex items-center justify-between py-2.5" style={{ borderBottom: `1px solid ${tokens.border}` }}>
-              <span style={{ fontSize: 12, color: tokens.muted }}>Rol</span>
+              <span style={{ fontSize: 12, color: tokens.muted }}>{t("admin.role")}</span>
               <span className="inline-flex items-center rounded px-2 py-0.5" style={{ fontSize: 11, fontWeight: 700, background: tokens.primary + "20", color: tokens.primary }}>Admin</span>
             </div>
             <div className="flex items-center justify-between py-2.5">
-              <span style={{ fontSize: 12, color: tokens.muted }}>Kayıt Tarihi</span>
+              <span style={{ fontSize: 12, color: tokens.muted }}>{t("admin.register_date")}</span>
               <span style={{ fontSize: 13, color: tokens.textPrimary }}>{new Date(profile?.created_at).toLocaleDateString("tr-TR")}</span>
             </div>
           </div>
@@ -121,14 +122,14 @@ export default function AdminSettings({ showToast }) {
         style={{ background: tokens.card, border: `1px solid ${tokens.border}` }}
       >
         <div style={{ padding: "20px 24px", borderBottom: `1px solid ${tokens.border}` }}>
-          <h3 style={{ fontSize: 15, fontWeight: 700, color: tokens.textPrimary }}>Admin Kullanıcıları</h3>
-          <p style={{ fontSize: 12, color: tokens.muted, marginTop: 4 }}>Sistemdeki tüm admin hesapları</p>
+          <h3 style={{ fontSize: 15, fontWeight: 700, color: tokens.textPrimary }}>{t("admin.admin_users_title")}</h3>
+          <p style={{ fontSize: 12, color: tokens.muted, marginTop: 4 }}>{t("admin.admin_users_desc")}</p>
         </div>
         <div>
           {loading ? (
-            <div className="text-center py-8" style={{ color: tokens.muted, fontSize: 13 }}>Yükleniyor...</div>
+            <div className="text-center py-8" style={{ color: tokens.muted, fontSize: 13 }}>{t("admin.loading")}</div>
           ) : adminProfiles.length === 0 ? (
-            <div className="text-center py-8" style={{ color: tokens.muted, fontSize: 13 }}>Admin bulunamadı</div>
+            <div className="text-center py-8" style={{ color: tokens.muted, fontSize: 13 }}>{t("admin.no_admin_found")}</div>
           ) : (
             adminProfiles.map((a, i) => (
               <div

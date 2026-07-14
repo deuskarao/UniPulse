@@ -1,3 +1,4 @@
+import { useI18n } from "../../context/I18nContext";
 import { useState, useEffect, useCallback } from "react";
 import { useTheme } from "../../theme/ThemeProvider";
 import { supabase } from "../../lib/supabase";
@@ -40,10 +41,10 @@ export default function AdminApplications({ onUserSelect }) {
     <div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         {[
-          { label: "Toplam Başvuru", value: stats.total, color: tokens.primary },
-          { label: "Notlanmış", value: stats.graded, color: tokens.success },
-          { label: "Bekleyen", value: stats.pending, color: tokens.warning },
-          { label: "Bölüm Sayısı", value: stats.departments, color: "#3B82F6" },
+          { label: t("admin.total_applications"), value: stats.total, color: tokens.primary },
+          { label: t("admin.graded"), value: stats.graded, color: tokens.success },
+          { label: t("admin.pending"), value: stats.pending, color: tokens.warning },
+          { label: t("admin.department_count"), value: stats.departments, color: "#3B82F6" },
         ].map((s, i) => (
           <motion.div
             key={i}
@@ -72,7 +73,7 @@ export default function AdminApplications({ onUserSelect }) {
               cursor: "pointer",
             }}
           >
-            {f === "all" ? "Tümü" : f === "graded" ? "Notlanmış" : "Bekleyen"}
+            {f === "all" ? "Tümü" : f === "graded" ? t("admin.graded") : t("admin.pending")}
           </button>
         ))}
       </div>
@@ -82,9 +83,9 @@ export default function AdminApplications({ onUserSelect }) {
         style={{ background: tokens.card, border: `1px solid ${tokens.border}` }}
       >
         {loading ? (
-          <div className="text-center py-16" style={{ color: tokens.muted }}>Yükleniyor...</div>
+          <div className="text-center py-16" style={{ color: tokens.muted }}>{t("admin.loading")}</div>
         ) : filteredApps.length === 0 ? (
-          <div className="text-center py-16" style={{ color: tokens.muted }}>Henüz başvuru yok</div>
+          <div className="text-center py-16" style={{ color: tokens.muted }}>{t("admin.no_applications")}</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full" style={{ borderCollapse: "collapse" }}>

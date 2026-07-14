@@ -1,13 +1,14 @@
+import { useI18n } from "../../context/I18nContext";
 import { useState, useEffect } from "react";
 import { useTheme } from "../../theme/ThemeProvider";
 import { supabase } from "../../lib/supabase";
 import { motion, AnimatePresence } from "framer-motion";
 
 const TABS = [
-  { id: "general", label: "Genel Bilgi", icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg> },
-  { id: "applications", label: "Başvurular", icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> },
-  { id: "activities", label: "Aktiviteler", icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg> },
-  { id: "system", label: "Sistem", icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg> },
+  { id: "general", label: t("admin.tab_general"), icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg> },
+  { id: "applications", label: t("admin.tab_applications"), icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> },
+  { id: "activities", label: t("admin.tab_activities"), icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg> },
+  { id: "system", label: t("admin.tab_system"), icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg> },
 ];
 
 function InfoRow({ label, value, tokens, color }) {
@@ -89,7 +90,7 @@ export default function AdminUserDetails({ user, onUserUpdate, onBlockUser, onDe
 
   async function handleSave() {
     if (!editForm.full_name.trim()) {
-      showToast("Ad boş olamaz", "error");
+      showToast(t("admin.name_cannot_be_empty"), "error");
       return;
     }
     await onUserUpdate(user.id, {
@@ -111,7 +112,7 @@ export default function AdminUserDetails({ user, onUserUpdate, onBlockUser, onDe
       >
         <div className="text-center">
           <div style={{ fontSize: 48, marginBottom: 16, opacity: 0.3 }}>👤</div>
-          <div style={{ fontSize: 14, color: tokens.muted }}>Soldaki listeden bir kullanıcı seçin</div>
+          <div style={{ fontSize: 14, color: tokens.muted }}>{t("admin.select_user_from_list")}</div>
         </div>
       </div>
     );
@@ -164,7 +165,7 @@ export default function AdminUserDetails({ user, onUserUpdate, onBlockUser, onDe
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
               <span style={{ fontSize: 18, fontWeight: 700, color: tokens.textPrimary }}>
-                {user.full_name || "İsimsiz Kullanıcı"}
+                {user.full_name || t("admin.anonymous_user")}
               </span>
               {user.role === "admin" && (
                 <span
@@ -256,7 +257,7 @@ export default function AdminUserDetails({ user, onUserUpdate, onBlockUser, onDe
               {editing ? (
                 <div className="flex flex-col gap-4">
                   <div>
-                    <label style={{ display: "block", fontSize: 11, color: tokens.muted, fontWeight: 600, marginBottom: 6, textTransform: "uppercase" }}>Ad Soyad</label>
+                    <label style={{ display: "block", fontSize: 11, color: tokens.muted, fontWeight: 600, marginBottom: 6, textTransform: "uppercase" }}>{t("admin.full_name")}</label>
                     <input
                       value={editForm.full_name}
                       onChange={e => setEditForm(f => ({ ...f, full_name: e.target.value }))}
@@ -265,14 +266,14 @@ export default function AdminUserDetails({ user, onUserUpdate, onBlockUser, onDe
                     />
                   </div>
                   <div>
-                    <label style={{ display: "block", fontSize: 11, color: tokens.muted, fontWeight: 600, marginBottom: 6, textTransform: "uppercase" }}>Bölüm</label>
+                    <label style={{ display: "block", fontSize: 11, color: tokens.muted, fontWeight: 600, marginBottom: 6, textTransform: "uppercase" }}>{t("admin.department")}</label>
                     <select
                       value={editForm.department_id}
                       onChange={e => setEditForm(f => ({ ...f, department_id: e.target.value }))}
                       className="w-full rounded-lg px-3 py-2.5 outline-none text-sm"
                       style={{ background: tokens.input, border: `1px solid ${tokens.border}`, color: tokens.textPrimary }}
                     >
-                      <option value="">Bölüm Yok</option>
+                      <option value="">{t("admin.no_department")}</option>
                       {departments.map(d => <option key={d.id} value={d.id}>{d.ad}</option>)}
                     </select>
                   </div>
@@ -296,15 +297,15 @@ export default function AdminUserDetails({ user, onUserUpdate, onBlockUser, onDe
               ) : (
                 <div>
                   <InfoRow label="Ad Soyad" value={user.full_name} tokens={tokens} />
-                  <InfoRow label="E-posta" value={user.email} tokens={tokens} />
-                  <InfoRow label="Üniversite" value={university?.ad || "Belirlenmemiş"} tokens={tokens} />
-                  <InfoRow label="Fakülte" value={faculty?.ad || "Belirlenmemiş"} tokens={tokens} />
-                  <InfoRow label="Bölüm" value={department?.ad || "Belirlenmemiş"} tokens={tokens} />
-                  <InfoRow label="Kayıt Tarihi" value={new Date(user.created_at).toLocaleDateString("tr-TR", { year: "numeric", month: "long", day: "numeric" })} tokens={tokens} />
-                  <InfoRow label="Son Giriş" value={user.last_login ? new Date(user.last_login).toLocaleDateString("tr-TR") : "Hiç giriş yapmadı"} tokens={tokens} />
-                  <InfoRow label="Rol" value={user.role === "admin" ? "Admin" : "Kullanıcı"} tokens={tokens} color={user.role === "admin" ? tokens.primary : tokens.textPrimary} />
-                  <InfoRow label="Durum" value={user.is_allowed === false ? "Engelli" : "Aktif"} tokens={tokens} color={user.is_allowed === false ? tokens.danger : tokens.success} />
-                  <InfoRow label="E-posta Doğrulama" value={user.email_confirmed_at ? "Doğrulanmış" : "Doğrulanmamış"} tokens={tokens} color={user.email_confirmed_at ? tokens.success : tokens.warning} />
+                  <InfoRow label={t("admin.email")} value={user.email} tokens={tokens} />
+                  <InfoRow label={t("admin.university")} value={university?.ad || "Belirlenmemiş"} tokens={tokens} />
+                  <InfoRow label={t("admin.faculty")} value={faculty?.ad || "Belirlenmemiş"} tokens={tokens} />
+                  <InfoRow label={t("admin.department")} value={department?.ad || "Belirlenmemiş"} tokens={tokens} />
+                  <InfoRow label={t("admin.register_date")} value={new Date(user.created_at).toLocaleDateString("tr-TR", { year: "numeric", month: "long", day: "numeric" })} tokens={tokens} />
+                  <InfoRow label={t("admin.last_login")} value={user.last_login ? new Date(user.last_login).toLocaleDateString("tr-TR") : "Hiç giriş yapmadı"} tokens={tokens} />
+                  <InfoRow label={t("admin.role")} value={user.role === "admin" ? "Admin" : "Kullanıcı"} tokens={tokens} color={user.role === "admin" ? tokens.primary : tokens.textPrimary} />
+                  <InfoRow label={t("admin.status")} value={user.is_allowed === false ? "Engelli" : "Aktif"} tokens={tokens} color={user.is_allowed === false ? tokens.danger : tokens.success} />
+                  <InfoRow label={t("admin.email_verified")} value={user.email_confirmed_at ? "Doğrulanmış" : "Doğrulanmamış"} tokens={tokens} color={user.email_confirmed_at ? tokens.success : tokens.warning} />
                 </div>
               )}
             </motion.div>
@@ -319,9 +320,9 @@ export default function AdminUserDetails({ user, onUserUpdate, onBlockUser, onDe
               transition={{ duration: 0.15 }}
             >
               {loadingGrades ? (
-                <div className="text-center py-10" style={{ color: tokens.muted }}>Yükleniyor...</div>
+                <div className="text-center py-10" style={{ color: tokens.muted }}>{t("admin.loading")}</div>
               ) : grades.length === 0 ? (
-                <div className="text-center py-10" style={{ color: tokens.muted }}>Henüz başvuru yok</div>
+                <div className="text-center py-10" style={{ color: tokens.muted }}>{t("admin.no_applications")}</div>
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full" style={{ borderCollapse: "collapse" }}>
@@ -393,9 +394,9 @@ export default function AdminUserDetails({ user, onUserUpdate, onBlockUser, onDe
               transition={{ duration: 0.15 }}
             >
               {loadingActivities ? (
-                <div className="text-center py-10" style={{ color: tokens.muted }}>Yükleniyor...</div>
+                <div className="text-center py-10" style={{ color: tokens.muted }}>{t("admin.loading")}</div>
               ) : activities.length === 0 ? (
-                <div className="text-center py-10" style={{ color: tokens.muted }}>Aktivite kaydı bulunamadı</div>
+                <div className="text-center py-10" style={{ color: tokens.muted }}>{t("admin.no_activity_found")}</div>
               ) : (
                 <div className="flex flex-col gap-3">
                   {activities.map(a => (
@@ -430,11 +431,11 @@ export default function AdminUserDetails({ user, onUserUpdate, onBlockUser, onDe
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.15 }}
             >
-              <InfoRow label="Kullanıcı ID" value={user.id} tokens={tokens} />
-              <InfoRow label="E-posta Doğrulama" value={user.email_confirmed_at ? "Evet" : "Hayır"} tokens={tokens} />
-              <InfoRow label="Telefon Doğrulama" value={user.phone_confirmed_at ? "Evet" : "Hayır"} tokens={tokens} />
-              <InfoRow label="Son Giriş" value={user.last_sign_in_at ? new Date(user.last_sign_in_at).toLocaleString("tr-TR") : "—" } tokens={tokens} />
-              <InfoRow label="Tema Tercihi" value={user.theme_preference || "Varsayılan (dark)"} tokens={tokens} />
+              <InfoRow label={t("admin.user_id")} value={user.id} tokens={tokens} />
+              <InfoRow label={t("admin.email_verified")} value={user.email_confirmed_at ? "Evet" : "Hayır"} tokens={tokens} />
+              <InfoRow label={t("admin.phone_verified")} value={user.phone_confirmed_at ? "Evet" : "Hayır"} tokens={tokens} />
+              <InfoRow label={t("admin.last_login")} value={user.last_sign_in_at ? new Date(user.last_sign_in_at).toLocaleString("tr-TR") : "—" } tokens={tokens} />
+              <InfoRow label={t("admin.theme_preference")} value={user.theme_preference || "Varsayılan (dark)"} tokens={tokens} />
             </motion.div>
           )}
         </AnimatePresence>

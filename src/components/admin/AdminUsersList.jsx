@@ -1,3 +1,4 @@
+import { useI18n } from "../../context/I18nContext";
 import { useState, useMemo } from "react";
 import { useTheme } from "../../theme/ThemeProvider";
 import { motion } from "framer-motion";
@@ -51,7 +52,7 @@ export default function AdminUsersList({ users, loading, selectedUser, onSelect,
                 cursor: "pointer",
               }}
             >
-              {f === "all" ? "Tümü" : f === "active" ? "Aktif" : "Engelli"}
+              {f === "all" ? t("admin.all") : f === "active" ? t("admin.status_active") : t("admin.status_blocked")}
             </button>
           ))}
         </div>
@@ -129,7 +130,7 @@ export default function AdminUsersList({ users, loading, selectedUser, onSelect,
                       whiteSpace: "nowrap",
                     }}
                   >
-                    {u.full_name || "İsimsiz"}
+                    {u.full_name || t("admin.anonymous")}
                   </div>
                   <div
                     style={{

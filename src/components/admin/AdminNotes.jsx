@@ -1,3 +1,4 @@
+import { useI18n } from "../../context/I18nContext";
 import { useState, useEffect, useCallback } from "react";
 import { useTheme } from "../../theme/ThemeProvider";
 import { useAuth } from "../../context/AuthContext";
@@ -43,7 +44,7 @@ export default function AdminNotes({ userId, showToast, logAction }) {
     if (!error && data) {
       setNotes(prev => [data, ...prev]);
       setNewNote("");
-      showToast("Not eklendi");
+      showToast(t("admin.note_added"));
       logAction("note_added", { user_id: userId, content: newNote.trim() });
     }
   }
@@ -58,7 +59,7 @@ export default function AdminNotes({ userId, showToast, logAction }) {
       setNotes(prev => prev.map(n => n.id === noteId ? { ...n, content: editContent.trim(), updated_at: new Date().toISOString() } : n));
       setEditingNote(null);
       setEditContent("");
-      showToast("Not güncellendi");
+      showToast(t("admin.note_updated"));
     }
   }
 
@@ -69,7 +70,7 @@ export default function AdminNotes({ userId, showToast, logAction }) {
       .eq("id", noteId);
     if (!error) {
       setNotes(prev => prev.filter(n => n.id !== noteId));
-      showToast("Not silindi");
+      showToast(t("admin.note_deleted"));
       logAction("note_deleted", { note_id: noteId });
     }
   }
@@ -86,7 +87,7 @@ export default function AdminNotes({ userId, showToast, logAction }) {
         className="flex items-center justify-between"
         style={{ padding: "14px 16px", borderBottom: `1px solid ${tokens.border}` }}
       >
-        <span style={{ fontSize: 13, fontWeight: 700, color: tokens.textPrimary }}>Admin Notları</span>
+        <span style={{ fontSize: 13, fontWeight: 700, color: tokens.textPrimary }}>{t("admin.admin_notes")}</span>
         <span style={{ fontSize: 11, color: tokens.muted }}>{notes.length} not</span>
       </div>
 
@@ -95,7 +96,7 @@ export default function AdminNotes({ userId, showToast, logAction }) {
           <textarea
             value={newNote}
             onChange={e => setNewNote(e.target.value)}
-            placeholder="Yeni not ekle..."
+            placeholder={t("admin.add_new_note")}
             rows={2}
             className="w-full rounded-lg px-3 py-2 text-xs outline-none resize-none"
             style={{
@@ -127,9 +128,9 @@ export default function AdminNotes({ userId, showToast, logAction }) {
             Kullanıcı seçin
           </div>
         ) : loading ? (
-          <div className="text-center py-8" style={{ color: tokens.muted, fontSize: 12 }}>Yükleniyor...</div>
+          <div className="text-center py-8" style={{ color: tokens.muted, fontSize: 12 }}>{t("admin.loading")}</div>
         ) : notes.length === 0 ? (
-          <div className="text-center py-8" style={{ color: tokens.muted, fontSize: 12 }}>Henüz not yok</div>
+          <div className="text-center py-8" style={{ color: tokens.muted, fontSize: 12 }}>{t("admin.no_notes")}</div>
         ) : (
           notes.map(note => (
             <motion.div

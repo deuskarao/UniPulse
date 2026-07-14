@@ -1,3 +1,4 @@
+import { useI18n } from "../../context/I18nContext";
 import { useState, useEffect } from "react";
 import { useTheme } from "../../theme/ThemeProvider";
 import { supabase } from "../../lib/supabase";
@@ -82,19 +83,19 @@ export default function AdminReports() {
   return (
     <div>
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
-        <h3 className="mb-5" style={{ fontSize: 18, fontWeight: 800, color: tokens.textPrimary }}>Sistem Raporları</h3>
+        <h3 className="mb-5" style={{ fontSize: 18, fontWeight: 800, color: tokens.textPrimary }}>{t("admin.system_reports")}</h3>
 
         {/* Genel İstatistikler */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
           {[
-            { label: "Toplam Kullanıcı", value: stats.totalUsers, color: tokens.primary },
-            { label: "Aktif Kullanıcı", value: stats.activeUsers, color: tokens.success },
-            { label: "Engellenmiş", value: stats.blockedUsers, color: tokens.danger },
-            { label: "Toplam Not", value: stats.totalGrades, color: "#3B82F6" },
-            { label: "Ortalama GANO", value: stats.avgGano, color: "#8B5CF6" },
-            { label: "Toplam Ders", value: stats.totalCourses, color: "#F59E0B" },
-            { label: "Fakülte", value: stats.facultyCount, color: "#EC4899" },
-            { label: "Bölüm", value: stats.deptCount, color: "#14B8A6" },
+            { label: t("admin.total_users"), value: stats.totalUsers, color: tokens.primary },
+            { label: t("admin.active_users"), value: stats.activeUsers, color: tokens.success },
+            { label: t("admin.blocked"), value: stats.blockedUsers, color: tokens.danger },
+            { label: t("admin.total_grades"), value: stats.totalGrades, color: "#3B82F6" },
+            { label: t("admin.avg_gpa"), value: stats.avgGano, color: "#8B5CF6" },
+            { label: t("admin.total_courses"), value: stats.totalCourses, color: "#F59E0B" },
+            { label: t("admin.faculty"), value: stats.facultyCount, color: "#EC4899" },
+            { label: t("admin.department"), value: stats.deptCount, color: "#14B8A6" },
           ].map((s, i) => (
             <motion.div
               key={i}
@@ -119,9 +120,9 @@ export default function AdminReports() {
             className="rounded-xl p-5"
             style={{ background: tokens.card, border: `1px solid ${tokens.border}` }}
           >
-            <div className="mb-4" style={{ fontSize: 14, fontWeight: 700, color: tokens.textPrimary }}>Harf Notu Dağılımı</div>
+            <div className="mb-4" style={{ fontSize: 14, fontWeight: 700, color: tokens.textPrimary }}>{t("admin.grade_distribution")}</div>
             {gradeDistribution.length === 0 ? (
-              <div className="text-center py-8" style={{ color: tokens.muted, fontSize: 12 }}>Henüz not kaydı yok</div>
+              <div className="text-center py-8" style={{ color: tokens.muted, fontSize: 12 }}>{t("admin.no_grade_records")}</div>
             ) : (
               <div className="flex flex-col gap-2">
                 {gradeDistribution.slice(0, 8).map((g, i) => (
@@ -151,9 +152,9 @@ export default function AdminReports() {
             className="rounded-xl p-5"
             style={{ background: tokens.card, border: `1px solid ${tokens.border}` }}
           >
-            <div className="mb-4" style={{ fontSize: 14, fontWeight: 700, color: tokens.textPrimary }}>Son 7 Gün — Yeni Kullanıcılar</div>
+            <div className="mb-4" style={{ fontSize: 14, fontWeight: 700, color: tokens.textPrimary }}>{t("admin.new_users_7d_chart")}</div>
             {recentUsers.length === 0 ? (
-              <div className="text-center py-8" style={{ color: tokens.muted, fontSize: 12 }}>Son 7 günde yeni kullanıcı yok</div>
+              <div className="text-center py-8" style={{ color: tokens.muted, fontSize: 12 }}>{t("admin.no_new_users_7d")}</div>
             ) : (
               <div className="flex flex-col gap-2">
                 {recentUsers.map((u, i) => (

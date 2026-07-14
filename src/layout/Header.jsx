@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useTheme } from "../theme/ThemeProvider";
 import { useAuth } from "../context/AuthContext";
 import { useI18n } from "../context/I18nContext";
+import LanguageToggle from "../components/LanguageToggle";
 import { useWindowSize } from "../components/shared.jsx";
 
 function ThemeIcon({ mode }) {
@@ -75,7 +76,7 @@ export default function Header({ sidebarWidth, pageTitle, donemler, aktifDonem, 
       top: 0,
       zIndex: 150,
       paddingTop: mobil ? 0 : 20,
-      marginLeft: mobil ? 0 : sidebarWidth + 20,
+      marginLeft: mobil ? 0 : (sidebarWidth ? sidebarWidth + 20 : 0),
       marginRight: mobil ? 0 : 20,
       background: tokens.background, // Match app background to hide scrolling text above header
     }}>
@@ -131,13 +132,7 @@ export default function Header({ sidebarWidth, pageTitle, donemler, aktifDonem, 
           </select>
         )}
 
-        <IconBtn tokens={tokens} label="Toggle Language" onClick={() => setLanguage(language === "tr" ? "en" : "tr")}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="10"/>
-            <line x1="2" y1="12" x2="22" y2="12"/>
-            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-          </svg>
-        </IconBtn>
+        <LanguageToggle />
         <IconBtn tokens={tokens} label="Toggle Theme" onClick={handleThemeToggle}>
           <ThemeIcon mode={mode} />
         </IconBtn>

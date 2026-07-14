@@ -1,3 +1,4 @@
+import { useI18n } from "../../context/I18nContext";
 import { useState, useEffect } from "react";
 import { useTheme } from "../../theme/ThemeProvider";
 import { supabase } from "../../lib/supabase";
@@ -33,9 +34,9 @@ export default function AdminDepartments() {
     <div>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         {[
-          { label: "Toplam Bölüm", value: departments.length, color: tokens.primary },
-          { label: "Toplam Ders", value: totalCourses, color: tokens.success },
-          { label: "Fakülte Sayısı", value: [...new Set(departments.flatMap(d => d.faculty_departments?.map(fd => fd.faculties?.ad)).filter(Boolean))].length, color: "#3B82F6" },
+          { label: t("admin.total_departments"), value: departments.length, color: tokens.primary },
+          { label: t("admin.total_courses"), value: totalCourses, color: tokens.success },
+          { label: t("admin.faculty_count"), value: [...new Set(departments.flatMap(d => d.faculty_departments?.map(fd => fd.faculties?.ad)).filter(Boolean))].length, color: "#3B82F6" },
         ].map((s, i) => (
           <motion.div
             key={i}
@@ -59,7 +60,7 @@ export default function AdminDepartments() {
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={tokens.muted} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
           <input
             type="text"
-            placeholder="Bölüm ara..."
+            placeholder=t("admin.search_department")
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             className="flex-1 bg-transparent outline-none text-sm"
@@ -73,9 +74,9 @@ export default function AdminDepartments() {
         style={{ background: tokens.card, border: `1px solid ${tokens.border}` }}
       >
         {loading ? (
-          <div className="text-center py-16" style={{ color: tokens.muted }}>Yükleniyor...</div>
+          <div className="text-center py-16" style={{ color: tokens.muted }}>{t("admin.loading")}</div>
         ) : filtered.length === 0 ? (
-          <div className="text-center py-16" style={{ color: tokens.muted }}>Bölüm bulunamadı</div>
+          <div className="text-center py-16" style={{ color: tokens.muted }}>{t("admin.no_department_found")}</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full" style={{ borderCollapse: "collapse" }}>

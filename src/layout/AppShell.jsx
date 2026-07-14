@@ -76,11 +76,11 @@ export default function AppShell({ bolumProp, departmentId }) {
     })) : []),
   ];
 
-  const sidebarWidth = mobil ? 0 : collapsed ? 80 + 20 : 220 + 20;
+  const sidebarWidth = mobil || activePage === "admin" ? 0 : collapsed ? 80 + 20 : 220 + 20;
 
   return (
     <div style={{ minHeight: "100vh", background: tokens.background, fontFamily: "'Inter', system-ui, sans-serif" }}>
-      {!mobil && (
+      {!mobil && activePage !== "admin" && (
         <Sidebar
           activePage={activePage}
           onNavigate={navigate}
@@ -178,7 +178,7 @@ export default function AppShell({ bolumProp, departmentId }) {
         </main>
       </div>
 
-      {mobil && (
+      {mobil && activePage !== "admin" && (
         <nav
           style={{
             position: "fixed",

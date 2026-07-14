@@ -1,3 +1,4 @@
+import { useI18n } from "../../context/I18nContext";
 import { useState, useEffect, useCallback } from "react";
 import { useTheme } from "../../theme/ThemeProvider";
 import { supabase } from "../../lib/supabase";
@@ -87,9 +88,9 @@ export default function AdminActivityTimeline({ userId, isFullPage }) {
 
       <div style={{ maxHeight: isFullPage ? "calc(100vh - 200px)" : 320, overflowY: "auto" }}>
         {loading ? (
-          <div className="text-center py-8" style={{ color: tokens.muted, fontSize: 12 }}>Yükleniyor...</div>
+          <div className="text-center py-8" style={{ color: tokens.muted, fontSize: 12 }}>{t("admin.loading")}</div>
         ) : activities.length === 0 ? (
-          <div className="text-center py-8" style={{ color: tokens.muted, fontSize: 12 }}>Aktivite kaydı bulunamadı</div>
+          <div className="text-center py-8" style={{ color: tokens.muted, fontSize: 12 }}>{t("admin.no_activity_found")}</div>
         ) : (
           activities.map((a, i) => {
             const actionInfo = ACTION_ICONS[a.action] || { icon: "📋", color: "#94A3B8" };

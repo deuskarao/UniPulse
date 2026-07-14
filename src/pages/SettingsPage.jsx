@@ -144,23 +144,23 @@ export default function SettingsPage({ dersler, stats, bolum }) {
 
     // Validasyon
     if (!currentPassword) {
-      setPasswordError("Lütfen mevcut şifrenizi girin.");
+      setPasswordError(t("settings.enter_current_password"));
       return;
     }
     if (!newPassword) {
-      setPasswordError("Lütfen yeni şifrenizi girin.");
+      setPasswordError(t("settings.enter_new_password"));
       return;
     }
-    if (newPassword.length < 6) {
-      setPasswordError("Yeni şifre en az 6 karakter olmalıdır.");
+    if (newPassword.length < 8) {
+      setPasswordError(t("settings.password_min_length"));
       return;
     }
     if (newPassword !== confirmPassword) {
-      setPasswordError("Yeni şifreler eşleşmiyor.");
+      setPasswordError(t("settings.passwords_do_not_match"));
       return;
     }
     if (currentPassword === newPassword) {
-      setPasswordError("Yeni şifre mevcut şifrenizden farklı olmalıdır.");
+      setPasswordError(t("settings.new_password_must_be_different"));
       return;
     }
 
@@ -173,7 +173,7 @@ export default function SettingsPage({ dersler, stats, bolum }) {
       });
 
       if (signInError) {
-        setPasswordError("Mevcut şifre hatalı.");
+        setPasswordError(t("settings.current_password_incorrect"));
         return;
       }
 
@@ -183,7 +183,7 @@ export default function SettingsPage({ dersler, stats, bolum }) {
       });
 
       if (updateError) {
-        setPasswordError(updateError.message || "Şifre güncellenemedi.");
+        setPasswordError(updateError.message || t("settings.password_update_failed"));
         return;
       }
 
@@ -198,7 +198,7 @@ export default function SettingsPage({ dersler, stats, bolum }) {
       }, 3000);
     } catch (err) {
       console.error("Şifre değiştirme hatası:", err);
-      setPasswordError(err?.message || "Şifre güncellenemedi. Lütfen tekrar deneyin.");
+      setPasswordError(err?.message || t("settings.password_update_failed_retry"));
     } finally {
       setPasswordLoading(false);
     }
@@ -219,7 +219,7 @@ export default function SettingsPage({ dersler, stats, bolum }) {
       setDeptSelectOpen(true);
     } catch (e) {
       console.error(e);
-      setDeptResetError(e?.message || "Bölüm değiştirilemedi. Lütfen tekrar deneyin.");
+      setDeptResetError(e?.message || t("settings.department_change_failed"));
     } finally {
       setIsUpdatingDept(false);
     }
@@ -246,14 +246,14 @@ export default function SettingsPage({ dersler, stats, bolum }) {
   async function saveUsername() {
     setUsernameError("");
     if (usernameInput && !/^[a-zA-Z0-9_.-]+$/.test(usernameInput)) {
-      setUsernameError("Lütfen geçerli bir kullanıcı adı girin (Sadece harf, rakam, alt çizgi, nokta).");
+      setUsernameError(t("settings.invalid_username"));
       return;
     }
     try {
       await updateProfile({ username: usernameInput || null });
       setUsernameModal(false);
     } catch (err) {
-      setUsernameError("Bu kullanıcı adı zaten alınmış veya geçersiz!");
+      setUsernameError(t("settings.username_taken"));
     }
   }
 
@@ -530,13 +530,13 @@ export default function SettingsPage({ dersler, stats, bolum }) {
                   if (typeof deleteUser === "function" && user?.id) {
                     try {
                       await deleteUser(user.id);
-                      alert("Hesabınız ve tüm verileriniz başarıyla silindi.");
+                      alert(t("settings.account_deleted"));
                       if (typeof logout === "function") await logout();
                     } catch (err) {
-                      alert("Hesap silinirken bir hata oluştu: " + err.message);
+                      alert(t("settings.account_delete_error") + ": " + err.message);
                     }
                   } else {
-                    alert("Hesap silme özelliği henüz aktif değil.");
+                    alert(t("settings.delete_not_active"));
                   }
                 }
               }}

@@ -1,3 +1,4 @@
+import { useI18n } from "../../context/I18nContext";
 import { useState } from "react";
 import { useTheme } from "../../theme/ThemeProvider";
 import { useAuth } from "../../context/AuthContext";
@@ -18,7 +19,7 @@ export default function AdminQuickActions({ user, onBlockUser, onDeleteUser, onR
         style={{ background: tokens.card, border: `1px solid ${tokens.border}` }}
       >
         <div style={{ padding: "14px 16px" }}>
-          <span style={{ fontSize: 13, fontWeight: 700, color: tokens.textPrimary }}>Hızlı İşlemler</span>
+          <span style={{ fontSize: 13, fontWeight: 700, color: tokens.textPrimary }}>{t("admin.quick_actions")}</span>
         </div>
         <div className="text-center py-6" style={{ color: tokens.muted, fontSize: 12 }}>
           Kullanıcı seçin
@@ -34,7 +35,7 @@ export default function AdminQuickActions({ user, onBlockUser, onDeleteUser, onR
         style={{ background: tokens.card, border: `1px solid ${tokens.border}` }}
       >
         <div style={{ padding: "14px 16px", borderBottom: `1px solid ${tokens.border}` }}>
-          <span style={{ fontSize: 13, fontWeight: 700, color: tokens.textPrimary }}>Hızlı İşlemler</span>
+          <span style={{ fontSize: 13, fontWeight: 700, color: tokens.textPrimary }}>{t("admin.quick_actions")}</span>
         </div>
         <div className="flex flex-col gap-2 p-3">
           <button
@@ -72,7 +73,7 @@ export default function AdminQuickActions({ user, onBlockUser, onDeleteUser, onR
             <span className="flex items-center justify-center rounded" style={{ width: 28, height: 28, background: (user.is_allowed === false ? tokens.success : tokens.warning) + "18", fontSize: 13 }}>
               {user.is_allowed === false ? "🔓" : "🔒"}
             </span>
-            {user.is_allowed === false ? "Engeli Kaldır" : "Engelle"}
+            {user.is_allowed === false ? t("admin.unblock") : t("admin.block")}
           </button>
 
           <button
@@ -126,9 +127,9 @@ export default function AdminQuickActions({ user, onBlockUser, onDeleteUser, onR
             style={{ background: tokens.card, border: `1px solid ${tokens.border}`, boxShadow: tokens.shadowLg }}
             onClick={e => e.stopPropagation()}
           >
-            <h3 style={{ margin: "0 0 16px", color: tokens.textPrimary, fontSize: 16, fontWeight: 700 }}>Rol Değiştir</h3>
+            <h3 style={{ margin: "0 0 16px", color: tokens.textPrimary, fontSize: 16, fontWeight: 700 }}>{t("admin.change_role")}</h3>
             <p style={{ fontSize: 13, color: tokens.muted, marginBottom: 16 }}>
-              <strong>{user.full_name || user.email}</strong> kullanıcısının rolünü değiştirin.
+              <strong>{user.full_name || user.email}</strong> {t("admin.change_role_desc")}
             </p>
             <div className="flex flex-col gap-2 mb-5">
               {["user", "admin"].map(role => (
@@ -144,7 +145,7 @@ export default function AdminQuickActions({ user, onBlockUser, onDeleteUser, onR
                     fontSize: 13,
                   }}
                 >
-                  {role === "admin" ? "Admin" : "Kullanıcı"}
+                  {role === "admin" ? t("admin.role_admin") : t("admin.role_user")}
                 </button>
               ))}
             </div>
@@ -173,9 +174,9 @@ export default function AdminQuickActions({ user, onBlockUser, onDeleteUser, onR
             onClick={e => e.stopPropagation()}
           >
             <div style={{ fontSize: 36, marginBottom: 12 }}>🗑️</div>
-            <h3 style={{ margin: "0 0 8px", color: tokens.textPrimary, fontSize: 16 }}>Kullanıcıyı Sil</h3>
+            <h3 style={{ margin: "0 0 8px", color: tokens.textPrimary, fontSize: 16 }}>{t("admin.delete_user")}</h3>
             <p style={{ margin: "0 0 20px", color: tokens.muted, fontSize: 13 }}>
-              <strong>{user.full_name || user.email}</strong> kalıcı olarak silinecek. Bu işlem geri alınamaz.
+              <strong>{user.full_name || user.email}</strong> {t("admin.delete_confirm")}
             </p>
             <div className="flex gap-3 justify-center">
               <button
@@ -211,9 +212,9 @@ export default function AdminQuickActions({ user, onBlockUser, onDeleteUser, onR
             onClick={e => e.stopPropagation()}
           >
             <div style={{ fontSize: 36, marginBottom: 12 }}>🔑</div>
-            <h3 style={{ margin: "0 0 8px", color: tokens.textPrimary, fontSize: 16 }}>Şifre Sıfırla</h3>
+            <h3 style={{ margin: "0 0 8px", color: tokens.textPrimary, fontSize: 16 }}>{t("admin.reset_password")}</h3>
             <p style={{ margin: "0 0 20px", color: tokens.muted, fontSize: 13 }}>
-              <strong>{user.full_name || user.email}</strong> kullanıcısının e-postasına şifre sıfırlama bağlantısı gönderilecek.
+              <strong>{user.full_name || user.email}</strong> {t("admin.reset_password_desc")}
             </p>
             <div className="flex gap-3 justify-center">
               <button
@@ -228,7 +229,7 @@ export default function AdminQuickActions({ user, onBlockUser, onDeleteUser, onR
                   setSendingReset(true);
                   try {
                     await resetPassword(user.email);
-                    showToast("Şifre sıfırlama e-postası gönderildi");
+                    showToast(t("admin.reset_password_sent"));
                     setShowPasswordModal(false);
                   } catch (e) {
                     showToast("Gönderilemedi: " + e.message, "error");

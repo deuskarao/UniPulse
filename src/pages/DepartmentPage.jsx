@@ -26,17 +26,17 @@ export default function DepartmentPage() {
   }
 
   async function kaydet() {
-    if (!form.ad.trim()) { setMesaj({ tip: "hata", text: "Bölüm adı gerekli" }); return; }
+    if (!form.ad.trim()) { setMesaj({ tip: "hata", text: t("department.name_required") }); return; }
     try {
-      if (secili) { const { error } = await supabase.from("departments").update({ ad: form.ad, toplamDonem: form.toplamDonem }).eq("id", secili.id); if (error) throw error; setBolumler((p) => p.map((b) => (b.id === secili.id ? { ...b, ad: form.ad, toplamDonem: form.toplamDonem } : b))); setMesaj({ tip: "basarili", text: "Bölüm güncellendi" }); }
-      else { const { data, error } = await supabase.from("departments").insert({ ad: form.ad, toplamDonem: form.toplamDonem }).select(); if (error) throw error; setBolumler((p) => [...p, data[0]]); setMesaj({ tip: "basarili", text: "Bölüm eklendi" }); }
+      if (secili) { const { error } = await supabase.from("departments").update({ ad: form.ad, toplamDonem: form.toplamDonem }).eq("id", secili.id); if (error) throw error; setBolumler((p) => p.map((b) => (b.id === secili.id ? { ...b, ad: form.ad, toplamDonem: form.toplamDonem } : b))); setMesaj({ tip: "basarili", text: t("department.updated") }); }
+      else { const { data, error } = await supabase.from("departments").insert({ ad: form.ad, toplamDonem: form.toplamDonem }).select(); if (error) throw error; setBolumler((p) => [...p, data[0]]); setMesaj({ tip: "basarili", text: t("department.added") }); }
       setModal(null); setForm({ ad: "", toplamDonem: 8 }); setSecili(null);
-    } catch (e) { setMesaj({ tip: "hata", text: "Kaydetme başarısız: " + e.message }); }
+    } catch (e) { setMesaj({ tip: "hata", text: t("department.save_failed") + ": " + e.message }); }
   }
 
   async function sil() {
     if (!silOnay) return;
-    try { const { error } = await supabase.from("departments").delete().eq("id", silOnay); if (error) throw error; setBolumler((p) => p.filter((b) => b.id !== silOnay)); setMesaj({ tip: "basarili", text: "Bölüm silindi" }); setSecili(null); } catch (e) { setMesaj({ tip: "hata", text: "Silme başarısız: " + e.message }); }
+    try { const { error } = await supabase.from("departments").delete().eq("id", silOnay); if (error) throw error; setBolumler((p) => p.filter((b) => b.id !== silOnay)); setMesaj({ tip: "basarili", text: t("department.deleted") }); setSecili(null); } catch (e) { setMesaj({ tip: "hata", text: t("department.delete_failed") + ": " + e.message }); }
     setSilOnay(null);
   }
 
@@ -46,18 +46,18 @@ export default function DepartmentPage() {
     <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
       <div style={{ background: tokens.card, border: `1px solid ${tokens.border}`, borderRadius: 16, padding: "20px 24px", boxShadow: tokens.shadowSm }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
-          <div><h1 style={{ margin: "0 0 4px", fontSize: 20, fontWeight: 800, color: tokens.textPrimary }}>Departman Yönetimi</h1><p style={{ margin: 0, fontSize: 12, color: tokens.muted }}>Bölüm ve akademik programa sahip</p></div>
-          <button onClick={() => { setSecili(null); setForm({ ad: "", toplamDonem: 8 }); setModal("olustur"); }} style={{ padding: "9px 16px", borderRadius: 10, border: "none", background: tokens.primary, color: "#fff", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>+ Yeni Bölüm</button>
+          <div><h1 style={{ margin: "0 0 4px", fontSize: 20, fontWeight: 800, color: tokens.textPrimary }}>{t("department.management")}</h1><p style={{ margin: 0, fontSize: 12, color: tokens.muted }}>{t("department.subtitle")}</p></div>
+          <button onClick={() => { setSecili(null); setForm({ ad: "", toplamDonem: 8 }); setModal("olustur"); }} style={{ padding: "9px 16px", borderRadius: 10, border: "none", background: tokens.primary, color: "#fff", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>{t("department.new")}</button>
         </div>
       </div>
       <div style={{ background: tokens.card, border: `1px solid ${tokens.border}`, borderRadius: 16, padding: "16px 20px", boxShadow: tokens.shadowSm }}>
-        <div style={{ fontSize: 11, color: tokens.muted, fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 8 }}>İstatistik</div>
+        <div style={{ fontSize: 11, color: tokens.muted, fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 8 }}>{t("department.stats")}</div>
         <div style={{ fontSize: 28, fontWeight: 800, color: tokens.primary }}>{bolumler.length}</div>
-        <div style={{ fontSize: 11, color: tokens.textSecondary, marginTop: 4 }}>toplam bölüm</div>
+        <div style={{ fontSize: 11, color: tokens.textSecondary, marginTop: 4 }}>{t("department.total")}</div>
       </div>
       <div style={{ background: tokens.card, border: `1px solid ${tokens.border}`, borderRadius: 16, overflow: "hidden", boxShadow: tokens.shadowSm }}>
         <div style={{ padding: "14px 14px", borderBottom: `1px solid ${tokens.border}` }}>
-          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Bölüm ara…" style={{ width: "100%", padding: "9px 12px", borderRadius: 10, background: tokens.surface, border: `1px solid ${tokens.border}`, color: tokens.textPrimary, fontSize: 13, outline: "none", boxSizing: "border-box" }} />
+          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t("department.search")} style={{ width: "100%", padding: "9px 12px", borderRadius: 10, background: tokens.surface, border: `1px solid ${tokens.border}`, color: tokens.textPrimary, fontSize: 13, outline: "none", boxSizing: "border-box" }} />
         </div>
         {loading ? <div style={{ padding: 40, textAlign: "center", color: tokens.muted }}>{t("Yükleniyor…")}</div> : filtreliBolumler.length === 0 ? <div style={{ padding: 40, textAlign: "center", color: tokens.muted }}>{t("Bölüm bulunamadı")}</div> : (
           <div style={{ padding: "12px" }}>
@@ -75,12 +75,12 @@ export default function DepartmentPage() {
           <div style={{ background: tokens.card, border: `1px solid ${tokens.border}`, borderRadius: 20, padding: "28px", maxWidth: 420, width: "95%" }} onClick={(e) => e.stopPropagation()}>
             <h3 style={{ margin: "0 0 18px", fontSize: 16, fontWeight: 700, color: tokens.textPrimary }}>{modal === "olustur" ? "✨ Yeni Bölüm Ekle" : "✏️ Bölümü Düzenle"}</h3>
             <div style={{ display: "flex", flexDirection: "column", gap: 14, marginBottom: 18 }}>
-              <div><label style={{ display: "block", fontSize: 10, color: tokens.muted, fontWeight: 700, marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.5 }}>Bölüm Adı</label><input value={form.ad} onChange={(e) => setForm((f) => ({ ...f, ad: e.target.value }))} placeholder="Bilgisayar Mühendisliği" style={{ width: "100%", padding: "9px 12px", borderRadius: 10, background: tokens.surface, border: `1px solid ${tokens.border}`, color: tokens.textPrimary, fontSize: 13, outline: "none", boxSizing: "border-box" }} /></div>
-              <div><label style={{ display: "block", fontSize: 10, color: tokens.muted, fontWeight: 700, marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.5 }}>Toplam Dönem</label><input type="number" min="1" max="12" value={form.toplamDonem} onChange={(e) => setForm((f) => ({ ...f, toplamDonem: Math.max(1, Number(e.target.value)) }))} style={{ width: "100%", padding: "9px 12px", borderRadius: 10, background: tokens.surface, border: `1px solid ${tokens.border}`, color: tokens.textPrimary, fontSize: 13, outline: "none", boxSizing: "border-box" }} /></div>
+              <div><label style={{ display: "block", fontSize: 10, color: tokens.muted, fontWeight: 700, marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.5 }}>{t("department.name")}</label><input value={form.ad} onChange={(e) => setForm((f) => ({ ...f, ad: e.target.value }))} placeholder="Bilgisayar Mühendisliği" style={{ width: "100%", padding: "9px 12px", borderRadius: 10, background: tokens.surface, border: `1px solid ${tokens.border}`, color: tokens.textPrimary, fontSize: 13, outline: "none", boxSizing: "border-box" }} /></div>
+              <div><label style={{ display: "block", fontSize: 10, color: tokens.muted, fontWeight: 700, marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.5 }}>{t("department.total_terms")}</label><input type="number" min="1" max="12" value={form.toplamDonem} onChange={(e) => setForm((f) => ({ ...f, toplamDonem: Math.max(1, Number(e.target.value)) }))} style={{ width: "100%", padding: "9px 12px", borderRadius: 10, background: tokens.surface, border: `1px solid ${tokens.border}`, color: tokens.textPrimary, fontSize: 13, outline: "none", boxSizing: "border-box" }} /></div>
             </div>
             <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
-              <button onClick={() => setModal(null)} style={{ padding: "8px 16px", borderRadius: 10, border: `1px solid ${tokens.border}`, background: "transparent", color: tokens.textSecondary, cursor: "pointer", fontWeight: 600, fontSize: 13 }}>İptal</button>
-              <button onClick={kaydet} style={{ padding: "8px 18px", borderRadius: 10, border: "none", background: tokens.primary, color: "#fff", cursor: "pointer", fontWeight: 700, fontSize: 13 }}>{modal === "olustur" ? "Ekle" : "Güncelle"}</button>
+              <button onClick={() => setModal(null)} style={{ padding: "8px 16px", borderRadius: 10, border: `1px solid ${tokens.border}`, background: "transparent", color: tokens.textSecondary, cursor: "pointer", fontWeight: 600, fontSize: 13 }}>{t("department.cancel")}</button>
+              <button onClick={kaydet} style={{ padding: "8px 18px", borderRadius: 10, border: "none", background: tokens.primary, color: "#fff", cursor: "pointer", fontWeight: 700, fontSize: 13 }}>{modal === "olustur" ? t("department.add") : t("department.update")}</button>
             </div>
           </div>
         </Overlay>
@@ -89,11 +89,11 @@ export default function DepartmentPage() {
         <Overlay onClick={() => setSilOnay(null)}>
           <div style={{ background: tokens.card, border: `1px solid ${tokens.danger}40`, borderRadius: 20, padding: "32px", maxWidth: 360, width: "95%", textAlign: "center" }} onClick={(e) => e.stopPropagation()}>
             <div style={{ fontSize: 40, marginBottom: 12 }}>🗑️</div>
-            <h3 style={{ margin: "0 0 8px", color: tokens.textPrimary, fontSize: 16, fontWeight: 700 }}>Bölümü Sil</h3>
-            <p style={{ margin: "0 0 22px", color: tokens.muted, fontSize: 12 }}>Bu işlem geri alınamaz.</p>
+            <h3 style={{ margin: "0 0 8px", color: tokens.textPrimary, fontSize: 16, fontWeight: 700 }}>{t("department.delete")}</h3>
+            <p style={{ margin: "0 0 22px", color: tokens.muted, fontSize: 12 }}>{t("department.delete_confirm")}</p>
             <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
-              <button onClick={() => setSilOnay(null)} style={{ padding: "8px 16px", borderRadius: 10, border: `1px solid ${tokens.border}`, background: "transparent", color: tokens.textSecondary, cursor: "pointer", fontWeight: 600, fontSize: 13 }}>İptal</button>
-              <button onClick={sil} style={{ padding: "8px 18px", borderRadius: 10, border: "none", background: tokens.danger, color: "#fff", cursor: "pointer", fontWeight: 700, fontSize: 13 }}>Sil</button>
+              <button onClick={() => setSilOnay(null)} style={{ padding: "8px 16px", borderRadius: 10, border: `1px solid ${tokens.border}`, background: "transparent", color: tokens.textSecondary, cursor: "pointer", fontWeight: 600, fontSize: 13 }}>{t("department.cancel")}</button>
+              <button onClick={sil} style={{ padding: "8px 18px", borderRadius: 10, border: "none", background: tokens.danger, color: "#fff", cursor: "pointer", fontWeight: 700, fontSize: 13 }}>{t("department.delete_action")}</button>
             </div>
           </div>
         </Overlay>
