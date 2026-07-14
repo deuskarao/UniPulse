@@ -21,6 +21,7 @@ function InfoRow({ label, value, tokens, color }) {
 }
 
 export default function AdminUserDetails({ user, onUserUpdate, onBlockUser, onDeleteUser, onRoleChange, showToast, logAction, isMobile, onBack }) {
+  const { t } = useI18n();
   const { tokens } = useTheme();
   const [activeTab, setActiveTab] = useState("general");
   const [grades, setGrades] = useState([]);

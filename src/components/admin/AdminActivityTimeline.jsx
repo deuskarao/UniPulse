@@ -33,6 +33,7 @@ const ACTION_LABELS = {
 };
 
 export default function AdminActivityTimeline({ userId, isFullPage }) {
+  const { t } = useI18n();
   const { tokens } = useTheme();
   const [activities, setActivities] = useState([]);
   const [loading, setLoading] = useState(true);

@@ -60,6 +60,7 @@ const MetricCard = ({ icon, label, value, change, color, delay }) => {
 };
 
 export default function AdminDashboard({ users, onUserSelect }) {
+  const { t } = useI18n();
   const { tokens } = useTheme();
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);

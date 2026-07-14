@@ -5,6 +5,7 @@ import { supabase } from "../../lib/supabase";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function AdminUniversities() {
+  const { t } = useI18n();
   const { tokens } = useTheme();
   const [universities, setUniversities] = useState([]);
   const [faculties, setFaculties] = useState([]);

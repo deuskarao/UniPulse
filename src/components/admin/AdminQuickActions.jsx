@@ -5,6 +5,7 @@ import { useAuth } from "../../context/AuthContext";
 import { motion } from "framer-motion";
 
 export default function AdminQuickActions({ user, onBlockUser, onDeleteUser, onRoleChange, showToast }) {
+  const { t } = useI18n();
   const { tokens } = useTheme();
   const { resetPassword } = useAuth();
   const [showRoleModal, setShowRoleModal] = useState(false);

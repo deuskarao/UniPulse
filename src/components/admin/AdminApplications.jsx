@@ -5,6 +5,7 @@ import { supabase } from "../../lib/supabase";
 import { motion } from "framer-motion";
 
 export default function AdminApplications({ onUserSelect }) {
+  const { t } = useI18n();
   const { tokens } = useTheme();
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);

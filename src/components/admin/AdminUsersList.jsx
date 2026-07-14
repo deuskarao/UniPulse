@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 const ITEMS_PER_PAGE = 12;
 
 export default function AdminUsersList({ users, loading, selectedUser, onSelect, searchQuery, onSearchChange }) {
+  const { t } = useI18n();
   const { tokens } = useTheme();
   const [currentPage, setCurrentPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState("all");

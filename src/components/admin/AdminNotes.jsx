@@ -6,6 +6,7 @@ import { supabase } from "../../lib/supabase";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function AdminNotes({ userId, showToast, logAction }) {
+  const { t } = useI18n();
   const { tokens } = useTheme();
   const { user } = useAuth();
   const [notes, setNotes] = useState([]);

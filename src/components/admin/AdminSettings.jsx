@@ -6,6 +6,7 @@ import { supabase } from "../../lib/supabase";
 import { motion } from "framer-motion";
 
 export default function AdminSettings({ showToast }) {
+  const { t } = useI18n();
   const { tokens, mode, setMode } = useTheme();
   const { user, profile, updateProfile } = useAuth();
   const [adminProfiles, setAdminProfiles] = useState([]);

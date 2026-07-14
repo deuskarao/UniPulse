@@ -5,6 +5,7 @@ import { supabase } from "../../lib/supabase";
 import { motion } from "framer-motion";
 
 export default function AdminReports() {
+  const { t } = useI18n();
   const { tokens } = useTheme();
   const [stats, setStats] = useState({
     totalUsers: 0,
