@@ -4,14 +4,14 @@ import { useTheme } from "../../theme/ThemeProvider";
 import { useAuth } from "../../context/AuthContext";
 import { supabase } from "../../lib/supabase";
 import { motion } from "framer-motion";
+import { LogOut } from "lucide-react";
 
 export default function AdminSettings({ showToast }) {
-  const { t } = useI18n();
+  const { t, language, setLanguage } = useI18n();
   const { tokens, mode, setMode } = useTheme();
-  const { user, profile, updateProfile } = useAuth();
+  const { user, profile, logout } = useAuth();
   const [adminProfiles, setAdminProfiles] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -36,52 +36,97 @@ export default function AdminSettings({ showToast }) {
     }
   }
 
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (err) {
+      console.error(err);
+      showToast(t("admin.error_failed"), "error");
+    }
+  };
+
   return (
-    <div className="max-w-3xl">
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
-        className="rounded-xl overflow-hidden mb-6"
-        style={{ background: tokens.card, border: `1px solid ${tokens.border}` }}
-      >
-        <div style={{ padding: "20px 24px", borderBottom: `1px solid ${tokens.border}` }}>
-          <h3 style={{ fontSize: 15, fontWeight: 700, color: tokens.textPrimary }}>{t("admin.theme_preference")}</h3>
-          <p style={{ fontSize: 12, color: tokens.muted, marginTop: 4 }}>Tema tercihiniz veritabanında saklanır ve tüm oturumlarda senkronize edilir.</p>
-        </div>
-        <div className="p-5">
-          <div className="flex gap-3">
-            {[
-              { id: "dark", label: "Karanlık", icon: "🌙", desc: "Koyu arka plan" },
-              { id: "light", label: "Aydınlık", icon: "☀️", desc: "Açık arka plan" },
-              { id: "system", label: "Sistem", icon: "💻", desc: "Cihaz ayarına göre" },
-            ].map(theme => (
-              <button
-                key={theme.id}
-                onClick={() => handleThemeChange(theme.id)}
-                className="flex-1 rounded-xl p-4 text-left transition-all duration-200"
-                style={{
-                  background: mode === theme.id ? tokens.primary + "15" : tokens.surface,
-                  border: `2px solid ${mode === theme.id ? tokens.primary : tokens.border}`,
-                  cursor: "pointer",
-                }}
-              >
-                <div className="flex items-center gap-2 mb-2">
-                  <span style={{ fontSize: 18 }}>{theme.icon}</span>
-                  <span style={{ fontSize: 13, fontWeight: 700, color: mode === theme.id ? tokens.primary : tokens.textPrimary }}>{theme.label}</span>
-                </div>
-                <div style={{ fontSize: 11, color: tokens.muted }}>{theme.desc}</div>
-                {mode === theme.id && (
-                  <div className="flex items-center gap-1 mt-2" style={{ fontSize: 10, color: tokens.primary, fontWeight: 600 }}>
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                    Aktif
-                  </div>
-                )}
-              </button>
-            ))}
+    <div className="max-w-4xl">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          className="rounded-xl overflow-hidden flex flex-col"
+          style={{ background: tokens.card, border: `1px solid ${tokens.border}` }}
+        >
+          <div style={{ padding: "20px 24px", borderBottom: `1px solid ${tokens.border}` }}>
+            <h3 style={{ fontSize: 15, fontWeight: 700, color: tokens.textPrimary }}>{t("admin.theme_preference")}</h3>
+            <p style={{ fontSize: 12, color: tokens.muted, marginTop: 4 }}>Tema tercihiniz veritabanında saklanır ve tüm oturumlarda senkronize edilir.</p>
           </div>
-        </div>
-      </motion.div>
+          <div className="p-5 flex-1 flex flex-col justify-center">
+            <div className="flex gap-3 h-full">
+              {[
+                { id: "dark", label: t("admin.theme_dark") || "Karanlık", icon: "🌙" },
+                { id: "light", label: t("admin.theme_light") || "Aydınlık", icon: "☀️" },
+                { id: "system", label: t("admin.theme_system") || "Sistem", icon: "💻" },
+              ].map(theme => (
+                <button
+                  key={theme.id}
+                  onClick={() => handleThemeChange(theme.id)}
+                  className="flex-1 rounded-xl p-3 text-center transition-all duration-200 flex flex-col items-center justify-center"
+                  style={{
+                    background: mode === theme.id ? tokens.primary + "15" : tokens.surface,
+                    border: `2px solid ${mode === theme.id ? tokens.primary : tokens.border}`,
+                    cursor: "pointer",
+                  }}
+                >
+                  <div style={{ fontSize: 22, marginBottom: 8 }}>{theme.icon}</div>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: mode === theme.id ? tokens.primary : tokens.textPrimary }}>{theme.label}</div>
+                  {mode === theme.id && (
+                    <div className="flex items-center gap-1 mt-2" style={{ fontSize: 10, color: tokens.primary, fontWeight: 700 }}>
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                      Aktif
+                    </div>
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.05 }}
+          className="rounded-xl overflow-hidden flex flex-col"
+          style={{ background: tokens.card, border: `1px solid ${tokens.border}` }}
+        >
+          <div style={{ padding: "20px 24px", borderBottom: `1px solid ${tokens.border}` }}>
+            <h3 style={{ fontSize: 15, fontWeight: 700, color: tokens.textPrimary }}>Dil Tercihi</h3>
+            <p style={{ fontSize: 12, color: tokens.muted, marginTop: 4 }}>Arayüz dilini değiştirebilirsiniz. Değişiklik anında uygulanır.</p>
+          </div>
+          <div className="p-5 flex-1 flex flex-col justify-center">
+            <div className="grid grid-cols-2 gap-3 h-full">
+              {[
+                { id: "tr", label: "Türkçe", icon: "🇹🇷" },
+                { id: "en", label: "English", icon: "🇬🇧" },
+                { id: "es", label: "Español", icon: "🇪🇸" },
+                { id: "it", label: "Italiano", icon: "🇮🇹" },
+              ].map(lang => (
+                <button
+                  key={lang.id}
+                  onClick={() => setLanguage(lang.id)}
+                  className="rounded-xl p-3 text-center transition-all duration-200 flex flex-col items-center justify-center"
+                  style={{
+                    background: language === lang.id ? tokens.primary + "15" : tokens.surface,
+                    border: `2px solid ${language === lang.id ? tokens.primary : tokens.border}`,
+                    cursor: "pointer",
+                  }}
+                >
+                  <div style={{ fontSize: 20, marginBottom: 4 }}>{lang.icon}</div>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: language === lang.id ? tokens.primary : tokens.textPrimary }}>{lang.label}</div>
+                </button>
+              ))}
+            </div>
+          </div>
+        </motion.div>
+      </div>
 
       <motion.div
         initial={{ opacity: 0, y: 16 }}
@@ -90,8 +135,16 @@ export default function AdminSettings({ showToast }) {
         className="rounded-xl overflow-hidden mb-6"
         style={{ background: tokens.card, border: `1px solid ${tokens.border}` }}
       >
-        <div style={{ padding: "20px 24px", borderBottom: `1px solid ${tokens.border}` }}>
+        <div style={{ padding: "20px 24px", borderBottom: `1px solid ${tokens.border}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <h3 style={{ fontSize: 15, fontWeight: 700, color: tokens.textPrimary }}>{t("admin.admin_account")}</h3>
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors"
+            style={{ color: tokens.danger, background: tokens.danger + "15" }}
+          >
+            <LogOut size={16} />
+            {t("app.logout") || "Çıkış Yap"}
+          </button>
         </div>
         <div className="p-5">
           <div className="flex flex-col gap-3">
