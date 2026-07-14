@@ -4,6 +4,7 @@ import { useAuth } from "../../context/AuthContext";
 import { useI18n } from "../../context/I18nContext";
 import { supabase } from "../../lib/supabase";
 import { AnimatePresence } from "framer-motion";
+import { LogOut } from "lucide-react";
 
 // Admin components
 import AdminDashboard from "./AdminDashboard";
@@ -29,7 +30,7 @@ const TABS = [
 
 export default function AdminLayout() {
   const { tokens, mode } = useTheme();
-  const { profile } = useAuth();
+  const { profile, logout } = useAuth();
   const { t } = useI18n();
   
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -244,12 +245,17 @@ export default function AdminLayout() {
       {/* TABS HEADER */}
       <div style={{ 
         display: "flex", 
-        gap: 8, 
+        justifyContent: "space-between",
+        alignItems: "center",
         borderBottom: `1px solid ${tokens.border}`, 
-        marginBottom: 24,
-        overflowX: "auto",
-        scrollbarWidth: "none"
+        marginBottom: 24
       }}>
+        <div style={{ 
+          display: "flex", 
+          gap: 8, 
+          overflowX: "auto",
+          scrollbarWidth: "none"
+        }}>
         {TABS.map(tab => {
           const isActive = activeTab === tab.id;
           return (
@@ -279,6 +285,22 @@ export default function AdminLayout() {
             </button>
           );
         })}
+        </div>
+        
+        <button
+          onClick={logout}
+          className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors"
+          style={{ color: tokens.danger, background: "transparent", border: "none", cursor: "pointer", paddingRight: 8 }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = tokens.danger + "15";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = "transparent";
+          }}
+        >
+          <LogOut size={16} />
+          {t("app.logout")}
+        </button>
       </div>
 
       {/* CONTENT */}

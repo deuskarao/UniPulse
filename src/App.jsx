@@ -273,8 +273,17 @@ export default function App() {
 function AppDataGate({ children }) {
   const { appDataLoading, appDataError, harfNotlari, bosDers } = useAppData();
   const { t } = useI18n();
+  const { logout } = useAuth();
   if (appDataLoading) return <LoadingScreen text={t("Uygulama verileri yükleniyor...")} />;
-  if (appDataError || harfNotlari.length === 0 || !bosDers) return <div style={{ minHeight:"100vh", background:"#080d1a", display:"flex", alignItems:"center", justifyContent:"center", fontFamily:"'Inter', system-ui, sans-serif", padding:24 }}><div style={{ textAlign:"center", maxWidth:420 }}><h1 style={{ margin:"0 0 12px", color:"#f1f5f9", fontSize:22 }}>{t("app.data_missing")}</h1><p style={{ margin:0, color:"#64748b", fontSize:14, lineHeight:1.6 }}>{appDataError || t("app.supabase_error")}</p></div></div>;
+  if (appDataError || harfNotlari.length === 0 || !bosDers) return (
+    <div style={{ minHeight:"100vh", background:"#080d1a", display:"flex", alignItems:"center", justifyContent:"center", fontFamily:"'Inter', system-ui, sans-serif", padding:24 }}>
+      <div style={{ textAlign:"center", maxWidth:420 }}>
+        <h1 style={{ margin:"0 0 12px", color:"#f1f5f9", fontSize:22 }}>{t("app.data_missing")}</h1>
+        <p style={{ margin:"0 0 24px", color:"#64748b", fontSize:14, lineHeight:1.6 }}>{appDataError || t("app.supabase_error")}</p>
+        <button onClick={logout} style={{ padding:"10px 24px", borderRadius:10, border:"1px solid rgba(239,68,68,0.25)", background:"rgba(239,68,68,0.08)", color:"#f87171", cursor:"pointer", fontWeight:600, fontSize:13 }}>{t("app.logout")}</button>
+      </div>
+    </div>
+  );
   return children;
 }
 

@@ -117,12 +117,16 @@ export default function AuthPage({ initialMode = 'login' }) {
     const ctx = canvas.getContext('2d')
     if (!ctx) return
     
-    let w = canvas.width = window.innerWidth
-    let h = canvas.height = window.innerHeight
+    let w = window.innerWidth
+    canvas.width = w
+    let h = window.innerHeight
+    canvas.height = h
     
     const handleResize = () => {
-      w = canvas.width = window.innerWidth
-      h = canvas.height = window.innerHeight
+      w = window.innerWidth
+      canvas.width = w
+      h = window.innerHeight
+      canvas.height = h
     }
     window.addEventListener('resize', handleResize)
 

@@ -4,12 +4,11 @@ import { useTheme } from "../../theme/ThemeProvider";
 import { useAuth } from "../../context/AuthContext";
 import { supabase } from "../../lib/supabase";
 import { motion } from "framer-motion";
-import { LogOut } from "lucide-react";
 
 export default function AdminSettings({ showToast }) {
   const { t, language, setLanguage } = useI18n();
   const { tokens, mode, setMode } = useTheme();
-  const { user, profile, logout } = useAuth();
+  const { user, profile } = useAuth();
   const [adminProfiles, setAdminProfiles] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -35,15 +34,6 @@ export default function AdminSettings({ showToast }) {
       console.error("Theme save error:", e);
     }
   }
-
-  const handleLogout = async () => {
-    try {
-      await logout();
-    } catch (err) {
-      console.error(err);
-      showToast(t("admin.error_failed"), "error");
-    }
-  };
 
   return (
     <div className="max-w-4xl">
@@ -135,16 +125,8 @@ export default function AdminSettings({ showToast }) {
         className="rounded-xl overflow-hidden mb-6"
         style={{ background: tokens.card, border: `1px solid ${tokens.border}` }}
       >
-        <div style={{ padding: "20px 24px", borderBottom: `1px solid ${tokens.border}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div style={{ padding: "20px 24px", borderBottom: `1px solid ${tokens.border}` }}>
           <h3 style={{ fontSize: 15, fontWeight: 700, color: tokens.textPrimary }}>{t("admin.admin_account")}</h3>
-          <button
-            onClick={handleLogout}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors"
-            style={{ color: tokens.danger, background: tokens.danger + "15" }}
-          >
-            <LogOut size={16} />
-            {t("app.logout") || "Çıkış Yap"}
-          </button>
         </div>
         <div className="p-5">
           <div className="flex flex-col gap-3">

@@ -186,16 +186,30 @@ export function AuthProvider({ children }) {
   }
 
   async function login(emailOrName, password) {
-    let finalEmail = emailOrName.trim();
+    let finalEmail = emailOrName.trim().toLowerCase();
     if (!finalEmail.includes("@")) {
-      const { data: foundEmail, error: rpcErr } = await supabase.rpc("get_email_by_full_name", { p_name: finalEmail });
-      if (rpcErr || !foundEmail) {
-        throw new Error("Bu kullanıcı adında bir hesap bulunamadı.");
+      const { data: foundEmail, error: rpcErr } = await supabase.rpc("get_email_by_full_name", { p_name: emailOrName.trim() });
+      if (!foundEmail) {
+        const { data: foundEmailLower, error: rpcErrLower } = await supabase.rpc("get_email_by_full_name", { p_name: finalEmail });
+        if (rpcErrLower || !foundEmailLower) {
+          throw new Error("Bu kullanıcı adında bir hesap bulunamadı.");
+        }
+        finalEmail = foundEmailLower;
+      } else {
+        finalEmail = foundEmail;
       }
-      finalEmail = foundEmail;
     }
+
     const { data, error } = await supabase.auth.signInWithPassword({ email: finalEmail, password });
-    if (error) throw error;
+    if (error) {
+      if (error.message === "Invalid login credentials") {
+        throw new Error("E-posta, kullanıcı adı veya şifre hatalı.");
+      }
+      if (error.message === "Email not confirmed") {
+        throw new Error("E-posta adresiniz henüz doğrulanmamış. Lütfen e-postanızı kontrol edin.");
+      }
+      throw error;
+    }
     if (data.user) {
       const { data: prof, error: profErr } = await supabase
         .from("profiles")
