@@ -224,7 +224,7 @@ export default function MyClassPage({ bolum }) {
                 setSelectedCourse("all");
               }}
               style={{
-                background: tokens.background,
+                backgroundColor: tokens.background,
                 border: `1px solid ${tokens.border}`,
                 color: tokens.textPrimary,
                 padding: "8px 32px 8px 14px",
@@ -250,7 +250,7 @@ export default function MyClassPage({ bolum }) {
                 value={selectedCourse}
                 onChange={(e) => setSelectedCourse(e.target.value)}
                 style={{
-                  background: tokens.background,
+                  backgroundColor: tokens.background,
                   border: `1px solid ${tokens.border}`,
                   color: tokens.textPrimary,
                   padding: "8px 32px 8px 14px",
