@@ -52,7 +52,12 @@ export default function CoursesPage({ bolum, profile, harfNotlari, harfRenk, sir
                     <td style={{ padding: "12px 10px", textAlign: "center" }}><span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", minWidth: 26, height: 24, padding: "0 8px", borderRadius: 7, background: tokens.primary + "18", color: tokens.primary, fontSize: 12, fontWeight: 700 }}>{d.donem}</span></td>
                     <td style={{ padding: "12px 10px", textAlign: "center", color: tokens.primary, fontWeight: 700, fontSize: 13 }}>{d.kredi}</td>
                     <td style={{ padding: "12px 10px", textAlign: "center", color: tokens.muted, fontSize: 13 }}>{d.dersSaati}</td>
-                    <td style={{ padding: "12px 10px", textAlign: "center" }}><span style={{ fontSize: 11.5, fontWeight: 700, color: tokens.textSecondary, background: tokens.sidebarHover, border: `1px solid ${tokens.border}`, borderRadius: 99, padding: "3px 10px" }}>{d.buteKaldi ? `${(d.vizeYuzde * 100).toFixed(0)} / ${(d.finalYuzde * 100).toFixed(0)}` : `${(d.vizeYuzde * 100).toFixed(0)} / ${(d.odevYuzde * 100).toFixed(0)} / ${(d.projeYuzde * 100).toFixed(0)} / ${(d.finalYuzde * 100).toFixed(0)}`}</span></td>
+                    <td style={{ padding: "12px 10px", textAlign: "center" }}><span style={{ fontSize: 11.5, fontWeight: 700, color: tokens.textSecondary, background: tokens.sidebarHover, border: `1px solid ${tokens.border}`, borderRadius: 99, padding: "3px 10px" }}>
+                      {d.buteKaldi 
+                        ? [d.vizeYuzde, d.finalYuzde].filter(v => v > 0).map(v => (v * 100).toFixed(0)).join(" / ") || "0"
+                        : [d.vizeYuzde, d.odevYuzde, d.projeYuzde, d.finalYuzde].filter(v => v > 0).map(v => (v * 100).toFixed(0)).join(" / ") || "0"
+                      }
+                    </span></td>
                     <td style={{ padding: "12px 10px", textAlign: "center" }}><span style={{ fontWeight: 800, fontSize: 14, color: ort >= 70 ? tokens.success : ort >= 60 ? tokens.warning : tokens.danger }}>{ort.toFixed(1)}</span></td>
                     <td style={{ padding: "12px 10px", textAlign: "center" }}>
                       <span style={{
