@@ -156,7 +156,7 @@ export default function MyClassPage({ bolum }) {
           <div style={{
             width: 56, height: 56, borderRadius: 16,
             background: `linear-gradient(135deg, ${tokens.primary}, ${tokens.primary}aa)`,
-            display: "flex", alignItems: "center", justifyContent: "center",
+            display: mobil ? "none" : "flex", alignItems: "center", justifyContent: "center",
             color: "#fff", boxShadow: `0 8px 24px ${tokens.primary}40`,
           }}>
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -173,7 +173,7 @@ export default function MyClassPage({ bolum }) {
       </div>
 
       {/* ── Sekmeler (Tabs) ── */}
-      <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
+      <div style={{ display: mobil ? "grid" : "flex", gridTemplateColumns: mobil ? "1fr 1fr" : "none", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
         <button 
           onClick={() => setActiveTab("school")}
           style={{ 
@@ -337,18 +337,18 @@ export default function MyClassPage({ bolum }) {
 
               {activeTab === "school" && (
                 <>
-                  <div>{t("Fakülte")}</div>
-                  <div>{t("Bölüm")}</div>
-                  <div>{t("Sınıf")}</div>
+                  <div style={{ textAlign: "center" }}>{t("Fakülte")}</div>
+                  <div style={{ textAlign: "center" }}>{t("Bölüm")}</div>
+                  <div style={{ textAlign: "center" }}>{t("Sınıf")}</div>
                 </>
               )}
               {activeTab === "faculty" && (
                 <>
-                  <div>{t("Bölüm")}</div>
-                  <div>{t("Sınıf")}</div>
+                  <div style={{ textAlign: "center" }}>{t("Bölüm")}</div>
+                  <div style={{ textAlign: "center" }}>{t("Sınıf")}</div>
                 </>
               )}
-              {activeTab === "department" && <div>{t("Sınıf")}</div>}
+              {activeTab === "department" && <div style={{ textAlign: "center" }}>{t("Sınıf")}</div>}
 
               {activeTab === "class" && selectedCourse !== "all" && (
                 <>
@@ -440,19 +440,19 @@ export default function MyClassPage({ bolum }) {
                   {/* New Fields */}
                   {activeTab === "school" && (
                     <>
-                      <div style={{ fontSize: 13, color: tokens.textSecondary, fontWeight: 600 }}>{getTransFac(s.faculty_name) || "-"}</div>
-                      <div style={{ fontSize: 13, color: tokens.textSecondary, fontWeight: 600 }}>{getTransDept(s.department_name) || "-"}</div>
-                      <div style={{ fontSize: 13, color: tokens.textSecondary, fontWeight: 600 }}>{getSinif(s.enrollment_year)}</div>
+                      <div style={{ fontSize: 13, color: tokens.textSecondary, fontWeight: 600, textAlign: "center" }}>{getTransFac(s.faculty_name) || "-"}</div>
+                      <div style={{ fontSize: 13, color: tokens.textSecondary, fontWeight: 600, textAlign: "center" }}>{getTransDept(s.department_name) || "-"}</div>
+                      <div style={{ fontSize: 13, color: tokens.textSecondary, fontWeight: 600, textAlign: "center" }}>{getSinif(s.enrollment_year)}</div>
                     </>
                   )}
                   {activeTab === "faculty" && (
                     <>
-                      <div style={{ fontSize: 13, color: tokens.textSecondary, fontWeight: 600 }}>{getTransDept(s.department_name) || "-"}</div>
-                      <div style={{ fontSize: 13, color: tokens.textSecondary, fontWeight: 600 }}>{getSinif(s.enrollment_year)}</div>
+                      <div style={{ fontSize: 13, color: tokens.textSecondary, fontWeight: 600, textAlign: "center" }}>{getTransDept(s.department_name) || "-"}</div>
+                      <div style={{ fontSize: 13, color: tokens.textSecondary, fontWeight: 600, textAlign: "center" }}>{getSinif(s.enrollment_year)}</div>
                     </>
                   )}
                   {activeTab === "department" && (
-                    <div style={{ fontSize: 13, color: tokens.textSecondary, fontWeight: 600 }}>{getSinif(s.enrollment_year)}</div>
+                    <div style={{ fontSize: 13, color: tokens.textSecondary, fontWeight: 600, textAlign: "center" }}>{getSinif(s.enrollment_year)}</div>
                   )}
 
                   {activeTab === "class" && selectedCourse !== "all" && (

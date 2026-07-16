@@ -26,18 +26,52 @@ export function AppDataProvider({ children }) {
     async function loadAppData() {
       try {
         setAppDataLoading(true);
-        const [hnData, hrData, grData, bdData, uniData, facData, fdData] = await Promise.all([
-          supabase.from("harf_notlari").select("*").order("min", { ascending: false }),
-          supabase.from("harf_renkler").select("*"),
-          supabase.from("gano_renkler").select("*").order("min_gano", { ascending: false }),
-          supabase.from("default_course").select("value").eq("key", "bos_ders").maybeSingle(),
-          supabase.from("universities").select("*").order("ad"),
-          supabase.from("faculties").select("*").order("ad"),
-          supabase.from("faculty_departments").select("*, faculties(*)"),
-        ]);
+        
+        const CACHE_KEY = `app_dict_cache`;
+        const CACHE_EXPIRY = 24 * 60 * 60 * 1000; // 24 hours
+        let cachedData = null;
 
-        const error = hnData.error || hrData.error || grData.error || bdData.error || uniData.error || facData.error || fdData.error;
-        if (error) throw error;
+        try {
+          const rawCache = localStorage.getItem(CACHE_KEY);
+          if (rawCache) {
+            const parsed = JSON.parse(rawCache);
+            if (Date.now() - parsed.timestamp < CACHE_EXPIRY) {
+              cachedData = parsed.data;
+            }
+          }
+        } catch (e) {
+          console.warn("Cache read error:", e);
+        }
+
+        let hnData, hrData, grData, bdData, uniData, facData, fdData;
+
+        if (cachedData) {
+          [hnData, hrData, grData, bdData, uniData, facData, fdData] = cachedData;
+        } else {
+          const results = await Promise.all([
+            supabase.from("harf_notlari").select("*").order("min", { ascending: false }),
+            supabase.from("harf_renkler").select("*"),
+            supabase.from("gano_renkler").select("*").order("min_gano", { ascending: false }),
+            supabase.from("default_course").select("value").eq("key", "bos_ders").maybeSingle(),
+            supabase.from("universities").select("*").order("ad"),
+            supabase.from("faculties").select("*").order("ad"),
+            supabase.from("faculty_departments").select("*, faculties(*)"),
+          ]);
+          
+          [hnData, hrData, grData, bdData, uniData, facData, fdData] = results;
+
+          const error = hnData.error || hrData.error || grData.error || bdData.error || uniData.error || facData.error || fdData.error;
+          if (error) throw error;
+
+          try {
+            localStorage.setItem(CACHE_KEY, JSON.stringify({
+              timestamp: Date.now(),
+              data: results
+            }));
+          } catch(e) {
+            console.warn("Cache write error:", e);
+          }
+        }
 
         const mapAd = (data) => {
           if (!data) return data;

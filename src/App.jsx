@@ -36,7 +36,29 @@ function BolumSecim({ onSecim }) {
 
   useEffect(() => {
     async function loadData() {
-      const depData = await supabase.from("departments").select("*, department_courses(count)").order("slug");
+      const CACHE_KEY = `departments_cache`;
+      const CACHE_EXPIRY = 24 * 60 * 60 * 1000;
+      let depData = null;
+
+      try {
+        const rawCache = localStorage.getItem(CACHE_KEY);
+        if (rawCache) {
+          const parsed = JSON.parse(rawCache);
+          if (Date.now() - parsed.timestamp < CACHE_EXPIRY) {
+            depData = parsed.data;
+          }
+        }
+      } catch(e) {}
+
+      if (!depData) {
+        depData = await supabase.from("departments").select("*, department_courses(count)").order("slug");
+        if (depData?.data) {
+          try {
+            localStorage.setItem(CACHE_KEY, JSON.stringify({ timestamp: Date.now(), data: depData }));
+          } catch(e) {}
+        }
+      }
+      
       if (depData?.data) {
         const mapped = depData.data.map(d => {
           const adTrans = language !== "tr" && d[`ad_${language}`] ? d[`ad_${language}`] : d.ad;
