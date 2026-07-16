@@ -316,18 +316,25 @@ export default function MyClassPage({ bolum }) {
             </div>
           </div>
         ) : (
-          <div style={{ display: "flex", flexDirection: "column" }}>
+          <div style={{ width: "100%", overflowX: "auto", WebkitOverflowScrolling: "touch", paddingBottom: 12 }}>
+            <div style={{ display: "flex", flexDirection: "column", minWidth: 700 }}>
             {/* Header */}
             <div style={{ display: "grid", 
-              gridTemplateColumns: activeTab === "school" ? "60px 2.5fr 2fr 2fr 1fr 120px" :
-                                   activeTab === "faculty" ? "60px 2.5fr 2fr 1fr 120px" :
-                                   activeTab === "department" ? "60px 2.5fr 1.5fr 120px" :
-                                   (activeTab === "class" && selectedCourse !== "all") ? "60px 2.5fr 1fr 1fr 1fr 1fr 1fr 1fr 100px" :
+              gridTemplateColumns: activeTab === "school" ? "60px 2.5fr 120px 2fr 2fr 1fr" :
+                                   activeTab === "faculty" ? "60px 2.5fr 120px 2fr 1fr" :
+                                   activeTab === "department" ? "60px 2.5fr 120px 1.5fr" :
+                                   (activeTab === "class" && selectedCourse !== "all") ? "60px 2.5fr 100px 1fr 1fr 1fr 1fr 1fr 1fr" :
                                    "60px 3fr 120px", 
               padding: "12px 24px", background: tokens.background, borderBottom: `1px solid ${tokens.border}`, fontSize: 12, fontWeight: 600, color: tokens.muted, textTransform: "uppercase", letterSpacing: 0.5 }}>
               <div style={{ textAlign: "center" }}>#</div>
               <div>{t("Öğrenci")}</div>
               
+              {activeTab === "class" && selectedCourse !== "all" ? (
+                <div style={{ textAlign: "center" }}>{t("Harf Notu")}</div>
+              ) : (
+                <div style={{ textAlign: "center" }}>{t("Ortalama")}</div>
+              )}
+
               {activeTab === "school" && (
                 <>
                   <div>{t("Fakülte")}</div>
@@ -343,7 +350,7 @@ export default function MyClassPage({ bolum }) {
               )}
               {activeTab === "department" && <div>{t("Sınıf")}</div>}
 
-              {activeTab === "class" && selectedCourse !== "all" ? (
+              {activeTab === "class" && selectedCourse !== "all" && (
                 <>
                   <div style={{ textAlign: "center" }}>{t("Vize")}</div>
                   <div style={{ textAlign: "center" }}>{t("Ödev")}</div>
@@ -351,10 +358,7 @@ export default function MyClassPage({ bolum }) {
                   <div style={{ textAlign: "center" }}>{t("Final")}</div>
                   <div style={{ textAlign: "center" }}>{t("Büt")}</div>
                   <div style={{ textAlign: "center" }}>{t("Ort.")}</div>
-                  <div style={{ textAlign: "right" }}>{t("Harf Notu")}</div>
                 </>
-              ) : (
-                <div style={{ textAlign: "right" }}>{t("Ortalama")}</div>
               )}
             </div>
             
@@ -375,10 +379,10 @@ export default function MyClassPage({ bolum }) {
                 return sinif > 0 ? `${sinif}. ${t("Sınıf")}` : t("Hazırlık");
               };
               
-              const gridCols = activeTab === "school" ? "60px 2.5fr 2fr 2fr 1fr 120px" :
-                               activeTab === "faculty" ? "60px 2.5fr 2fr 1fr 120px" :
-                               activeTab === "department" ? "60px 2.5fr 1.5fr 120px" :
-                               (activeTab === "class" && selectedCourse !== "all") ? "60px 2.5fr 1fr 1fr 1fr 1fr 1fr 1fr 100px" :
+              const gridCols = activeTab === "school" ? "60px 2.5fr 120px 2fr 2fr 1fr" :
+                               activeTab === "faculty" ? "60px 2.5fr 120px 2fr 1fr" :
+                               activeTab === "department" ? "60px 2.5fr 120px 1.5fr" :
+                               (activeTab === "class" && selectedCourse !== "all") ? "60px 2.5fr 100px 1fr 1fr 1fr 1fr 1fr 1fr" :
                                "60px 3fr 120px";
               
               return (
@@ -404,13 +408,8 @@ export default function MyClassPage({ bolum }) {
                   </div>
                   
                   {/* Öğrenci */}
-                  <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-                    <div style={{ position: "relative" }}>
-                      <div style={{ width: 42, height: 42, borderRadius: 14, background: isMe ? `linear-gradient(135deg, ${tokens.primary}, ${tokens.primary}dd)` : tokens.background, border: `1px solid ${isMe ? tokens.primary + "50" : tokens.border}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, fontWeight: 800, color: isMe ? "#fff" : tokens.textSecondary, boxShadow: isMe ? `0 4px 12px ${tokens.primary}40` : "none" }}>
-                        {s.full_name ? s.full_name[0].toUpperCase() : "?"}
-                      </div>
-                      {s.is_online && <div style={{ position: "absolute", bottom: -2, right: -2, width: 12, height: 12, borderRadius: "50%", background: tokens.success, border: `2px solid ${tokens.card}`, boxShadow: `0 0 0 2px ${tokens.success}30` }} />}
-                    </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    {s.is_online && <div style={{ width: 8, height: 8, borderRadius: "50%", background: tokens.success, flexShrink: 0 }} />}
                     <div>
                       <div style={{ fontSize: 15, fontWeight: 700, color: isMe ? tokens.primary : tokens.textPrimary, display: "flex", alignItems: "center", gap: 8, marginBottom: 2 }}>
                         {s.full_name || t("Anonim Öğrenci")}
@@ -420,6 +419,24 @@ export default function MyClassPage({ bolum }) {
                     </div>
                   </div>
                   
+                  {/* Ortalama / Not */}
+                  {activeTab === "class" && selectedCourse !== "all" ? (
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+                      <div style={{ fontSize: 16, fontWeight: 800, color: gpaStatus.c, letterSpacing: -0.5 }}>
+                        {s.harf_notu || "-"}
+                      </div>
+                    </div>
+                  ) : (
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6 }}>
+                      <div style={{ fontSize: 18, fontWeight: 800, color: gpaStatus.c, letterSpacing: -0.5, textShadow: isMe ? `0 2px 10px ${gpaStatus.c}40` : "none" }}>
+                        {(s.gpa || 0).toFixed(2)}
+                      </div>
+                      <div style={{ width: 60, height: 4, background: tokens.background, borderRadius: 2, overflow: "hidden" }}>
+                        <div style={{ height: "100%", width: `${pct}%`, background: gpaStatus.c, borderRadius: 2 }} />
+                      </div>
+                    </div>
+                  )}
+
                   {/* New Fields */}
                   {activeTab === "school" && (
                     <>
@@ -438,7 +455,7 @@ export default function MyClassPage({ bolum }) {
                     <div style={{ fontSize: 13, color: tokens.textSecondary, fontWeight: 600 }}>{getSinif(s.enrollment_year)}</div>
                   )}
 
-                  {activeTab === "class" && selectedCourse !== "all" ? (
+                  {activeTab === "class" && selectedCourse !== "all" && (
                     <>
                       <div style={{ fontSize: 14, fontWeight: 700, color: tokens.textSecondary, textAlign: "center" }}>{s.vize ?? "-"}</div>
                       <div style={{ fontSize: 14, fontWeight: 700, color: tokens.textSecondary, textAlign: "center" }}>{s.odev ?? "-"}</div>
@@ -446,26 +463,13 @@ export default function MyClassPage({ bolum }) {
                       <div style={{ fontSize: 14, fontWeight: 700, color: tokens.textSecondary, textAlign: "center" }}>{s.final ?? "-"}</div>
                       <div style={{ fontSize: 14, fontWeight: 700, color: tokens.textSecondary, textAlign: "center" }}>{s.but ?? "-"}</div>
                       <div style={{ fontSize: 14, fontWeight: 800, color: tokens.textPrimary, textAlign: "center" }}>{(s.sort_score || 0).toFixed(1)}</div>
-                      <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
-                        <div style={{ fontSize: 16, fontWeight: 800, color: gpaStatus.c, letterSpacing: -0.5 }}>
-                          {s.harf_notu || "-"}
-                        </div>
-                      </div>
                     </>
-                  ) : (
-                    <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6 }}>
-                      <div style={{ fontSize: 18, fontWeight: 800, color: gpaStatus.c, letterSpacing: -0.5, textShadow: isMe ? `0 2px 10px ${gpaStatus.c}40` : "none" }}>
-                        {(s.gpa || 0).toFixed(2)}
-                      </div>
-                      <div style={{ width: 80, height: 6, background: tokens.background, borderRadius: 3, overflow: "hidden" }}>
-                        <div style={{ height: "100%", width: `${pct}%`, background: gpaStatus.c, borderRadius: 3 }} />
-                      </div>
-                    </div>
                   )}
                   
                 </div>
               );
             })}
+            </div>
           </div>
         )}
       </div>
