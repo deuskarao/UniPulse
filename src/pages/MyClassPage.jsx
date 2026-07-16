@@ -26,16 +26,22 @@ export default function MyClassPage({ bolum }) {
     });
   }, []);
 
-  const getTransFac = (name) => {
-    if (!name || language === "tr") return name;
-    const fac = faculties.find(f => f.original_ad === name || f.ad === name);
-    return fac && fac[`ad_${language}`] ? fac[`ad_${language}`] : name;
+  const getTransUni = (ad) => {
+    if (!ad || language === "tr") return ad;
+    const uni = universities.find(u => u.ad === ad);
+    return uni && uni[`ad_${language}`] ? uni[`ad_${language}`] : ad;
   };
 
-  const getTransDept = (name) => {
-    if (!name || language === "tr") return name;
-    const dept = departments.find(d => d.ad === name);
-    return dept && dept[`ad_${language}`] ? dept[`ad_${language}`] : name;
+  const getTransFac = (ad) => {
+    if (!ad || language === "tr") return ad;
+    const fac = faculties.find(f => f.original_ad === ad || f.ad === ad);
+    return fac && fac[`ad_${language}`] ? fac[`ad_${language}`] : ad;
+  };
+
+  const getTransDept = (ad) => {
+    if (!ad || language === "tr") return ad;
+    const dept = departments.find(d => d.ad === ad);
+    return dept && dept[`ad_${language}`] ? dept[`ad_${language}`] : ad;
   };
   const [selectedDonem, setSelectedDonem] = useState("all");
   const [availableDonems, setAvailableDonems] = useState([]);
@@ -50,7 +56,7 @@ export default function MyClassPage({ bolum }) {
       if (!profile?.department_id) return;
       const { data } = await supabase
         .from("department_courses")
-        .select("id, ad, donem")
+        .select("id, ad, donem, ad_en, ad_es, ad_it, ad_ru")
         .eq("department_id", profile.department_id)
         .order("ad");
       if (data) {
@@ -132,7 +138,7 @@ export default function MyClassPage({ bolum }) {
   }
 
   const headerTitle = bolum?.ad 
-    ? `${t(bolum.ad)} ${profile.enrollment_year} ${t("Girişliler")}` 
+    ? `${bolum.ad} ${profile.enrollment_year} ${t("Girişliler")}` 
     : `${profile.enrollment_year} ${t("Girişliler")}`;
 
   return (
@@ -265,7 +271,9 @@ export default function MyClassPage({ bolum }) {
               >
                 <option value="all">{t("Genel Ortalama")}</option>
                 {courses.filter(c => selectedDonem === "all" || c.donem === Number(selectedDonem)).map(c => (
-                  <option key={c.id} value={c.id}>{t(c.ad)}</option>
+                  <option key={c.id} value={c.id}>
+                    {(language !== "tr" && c[`ad_${language}`]) ? c[`ad_${language}`] : c.ad}
+                  </option>
                 ))}
               </select>
             )}
@@ -278,9 +286,9 @@ export default function MyClassPage({ bolum }) {
         <div style={{ padding: "20px 24px", borderBottom: `1px solid ${tokens.border}`, display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
           <h2 style={{ fontSize: 16, fontWeight: 700, color: tokens.textPrimary, margin: 0 }}>
             {activeTab === "school" 
-              ? (userUniversity?.ad ? `${userUniversity.ad} ${t("Liderlik Tablosu")}` : t("Genel Liderlik Tablosu")) 
+              ? (userUniversity?.ad ? `${getTransUni(userUniversity.ad)} ${t("Liderlik Tablosu")}` : t("Genel Liderlik Tablosu")) 
               : activeTab === "faculty" 
-                ? (userFaculty?.ad ? `${userFaculty.ad} ${t("Liderlik Tablosu")}` : t("Fakülte Liderlik Tablosu")) 
+                ? (userFaculty?.ad ? `${getTransFac(userFaculty.ad)} ${t("Liderlik Tablosu")}` : t("Fakülte Liderlik Tablosu")) 
                 : activeTab === "department"
                   ? (bolum?.ad ? `${bolum.ad} ${t("Liderlik Tablosu")}` : t("Bölüm Liderlik Tablosu"))
                   : t("Sınıf Liderlik Tablosu")}
