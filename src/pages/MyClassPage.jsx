@@ -330,14 +330,17 @@ export default function MyClassPage({ bolum }) {
               gridTemplateColumns: activeTab === "school" ? "60px 2.5fr 120px 2fr 2fr 1fr" :
                                    activeTab === "faculty" ? "60px 2.5fr 120px 2fr 1fr" :
                                    activeTab === "department" ? "60px 2.5fr 120px 1.5fr" :
-                                   (activeTab === "class" && selectedCourse !== "all") ? "60px 2.5fr 80px 1fr 1fr 1fr 1fr 1fr" :
+                                   (activeTab === "class" && selectedCourse !== "all") ? "60px 2.5fr 60px 60px 1fr 1fr 1fr 1fr 1fr" :
                                    "60px 3fr 120px", 
               padding: "12px 24px", background: tokens.background, borderBottom: `1px solid ${tokens.border}`, fontSize: 12, fontWeight: 600, color: tokens.muted, textTransform: "uppercase", letterSpacing: 0.5 }}>
               <div style={{ textAlign: "center" }}>#</div>
               <div>{t("Öğrenci")}</div>
               
               {activeTab === "class" && selectedCourse !== "all" ? (
-                <div style={{ textAlign: "center" }}>{t("Ort / Not")}</div>
+                <>
+                  <div style={{ textAlign: "center" }}>{t("Ort.")}</div>
+                  <div style={{ textAlign: "center" }}>{t("Harf")}</div>
+                </>
               ) : (
                 <div style={{ textAlign: "center" }}>{t("Ortalama")}</div>
               )}
@@ -388,7 +391,7 @@ export default function MyClassPage({ bolum }) {
               const gridCols = activeTab === "school" ? "60px 2.5fr 120px 2fr 2fr 1fr" :
                                activeTab === "faculty" ? "60px 2.5fr 120px 2fr 1fr" :
                                activeTab === "department" ? "60px 2.5fr 120px 1.5fr" :
-                               (activeTab === "class" && selectedCourse !== "all") ? "60px 2.5fr 80px 1fr 1fr 1fr 1fr 1fr" :
+                               (activeTab === "class" && selectedCourse !== "all") ? "60px 2.5fr 60px 60px 1fr 1fr 1fr 1fr 1fr" :
                                "60px 3fr 120px";
               
               return (
@@ -427,14 +430,18 @@ export default function MyClassPage({ bolum }) {
                   
                   {/* Ortalama / Not */}
                   {activeTab === "class" && selectedCourse !== "all" ? (
-                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 2 }}>
-                      <div style={{ fontSize: 16, fontWeight: 800, color: gpaStatus.c, letterSpacing: -0.5 }}>
-                        {(s.sort_score || 0).toFixed(1)}
+                    <>
+                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+                        <div style={{ fontSize: 15, fontWeight: 800, color: gpaStatus.c, letterSpacing: -0.5 }}>
+                          {(s.sort_score || 0).toFixed(1)}
+                        </div>
                       </div>
-                      <div style={{ fontSize: 12, fontWeight: 700, color: tokens.textSecondary }}>
-                        {s.harf_notu || "-"}
+                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+                        <div style={{ fontSize: 13, fontWeight: 700, color: tokens.textSecondary }}>
+                          {s.harf_notu || "-"}
+                        </div>
                       </div>
-                    </div>
+                    </>
                   ) : (
                     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6 }}>
                       <div style={{ fontSize: 18, fontWeight: 800, color: gpaStatus.c, letterSpacing: -0.5, textShadow: isMe ? `0 2px 10px ${gpaStatus.c}40` : "none" }}>
