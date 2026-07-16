@@ -1,6 +1,9 @@
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslation } from "react-i18next";
 
 export default function TermsModal({ isOpen, onClose, type, tokens, isDark, onApprove, onDecline }) {
+  const { t } = useTranslation();
+
   if (!isOpen) return null;
 
   return (
@@ -35,7 +38,7 @@ export default function TermsModal({ isOpen, onClose, type, tokens, isDark, onAp
         >
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
             <h2 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: tokens.textPrimary, letterSpacing: -0.3 }}>
-              {type === 'terms' ? 'Kullanım Koşulları' : 'KVKK Aydınlatma Metni'}
+              {type === 'terms' ? t('Kullanım Koşulları') : t('KVKK Aydınlatma Metni')}
             </h2>
             <button onClick={onClose} style={{
               background: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.03)", 
@@ -51,32 +54,32 @@ export default function TermsModal({ isOpen, onClose, type, tokens, isDark, onAp
           <div style={{ flex: 1, overflowY: "auto", fontSize: 13, color: tokens.textSecondary, lineHeight: 1.7, paddingRight: 8 }}>
             {type === 'terms' ? (
               <>
-                <h3 style={{ color: tokens.textPrimary, fontSize: 15, fontWeight: 600, margin: "0 0 10px" }}>1. Genel Koşullar</h3>
-                <p>UniPulse platformuna kayıt olarak aşağıdaki kullanım koşullarını kabul etmiş sayılırsınız. Platform, üniversite öğrencilerine akademik takip ve analiz hizmeti sunmak amacıyla geliştirilmiştir.</p>
-                <p>Kullanıcılar, hesap bilgilerinin gizliliğinden sorumludur. Şifrenizi üçüncü kişilerle paylaşmayınız. Hesabınızda gerçekleşen tüm işlemlerden siz sorumlusunuz.</p>
-                <h3 style={{ color: tokens.textPrimary, fontSize: 15, fontWeight: 600, margin: "16px 0 10px" }}>3. Veri Kullanımı</h3>
-                <p>Platforma girdiğiniz akademik veriler (ders notları, GPA bilgileri vb.) yalnızca size özel analiz ve raporlama amacıyla kullanılır. Verileriniz üçüncü taraflarla paylaşılmaz.</p>
-                <h3 style={{ color: tokens.textPrimary, fontSize: 15, fontWeight: 600, margin: "16px 0 10px" }}>4. Hizmet Sınırları</h3>
-                <p>UniPulse, sunduğu hizmetleri önceden bildirimde bulunmaksızın değiştirme, askıya alma veya sonlandırma hakkını saklı tutar. Platform "olduğu gibi" sunulmakta olup herhangi bir garanti verilmemektedir.</p>
-                <h3 style={{ color: tokens.textPrimary, fontSize: 15, fontWeight: 600, margin: "16px 0 10px" }}>5. Fikri Mülkiyet</h3>
-                <p>UniPulse platformundaki tüm tasarım, logo, yazılım ve içerikler telif hakkı ile korunmaktadır. İzinsiz kopyalama, dağıtma veya ticari amaçla kullanma yasaktır.</p>
-                <h3 style={{ color: tokens.textPrimary, fontSize: 15, fontWeight: 600, margin: "16px 0 10px" }}>6. İletişim</h3>
-                <p>Kullanım koşullarıyla ilgili sorularınız için <strong style={{ color: tokens.textPrimary }}>destek@unipulse.app</strong> adresinden bizimle iletişime geçebilirsiniz.</p>
+                <h3 style={{ color: tokens.textPrimary, fontSize: 15, fontWeight: 600, margin: "0 0 10px" }}>{t("terms_h1")}</h3>
+                <p>{t("terms_p1")}</p>
+                <p>{t("terms_p2")}</p>
+                <h3 style={{ color: tokens.textPrimary, fontSize: 15, fontWeight: 600, margin: "16px 0 10px" }}>{t("terms_h2")}</h3>
+                <p>{t("terms_p3")}</p>
+                <h3 style={{ color: tokens.textPrimary, fontSize: 15, fontWeight: 600, margin: "16px 0 10px" }}>{t("terms_h3")}</h3>
+                <p>{t("terms_p4")}</p>
+                <h3 style={{ color: tokens.textPrimary, fontSize: 15, fontWeight: 600, margin: "16px 0 10px" }}>{t("terms_h4")}</h3>
+                <p>{t("terms_p5")}</p>
+                <h3 style={{ color: tokens.textPrimary, fontSize: 15, fontWeight: 600, margin: "16px 0 10px" }}>{t("terms_h5")}</h3>
+                <p>{t("terms_p6")} <strong style={{ color: tokens.textPrimary }}>destek@unipulse.app</strong> {t("terms_p6_2")}</p>
               </>
             ) : (
               <>
-                <h3 style={{ color: tokens.textPrimary, fontSize: 15, fontWeight: 600, margin: "0 0 10px" }}>Veri Sorumlusu</h3>
-                <p>UniPulse platformu olarak kişisel verilerinizin korunmasına büyük önem veriyoruz. 6698 sayılı Kişisel Verilerin Korunması Kanunu (KVKK) kapsamında aşağıdaki bilgilendirmeyi sunarız.</p>
-                <h3 style={{ color: tokens.textPrimary, fontSize: 15, fontWeight: 600, margin: "16px 0 10px" }}>İşlenen Kişisel Veriler</h3>
-                <p>Kimlik bilgileri (ad, soyad, kullanıcı adı), iletişim bilgileri (e-posta adresi), eğitim bilgileri (üniversite, fakülte, bölüm, ders notları, GPA), hesap güvenlik bilgileri (şifrelenmiş parola, oturum verileri).</p>
-                <h3 style={{ color: tokens.textPrimary, fontSize: 15, fontWeight: 600, margin: "16px 0 10px" }}>Verilerin İşlenme Amacı</h3>
-                <p>Toplanan veriler; üyelik işlemlerinin yürütülmesi, akademik performans analizi ve raporlama, platform güvenliğinin sağlanması ve kullanıcı deneyiminin iyileştirilmesi amacıyla işlenmektedir.</p>
-                <h3 style={{ color: tokens.textPrimary, fontSize: 15, fontWeight: 600, margin: "16px 0 10px" }}>Verilerin Aktarılması</h3>
-                <p>Kişisel verileriniz, yasal zorunluluklar dışında üçüncü taraflarla paylaşılmaz. Verileriniz Supabase altyapısı üzerinde şifreli olarak saklanmaktadır.</p>
-                <h3 style={{ color: tokens.textPrimary, fontSize: 15, fontWeight: 600, margin: "16px 0 10px" }}>Haklarınız</h3>
-                <p>KVKK'nın 11. maddesi uyarınca; kişisel verilerinizin işlenip işlenmediğini öğrenme, düzeltilmesini isteme, silinmesini veya yok edilmesini isteme, üçüncü kişilere aktarılıp aktarılmadığını öğrenme haklarına sahipsiniz.</p>
-                <h3 style={{ color: tokens.textPrimary, fontSize: 15, fontWeight: 600, margin: "16px 0 10px" }}>İletişim</h3>
-                <p>KVKK kapsamındaki taleplerinizi <strong style={{ color: tokens.textPrimary }}>kvkk@unipulse.app</strong> adresine iletebilirsiniz.</p>
+                <h3 style={{ color: tokens.textPrimary, fontSize: 15, fontWeight: 600, margin: "0 0 10px" }}>{t("kvkk_h1")}</h3>
+                <p>{t("kvkk_p1")}</p>
+                <h3 style={{ color: tokens.textPrimary, fontSize: 15, fontWeight: 600, margin: "16px 0 10px" }}>{t("kvkk_h2")}</h3>
+                <p>{t("kvkk_p2")}</p>
+                <h3 style={{ color: tokens.textPrimary, fontSize: 15, fontWeight: 600, margin: "16px 0 10px" }}>{t("kvkk_h3")}</h3>
+                <p>{t("kvkk_p3")}</p>
+                <h3 style={{ color: tokens.textPrimary, fontSize: 15, fontWeight: 600, margin: "16px 0 10px" }}>{t("kvkk_h4")}</h3>
+                <p>{t("kvkk_p4")}</p>
+                <h3 style={{ color: tokens.textPrimary, fontSize: 15, fontWeight: 600, margin: "16px 0 10px" }}>{t("kvkk_h5")}</h3>
+                <p>{t("kvkk_p5")}</p>
+                <h3 style={{ color: tokens.textPrimary, fontSize: 15, fontWeight: 600, margin: "16px 0 10px" }}>{t("kvkk_h6")}</h3>
+                <p>{t("kvkk_p6")} <strong style={{ color: tokens.textPrimary }}>kvkk@unipulse.app</strong> {t("kvkk_p6_2")}</p>
               </>
             )}
           </div>
@@ -92,7 +95,7 @@ export default function TermsModal({ isOpen, onClose, type, tokens, isDark, onAp
                 color: tokens.textPrimary, cursor: "pointer", fontWeight: 600, fontSize: 13.5,
                 fontFamily: "inherit",
               }}
-            >Vazgeç</motion.button>
+            >{t("Vazgeç")}</motion.button>
             <motion.button
               onClick={onApprove}
               whileHover={{ scale: 1.02 }}
@@ -103,7 +106,7 @@ export default function TermsModal({ isOpen, onClose, type, tokens, isDark, onAp
                 color: "#fff", cursor: "pointer", fontWeight: 600, fontSize: 13.5,
                 fontFamily: "inherit", boxShadow: `0 8px 20px ${isDark ? "rgba(37,99,235,0.32)" : "rgba(37,99,235,0.2)"}`,
               }}
-            >Onaylıyorum</motion.button>
+            >{t("Onaylıyorum")}</motion.button>
           </div>
         </motion.div>
       </motion.div>
