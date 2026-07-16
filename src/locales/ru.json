@@ -158,7 +158,7 @@
   "Büte Kaldın Mı?": "У вас пересдача?",
   "Evet": "Да",
   "Hayır": "Нет",
-  "Liderlik Tablosu": "Таблица лидеров",
+  "Liderlik Tablosu": "Рейтинг",
   "Rol": "Роль",
   "Sınıf Seçin": "Выберите Класс",
   "Harf Notu": "Буква",
@@ -459,5 +459,12 @@
   "Sınıf arkadaşlarınızı görebilmek için lütfen Ayarlar sayfasından Bölüm ve Kayıt Yılı bilgilerinizi doldurun.": "Пожалуйста, заполните ваш факультет и год поступления на странице настроек, чтобы увидеть своих одноклассников.",
   "Anonim Öğrenci": "Анонимный студент",
   "Ya bu dersi almıyorsunuz ya da sınıfınızda bu dersi alan başka öğrenci bulunmuyor.": "Вы либо не проходите этот курс, либо в вашем классе больше никто его не проходит.",
-  "Seçilen kritere uygun sınıf arkadaşınız bulunmuyor.": "Одноклассники, соответствующие выбранным критериям, не найдены."
+  "Seçilen kritere uygun sınıf arkadaşınız bulunmuyor.": "Одноклассники, соответствующие выбранным критериям, не найдены.",
+  "Belirtilmemiş": "Не указано",
+  "Dış Ticaret": "Внешняя торговля",
+  "Eskişehir Meslek Yüksekokulu": "Профессиональная школа Эскишехир",
+  "Açıköğretim Fakültesi": "Факультет открытого образования",
+  "Bilgisayar Programcılığı": "Компьютерное программирование",
+  "Eğitim Fakültesi": "Педагогический факультет",
+  "Özel Eğitim Öğretmenliği": "Специальное образование"
 }

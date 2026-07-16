@@ -158,7 +158,7 @@
   "Büte Kaldın Mı?": "¿Tienes Recuperación?",
   "Evet": "Sí",
   "Hayır": "No",
-  "Liderlik Tablosu": "Tabla de clasificación",
+  "Liderlik Tablosu": "Clasificación",
   "Rol": "Rol",
   "Sınıf Seçin": "Seleccionar Clase",
   "Harf Notu": "Letra",
@@ -459,5 +459,12 @@
   "Sınıf arkadaşlarınızı görebilmek için lütfen Ayarlar sayfasından Bölüm ve Kayıt Yılı bilgilerinizi doldurun.": "Por favor, complete su Departamento y Año de Inscripción en la página de Configuración para ver a sus compañeros de clase.",
   "Anonim Öğrenci": "Estudiante Anónimo",
   "Ya bu dersi almıyorsunuz ya da sınıfınızda bu dersi alan başka öğrenci bulunmuyor.": "O no estás tomando este curso, o no hay otros estudiantes en tu clase que lo estén tomando.",
-  "Seçilen kritere uygun sınıf arkadaşınız bulunmuyor.": "No se encontraron compañeros que coincidan con los criterios seleccionados."
+  "Seçilen kritere uygun sınıf arkadaşınız bulunmuyor.": "No se encontraron compañeros que coincidan con los criterios seleccionados.",
+  "Belirtilmemiş": "No especificado",
+  "Dış Ticaret": "Comercio Exterior",
+  "Eskişehir Meslek Yüksekokulu": "Escuela Vocacional de Eskişehir",
+  "Açıköğretim Fakültesi": "Facultad de Educación Abierta",
+  "Bilgisayar Programcılığı": "Programación Informática",
+  "Eğitim Fakültesi": "Facultad de Educación",
+  "Özel Eğitim Öğretmenliği": "Enseñanza de Educación Especial"
 }

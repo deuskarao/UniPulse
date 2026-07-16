@@ -293,8 +293,8 @@ export default function SettingsPage({ dersler, stats, bolum }) {
     { icon: <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/></svg>, label: t("Üniversite"), value: universityName },
     { icon: <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 1.66 2.69 3 6 3s6-1.34 6-3v-5"/></svg>, label: t("Fakülte"), value: facultyName },
     { icon: <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>, label: t("Bölüm"), value: bolum?.ad || profile?.department_id ? (bolum?.ad || t("Yükleniyor…")) : null },
-    { icon: <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>, label: t("Kayıt Yılı"), value: profile?.enrollment_year || "Belirtilmemiş" },
-    { icon: <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>, label: t("Rol"), value: profile?.role === "admin" ? t("Yönetici") : (profile?.enrollment_year ? (new Date().getMonth() < 8 ? new Date().getFullYear() - 1 : new Date().getFullYear()) - profile.enrollment_year + 1 > 0 ? `${(new Date().getMonth() < 8 ? new Date().getFullYear() - 1 : new Date().getFullYear()) - profile.enrollment_year + 1}. ${t("Sınıf")}` : t("Hazırlık") : t("Öğrenci")) },
+    { icon: <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>, label: t("Kayıt Yılı"), value: profile?.enrollment_year || t("Belirtilmemiş") },
+    { icon: <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>, label: t("Rol"), value: profile?.role === "admin" ? t("Yönetici") : (profile?.enrollment_year ? (new Date().getMonth() < 6 ? new Date().getFullYear() - 1 : new Date().getFullYear()) - profile.enrollment_year + 1 > 0 ? `${(new Date().getMonth() < 6 ? new Date().getFullYear() - 1 : new Date().getFullYear()) - profile.enrollment_year + 1}. ${t("Sınıf")}` : t("Hazırlık") : t("Öğrenci")) },
   ];
 
   return (
@@ -542,11 +542,11 @@ export default function SettingsPage({ dersler, stats, bolum }) {
               </select>
 
               <select
-                value={profile?.enrollment_year ? (new Date().getMonth() < 8 ? new Date().getFullYear() - 1 : new Date().getFullYear()) - profile.enrollment_year + 1 : ""}
+                value={profile?.enrollment_year ? (new Date().getMonth() < 6 ? new Date().getFullYear() - 1 : new Date().getFullYear()) - profile.enrollment_year + 1 : ""}
                 onChange={async (e) => {
                   const sinif = e.target.value ? parseInt(e.target.value, 10) : null;
                   if (sinif !== null) {
-                    const currentAcademicYear = new Date().getMonth() < 8 ? new Date().getFullYear() - 1 : new Date().getFullYear();
+                    const currentAcademicYear = new Date().getMonth() < 6 ? new Date().getFullYear() - 1 : new Date().getFullYear();
                     const year = currentAcademicYear - sinif + 1;
                     try {
                       await updateProfile({ enrollment_year: year });

@@ -132,7 +132,7 @@ export default function MyClassPage({ bolum }) {
   }
 
   const headerTitle = bolum?.ad 
-    ? `${bolum.ad} ${profile.enrollment_year} ${t("Girişliler")}` 
+    ? `${t(bolum.ad)} ${profile.enrollment_year} ${t("Girişliler")}` 
     : `${profile.enrollment_year} ${t("Girişliler")}`;
 
   return (
@@ -265,7 +265,7 @@ export default function MyClassPage({ bolum }) {
               >
                 <option value="all">{t("Genel Ortalama")}</option>
                 {courses.filter(c => selectedDonem === "all" || c.donem === Number(selectedDonem)).map(c => (
-                  <option key={c.id} value={c.id}>{c.ad}</option>
+                  <option key={c.id} value={c.id}>{t(c.ad)}</option>
                 ))}
               </select>
             )}

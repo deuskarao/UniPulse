@@ -450,5 +450,12 @@
   "Kendi sınıfınız, fakülteniz ve okuldaki diğer öğrencilerle başarı sıralamanızı karşılaştırın.": "Kendi sınıfınız, fakülteniz ve okuldaki diğer öğrencilerle başarı sıralamanızı karşılaştırın.",
   "'ni kabul ediyorum": "'ni kabul ediyorum",
   "admin.classes": "admin.classes",
-  "admin.departments": "admin.departments"
+  "admin.departments": "admin.departments",
+  "Belirtilmemiş": "Belirtilmemiş",
+  "Dış Ticaret": "Dış Ticaret",
+  "Eskişehir Meslek Yüksekokulu": "Eskişehir Meslek Yüksekokulu",
+  "Açıköğretim Fakültesi": "Açıköğretim Fakültesi",
+  "Bilgisayar Programcılığı": "Bilgisayar Programcılığı",
+  "Eğitim Fakültesi": "Eğitim Fakültesi",
+  "Özel Eğitim Öğretmenliği": "Özel Eğitim Öğretmenliği"
 }
