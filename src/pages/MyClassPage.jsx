@@ -138,7 +138,7 @@ export default function MyClassPage({ bolum }) {
   }
 
   const headerTitle = bolum?.ad 
-    ? `${bolum.ad} ${profile.enrollment_year} ${t("Girişliler")}` 
+    ? `${getTransDept(bolum.ad)} ${profile.enrollment_year} ${t("Girişliler")}` 
     : `${profile.enrollment_year} ${t("Girişliler")}`;
 
   return (
@@ -290,7 +290,7 @@ export default function MyClassPage({ bolum }) {
               : activeTab === "faculty" 
                 ? (userFaculty?.ad ? `${getTransFac(userFaculty.ad)} ${t("Liderlik Tablosu")}` : t("Fakülte Liderlik Tablosu")) 
                 : activeTab === "department"
-                  ? (bolum?.ad ? `${bolum.ad} ${t("Liderlik Tablosu")}` : t("Bölüm Liderlik Tablosu"))
+                  ? (bolum?.ad ? `${getTransDept(bolum.ad)} ${t("Liderlik Tablosu")}` : t("Bölüm Liderlik Tablosu"))
                   : t("Sınıf Liderlik Tablosu")}
           </h2>
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
