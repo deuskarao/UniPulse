@@ -176,7 +176,8 @@ export default function MyClassPage({ bolum }) {
       </div>
 
       {/* ── Sekmeler (Tabs) ── */}
-      <div style={{ display: mobil ? "grid" : "flex", gridTemplateColumns: mobil ? "1fr 1fr" : "none", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
+      <div style={{ display: "flex", width: "100%", justifyContent: "space-between", gap: 12, flexWrap: mobil ? "wrap" : "nowrap" }}>
+        <div style={{ display: mobil ? "grid" : "flex", gridTemplateColumns: mobil ? "1fr 1fr" : "none", gap: 12, width: mobil ? "100%" : "auto" }}>
         <button 
           onClick={() => setActiveTab("school")}
           style={{ 
@@ -218,8 +219,9 @@ export default function MyClassPage({ bolum }) {
           {t("Sınıf")}
         </button>
 
+        </div>
         {activeTab === "class" && (
-          <div style={{ display: "flex", gap: 8, marginLeft: "auto", flexWrap: "wrap" }}>
+          <div style={{ display: "flex", gap: 8, width: mobil ? "100%" : "auto" }}>
             <select
               value={selectedDonem}
               onChange={(e) => {
@@ -239,7 +241,8 @@ export default function MyClassPage({ bolum }) {
                 appearance: "none",
                 backgroundImage: `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="${encodeURIComponent(tokens.muted)}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>')`,
                 backgroundRepeat: "no-repeat",
-                backgroundPosition: "right 10px center"
+                backgroundPosition: "right 10px center",
+                flex: mobil ? 1 : "none"
               }}
             >
               <option value="all">{t("Tüm Dönemler")}</option>
@@ -266,10 +269,11 @@ export default function MyClassPage({ bolum }) {
                   backgroundImage: `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="${encodeURIComponent(tokens.muted)}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>')`,
                   backgroundRepeat: "no-repeat",
                   backgroundPosition: "right 10px center",
-                  maxWidth: "200px",
+                  maxWidth: mobil ? "none" : "200px",
                   textOverflow: "ellipsis",
                   whiteSpace: "nowrap",
-                  overflow: "hidden"
+                  overflow: "hidden",
+                  flex: mobil ? 1 : "none"
                 }}
               >
                 <option value="all">{t("Genel Ortalama")}</option>
@@ -326,14 +330,14 @@ export default function MyClassPage({ bolum }) {
               gridTemplateColumns: activeTab === "school" ? "60px 2.5fr 120px 2fr 2fr 1fr" :
                                    activeTab === "faculty" ? "60px 2.5fr 120px 2fr 1fr" :
                                    activeTab === "department" ? "60px 2.5fr 120px 1.5fr" :
-                                   (activeTab === "class" && selectedCourse !== "all") ? "60px 2.5fr 100px 1fr 1fr 1fr 1fr 1fr 1fr" :
+                                   (activeTab === "class" && selectedCourse !== "all") ? "60px 2.5fr 80px 1fr 1fr 1fr 1fr 1fr" :
                                    "60px 3fr 120px", 
               padding: "12px 24px", background: tokens.background, borderBottom: `1px solid ${tokens.border}`, fontSize: 12, fontWeight: 600, color: tokens.muted, textTransform: "uppercase", letterSpacing: 0.5 }}>
               <div style={{ textAlign: "center" }}>#</div>
               <div>{t("Öğrenci")}</div>
               
               {activeTab === "class" && selectedCourse !== "all" ? (
-                <div style={{ textAlign: "center" }}>{t("Harf Notu")}</div>
+                <div style={{ textAlign: "center" }}>{t("Ort / Not")}</div>
               ) : (
                 <div style={{ textAlign: "center" }}>{t("Ortalama")}</div>
               )}
@@ -360,7 +364,6 @@ export default function MyClassPage({ bolum }) {
                   <div style={{ textAlign: "center" }}>{t("Proje")}</div>
                   <div style={{ textAlign: "center" }}>{t("Final")}</div>
                   <div style={{ textAlign: "center" }}>{t("Büt")}</div>
-                  <div style={{ textAlign: "center" }}>{t("Ort.")}</div>
                 </>
               )}
             </div>
@@ -385,7 +388,7 @@ export default function MyClassPage({ bolum }) {
               const gridCols = activeTab === "school" ? "60px 2.5fr 120px 2fr 2fr 1fr" :
                                activeTab === "faculty" ? "60px 2.5fr 120px 2fr 1fr" :
                                activeTab === "department" ? "60px 2.5fr 120px 1.5fr" :
-                               (activeTab === "class" && selectedCourse !== "all") ? "60px 2.5fr 100px 1fr 1fr 1fr 1fr 1fr 1fr" :
+                               (activeTab === "class" && selectedCourse !== "all") ? "60px 2.5fr 80px 1fr 1fr 1fr 1fr 1fr" :
                                "60px 3fr 120px";
               
               return (
@@ -424,8 +427,11 @@ export default function MyClassPage({ bolum }) {
                   
                   {/* Ortalama / Not */}
                   {activeTab === "class" && selectedCourse !== "all" ? (
-                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 2 }}>
                       <div style={{ fontSize: 16, fontWeight: 800, color: gpaStatus.c, letterSpacing: -0.5 }}>
+                        {(s.sort_score || 0).toFixed(1)}
+                      </div>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: tokens.textSecondary }}>
                         {s.harf_notu || "-"}
                       </div>
                     </div>
@@ -465,7 +471,6 @@ export default function MyClassPage({ bolum }) {
                       <div style={{ fontSize: 14, fontWeight: 700, color: tokens.textSecondary, textAlign: "center" }}>{s.proje ?? "-"}</div>
                       <div style={{ fontSize: 14, fontWeight: 700, color: tokens.textSecondary, textAlign: "center" }}>{s.final ?? "-"}</div>
                       <div style={{ fontSize: 14, fontWeight: 700, color: tokens.textSecondary, textAlign: "center" }}>{s.but ?? "-"}</div>
-                      <div style={{ fontSize: 14, fontWeight: 800, color: tokens.textPrimary, textAlign: "center" }}>{(s.sort_score || 0).toFixed(1)}</div>
                     </>
                   )}
                   
