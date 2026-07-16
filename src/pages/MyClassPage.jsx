@@ -4,12 +4,15 @@ import { useAuth } from "../context/AuthContext";
 import { useI18n } from "../context/I18nContext";
 import { useAppData } from "../context/AppDataContext";
 import { useTheme } from "../theme/ThemeProvider";
+import { useWindowSize } from "../components/shared.jsx";
 
 export default function MyClassPage({ bolum }) {
   const { tokens } = useTheme();
   const { profile } = useAuth();
   const { t, translateName, language } = useI18n();
   const { universities, faculties, facultyDepartments } = useAppData();
+  const w = useWindowSize();
+  const mobil = w < 768;
 
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
