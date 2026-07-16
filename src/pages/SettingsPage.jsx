@@ -20,12 +20,13 @@ function downloadFile(filename, content, mime) {
 export default function SettingsPage({ dersler, stats, bolum }) {
   const { tokens, mode, setMode } = useTheme();
   const { user, profile, logout, updateProfile } = useAuth();
-  const { t } = useI18n();
+  const { t, translateName, language } = useI18n();
   const { hedefGano, setHedefGano, resetHedefGano, defaultHedef } = useHedefGano();
   const [notifEmail, setNotifEmail] = useState(true);
   const [notifGrade, setNotifGrade] = useState(true);
   const [facultyName, setFacultyName] = useState(null);
   const [universityName, setUniversityName] = useState(null);
+  const [className, setClassName] = useState(null);
   const [isUpdatingDept, setIsUpdatingDept] = useState(false);
   const [hedefInput, setHedefInput] = useState(String(hedefGano.toFixed(2)));
   const [hedefError, setHedefError] = useState("");
@@ -43,21 +44,37 @@ export default function SettingsPage({ dersler, stats, bolum }) {
     async function loadOrgInfo() {
       const fetches = [];
 
-      // Fakülte: önce profile.faculty_id'den dene, yoksa faculty_departments üzerinden bul
+      // === Sınıf ===
+      if (profile?.class_id) {
+        fetches.push(
+          supabase.from("classes").select("name").eq("id", profile.class_id).maybeSingle()
+            .then(({ data }) => { if (data) setClassName(data.name); })
+        );
+      }
+
       // === Üniversite ===
       if (profile?.university_id) {
         fetches.push(
-          supabase.from("universities").select("ad").eq("id", profile.university_id).maybeSingle()
-            .then(({ data }) => { if (data) setUniversityName(data.ad); })
+          supabase.from("universities").select("*").eq("id", profile.university_id).maybeSingle()
+            .then(({ data }) => { 
+              if (data) {
+                const transAd = language !== "tr" && data[`ad_${language}`] ? data[`ad_${language}`] : data.ad;
+                setUniversityName(transAd);
+              } 
+            })
         );
       }
 
       // === Fakülte ===
-      // Öncelik 1: profile.faculty_id (kullanıcının seçtiği fakülte)
       if (profile?.faculty_id) {
         fetches.push(
-          supabase.from("faculties").select("ad").eq("id", profile.faculty_id).maybeSingle()
-            .then(({ data }) => { if (data) setFacultyName(data.ad); })
+          supabase.from("faculties").select("*").eq("id", profile.faculty_id).maybeSingle()
+            .then(({ data }) => { 
+              if (data) {
+                const transAd = language !== "tr" && data[`ad_${language}`] ? data[`ad_${language}`] : data.ad;
+                setFacultyName(transAd);
+              } 
+            })
         );
       }
       // Öncelik 2: department_id → department_slug → faculty_departments'tan ilk fakülte
@@ -77,22 +94,24 @@ export default function SettingsPage({ dersler, stats, bolum }) {
               // Bu slug'a sahip ilk faculty_departments kaydını al
               const { data: fd } = await supabase
                 .from("faculty_departments")
-                .select("faculty_id, faculties!inner(ad)")
+                .select("faculty_id, faculties!inner(*)")
                 .eq("department_slug", dept.slug)
                 .limit(1)
                 .maybeSingle();
 
               if (fd?.faculties) {
-                setFacultyName(fd.faculties.ad);
+                const transFacAd = language !== "tr" && fd.faculties[`ad_${language}`] ? fd.faculties[`ad_${language}`] : fd.faculties.ad;
+                setFacultyName(transFacAd);
                 // Eğer university_id yoksa, fakülteden üniversiteyi de öğren
                 if (!profile?.university_id && fd.faculty_id) {
                   const { data: fac } = await supabase
                     .from("faculties")
-                    .select("university_id, universities!inner(ad)")
+                    .select("university_id, universities!inner(*)")
                     .eq("id", fd.faculty_id)
                     .maybeSingle();
-                  if (fac?.universities?.ad) {
-                    setUniversityName(fac.universities.ad);
+                  if (fac?.universities) {
+                    const transUniAd = language !== "tr" && fac.universities[`ad_${language}`] ? fac.universities[`ad_${language}`] : fac.universities.ad;
+                    setUniversityName(transUniAd);
                   }
                 }
               }
@@ -106,7 +125,7 @@ export default function SettingsPage({ dersler, stats, bolum }) {
       await Promise.all(fetches);
     }
     loadOrgInfo();
-  }, [profile?.faculty_id, profile?.department_id, profile?.university_id]);
+  }, [profile?.faculty_id, profile?.department_id, profile?.university_id, language]);
 
   async function handleThemeChange(m) {
     setMode(m);
@@ -274,7 +293,8 @@ export default function SettingsPage({ dersler, stats, bolum }) {
     { icon: <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/></svg>, label: t("Üniversite"), value: universityName },
     { icon: <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 1.66 2.69 3 6 3s6-1.34 6-3v-5"/></svg>, label: t("Fakülte"), value: facultyName },
     { icon: <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>, label: t("Bölüm"), value: bolum?.ad || profile?.department_id ? (bolum?.ad || t("Yükleniyor…")) : null },
-    { icon: <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>, label: t("Rol"), value: profile?.role === "admin" ? t("Yönetici") : t("Öğrenci") },
+    { icon: <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>, label: t("Kayıt Yılı"), value: profile?.enrollment_year || "Belirtilmemiş" },
+    { icon: <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>, label: t("Rol"), value: profile?.role === "admin" ? t("Yönetici") : (profile?.enrollment_year ? (new Date().getMonth() < 8 ? new Date().getFullYear() - 1 : new Date().getFullYear()) - profile.enrollment_year + 1 > 0 ? `${(new Date().getMonth() < 8 ? new Date().getFullYear() - 1 : new Date().getFullYear()) - profile.enrollment_year + 1}. ${t("Sınıf")}` : t("Hazırlık") : t("Öğrenci")) },
   ];
 
   return (
@@ -486,6 +506,79 @@ export default function SettingsPage({ dersler, stats, bolum }) {
             </svg>
             {isUpdatingDept ? t("Güncelleniyor...") : t("Bölümü Değiştir")}
           </button>
+
+          <div style={{ marginTop: 24, borderTop: `1px solid ${tokens.border}`, paddingTop: 16 }}>
+            <p style={{ fontSize: 12, color: tokens.muted, margin: "0 0 12px", lineHeight: 1.5 }}>
+              {t("Kayıt olduğunuz yılı seçin. Aynı yıl ve bölümde olan arkadaşlarınızı 'Sınıfım' sayfasında görebilirsiniz.")}
+            </p>
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <select
+                value={profile?.enrollment_year || ""}
+                onChange={async (e) => {
+                  const year = e.target.value ? parseInt(e.target.value, 10) : null;
+                  try {
+                    await updateProfile({ enrollment_year: year });
+                  } catch (err) {
+                    alert(t("settings.update_error"));
+                  }
+                }}
+                style={{
+                  ...inputStyle,
+                  flex: 1,
+                  padding: "10px 14px",
+                  borderRadius: 10,
+                  fontSize: 13,
+                  fontWeight: 600,
+                  color: tokens.textPrimary,
+                  background: tokens.input,
+                  border: `1px solid ${tokens.border}`,
+                  cursor: "pointer",
+                }}
+              >
+                <option value="">{t("Kayıt Yılını Seçin")}</option>
+                {Array.from({ length: 15 }, (_, i) => new Date().getFullYear() - i + 1).map(y => (
+                  <option key={y} value={y}>{y}</option>
+                ))}
+              </select>
+
+              <select
+                value={profile?.enrollment_year ? (new Date().getMonth() < 8 ? new Date().getFullYear() - 1 : new Date().getFullYear()) - profile.enrollment_year + 1 : ""}
+                onChange={async (e) => {
+                  const sinif = e.target.value ? parseInt(e.target.value, 10) : null;
+                  if (sinif !== null) {
+                    const currentAcademicYear = new Date().getMonth() < 8 ? new Date().getFullYear() - 1 : new Date().getFullYear();
+                    const year = currentAcademicYear - sinif + 1;
+                    try {
+                      await updateProfile({ enrollment_year: year });
+                    } catch (err) {
+                      alert(t("settings.update_error"));
+                    }
+                  }
+                }}
+                style={{
+                  ...inputStyle,
+                  flex: 1,
+                  padding: "10px 14px",
+                  borderRadius: 10,
+                  fontSize: 13,
+                  fontWeight: 600,
+                  color: tokens.textPrimary,
+                  background: tokens.input,
+                  border: `1px solid ${tokens.border}`,
+                  cursor: "pointer",
+                }}
+              >
+                <option value="">{t("Sınıf Seçin")}</option>
+                <option value="0">{t("Hazırlık")}</option>
+                <option value="1">1. {t("Sınıf")}</option>
+                <option value="2">2. {t("Sınıf")}</option>
+                <option value="3">3. {t("Sınıf")}</option>
+                <option value="4">4. {t("Sınıf")}</option>
+                <option value="5">5. {t("Sınıf")}</option>
+                <option value="6">6. {t("Sınıf")}</option>
+              </select>
+            </div>
+          </div>
         </SettingCard>
 
         {/* Bildirimler */}

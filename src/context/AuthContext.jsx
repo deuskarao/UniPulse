@@ -58,7 +58,7 @@ export function AuthProvider({ children }) {
     }
     inactivityTimerRef.current = setTimeout(() => {
       if (logoutRef.current) logoutRef.current();
-    }, 30 * 60 * 1000);
+    }, 15 * 60 * 1000);
   }, []);
 
   useEffect(() => {

@@ -6,7 +6,7 @@ import { hesaplaDönemOrt, hesaplaHarf, harfRengi, hesaplaGerekliiFinal } from "
 
 export default function CoursesPage({ bolum, profile, harfNotlari, harfRenk, siraliDersler, siralama, siralamaDegistir, modal, setModal, form, silOnay, setSilOnay, modalAc, formDegistir, kaydet, sil }) {
   const { tokens } = useTheme();
-  const { t } = useI18n();
+  const { t, translateName } = useI18n();
   const inputStyle = useInputStyle();
   const w = useWindowSize();
   const mobil = w < 768;
@@ -52,7 +52,7 @@ export default function CoursesPage({ bolum, profile, harfNotlari, harfRenk, sir
                     <td style={{ padding: "12px 10px", textAlign: "center" }}><span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", minWidth: 26, height: 24, padding: "0 8px", borderRadius: 7, background: tokens.primary + "18", color: tokens.primary, fontSize: 12, fontWeight: 700 }}>{d.donem}</span></td>
                     <td style={{ padding: "12px 10px", textAlign: "center", color: tokens.primary, fontWeight: 700, fontSize: 13 }}>{d.kredi}</td>
                     <td style={{ padding: "12px 10px", textAlign: "center", color: tokens.muted, fontSize: 13 }}>{d.dersSaati}</td>
-                    <td style={{ padding: "12px 10px", textAlign: "center" }}><span style={{ fontSize: 11.5, fontWeight: 700, color: tokens.textSecondary, background: tokens.sidebarHover, border: `1px solid ${tokens.border}`, borderRadius: 99, padding: "3px 10px" }}>{(d.vizeYuzde * 100).toFixed(0)} / {(d.odevYuzde * 100).toFixed(0)} / {(d.projeYuzde * 100).toFixed(0)} / {(d.finalYuzde * 100).toFixed(0)}</span></td>
+                    <td style={{ padding: "12px 10px", textAlign: "center" }}><span style={{ fontSize: 11.5, fontWeight: 700, color: tokens.textSecondary, background: tokens.sidebarHover, border: `1px solid ${tokens.border}`, borderRadius: 99, padding: "3px 10px" }}>{d.buteKaldi ? `${(d.vizeYuzde * 100).toFixed(0)} / ${(d.finalYuzde * 100).toFixed(0)}` : `${(d.vizeYuzde * 100).toFixed(0)} / ${(d.odevYuzde * 100).toFixed(0)} / ${(d.projeYuzde * 100).toFixed(0)} / ${(d.finalYuzde * 100).toFixed(0)}`}</span></td>
                     <td style={{ padding: "12px 10px", textAlign: "center" }}><span style={{ fontWeight: 800, fontSize: 14, color: ort >= 70 ? tokens.success : ort >= 60 ? tokens.warning : tokens.danger }}>{ort.toFixed(1)}</span></td>
                     <td style={{ padding: "12px 10px", textAlign: "center" }}>
                       <span style={{
@@ -112,7 +112,7 @@ export default function CoursesPage({ bolum, profile, harfNotlari, harfRenk, sir
             </div>
             <div style={{ display: "grid", gap: 16 }}>
               <Field label={t("Ders Adı")}><input value={form.ad || ""} onChange={(e) => formDegistir("ad", e.target.value)} onFocus={(e) => setTimeout(() => e.target.select(), 10)} placeholder={t("Ders adını girin…")} style={inputStyle} /></Field>
-              <div style={{ display: "grid", gridTemplateColumns: mobil ? "1fr" : "1fr 1fr 1fr", gap: 12 }}>
+              <div style={{ display: "grid", gridTemplateColumns: mobil ? "1fr" : "1fr 1fr 1fr 1fr", gap: 12 }}>
                 <Field label={t("Dönem")}>
                   <div style={{ position: "relative" }}>
                     <select value={form.donem} onChange={(e) => formDegistir("donem", Number(e.target.value))} style={{ ...inputStyle, appearance: "none", paddingRight: 28, cursor: "pointer", fontWeight: 600 }}>{Array.from({ length: bolum.toplamDonem }, (_, i) => i + 1).map((d) => <option key={d} value={d}>{d}. {t("Dönem")}</option>)}</select>
@@ -121,11 +121,20 @@ export default function CoursesPage({ bolum, profile, harfNotlari, harfRenk, sir
                 </Field>
                 <Field label={t("Kredi")}><input type="number" min="1" max="20" value={form.kredi === 0 ? "" : form.kredi} placeholder="0" onChange={(e) => formDegistir("kredi", Number(e.target.value))} onFocus={(e) => setTimeout(() => e.target.select(), 10)} style={inputStyle} /></Field>
                 <Field label={t("Ders Saati")}><input type="number" min="1" max="10" value={form.dersSaati === 0 ? "" : form.dersSaati} placeholder="0" onChange={(e) => formDegistir("dersSaati", Number(e.target.value))} onFocus={(e) => setTimeout(() => e.target.select(), 10)} style={inputStyle} /></Field>
+                <Field label={t("Büte Kaldın Mı?")}>
+                  <div style={{ position: "relative" }}>
+                    <select value={form.buteKaldi ? "evet" : "hayir"} onChange={(e) => formDegistir("buteKaldi", e.target.value === "evet")} style={{ ...inputStyle, appearance: "none", paddingRight: 28, cursor: "pointer", fontWeight: 600, color: form.buteKaldi ? tokens.danger : tokens.textPrimary }}>
+                      <option value="hayir">{t("Hayır")}</option>
+                      <option value="evet">{t("Evet")}</option>
+                    </select>
+                    <div style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", pointerEvents: "none", fontSize: 10, color: tokens.muted }}>▼</div>
+                  </div>
+                </Field>
               </div>
               <div style={{ background: tokens.primary + "0c", border: `1px solid ${tokens.primary}25`, borderRadius: 14, padding: 16 }}>
                 <div style={{ fontSize: 11, color: tokens.primary, fontWeight: 700, marginBottom: 12, textTransform: "uppercase", letterSpacing: 0.6 }}>{t("Değerlendirme Ağırlıkları")}</div>
-                <div style={{ display: "grid", gridTemplateColumns: mobil ? "1fr 1fr" : "1fr 1fr 1fr 1fr", gap: 14 }}>
-                  {[["vizeYuzde", t("Vize")], ["odevYuzde", t("Ödev")], ["projeYuzde", t("Proje")], ["finalYuzde", t("Final")]].map(([alan, label]) => (
+                <div style={{ display: "grid", gridTemplateColumns: mobil ? "1fr 1fr" : (form.buteKaldi ? "1fr 1fr" : "1fr 1fr 1fr 1fr"), gap: 14 }}>
+                  {(form.buteKaldi ? [["vizeYuzde", t("Vize")], ["finalYuzde", t("Büt")]] : [["vizeYuzde", t("Vize")], ["odevYuzde", t("Ödev")], ["projeYuzde", t("Proje")], ["finalYuzde", t("Final")]]).map(([alan, label]) => (
                     <div key={alan}>
                       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
                         <span style={{ fontSize: 11, color: tokens.muted, fontWeight: 600 }}>{label}</span>
@@ -138,8 +147,8 @@ export default function CoursesPage({ bolum, profile, harfNotlari, harfRenk, sir
               </div>
               <div style={{ background: tokens.sidebarHover, border: `1px solid ${tokens.border}`, borderRadius: 14, padding: 16 }}>
                 <div style={{ fontSize: 11, color: tokens.primary, fontWeight: 700, marginBottom: 12, textTransform: "uppercase", letterSpacing: 0.6 }}>{t("Notlar (0–100)")}</div>
-                <div style={{ display: "grid", gridTemplateColumns: mobil ? "repeat(auto-fit, minmax(70px, 1fr))" : "1fr 1fr 1fr 1fr 1fr", gap: 10 }}>
-                  {[["vize", t("Vize")], ["odev", t("Ödev")], ["proje", t("Proje")], ["final", t("Final")]].map(([alan, label]) => (
+                <div style={{ display: "grid", gridTemplateColumns: mobil ? "repeat(auto-fit, minmax(60px, 1fr))" : (form.buteKaldi ? "1fr 1fr 1fr" : "1fr 1fr 1fr 1fr 1fr"), gap: 10 }}>
+                  {(form.buteKaldi ? [["vize", t("Vize")], ["but", t("Büt")]] : [["vize", t("Vize")], ["odev", t("Ödev")], ["proje", t("Proje")], ["final", t("Final")]]).map(([alan, label]) => (
                     <Field key={alan} label={label}><input type="number" min="0" max="100" value={form[alan] === 0 ? "" : (form[alan] || "")} placeholder="0" onChange={(e) => formDegistir(alan, e.target.value === "" ? 0 : Math.min(100, Math.max(0, Number(e.target.value))))} onFocus={(e) => setTimeout(() => e.target.select(), 10)} style={inputStyle} /></Field>
                   ))}
                   <Field label={t("Harf Notu")}>

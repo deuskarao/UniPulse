@@ -21,7 +21,7 @@ const LoadingScreen = ({ text = "Yükleniyor..." }) => {
 function BolumSecim({ onSecim }) {
   const { user, profile, logout } = useAuth();
   const { universities, faculties, facultyDepartments } = useAppData();
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const [hoverId, setHoverId] = useState(null);
   const [bolumler, setBolumler] = useState([]);
   const [seciliUni, setSeciliUni] = useState(null);
@@ -31,37 +31,42 @@ function BolumSecim({ onSecim }) {
   const mobil = w < 768;
 
   useEffect(() => {
-    document.title = `${profile?.full_name || "Kullanıcı"} — Bölüm Seç`;
-    return () => { document.title = "UniPulse"; };
+    // Title is managed by default index.html
   }, [profile?.full_name]);
 
   useEffect(() => {
     async function loadData() {
       const depData = await supabase.from("departments").select("*, department_courses(count)").order("slug");
       if (depData?.data) {
-        const mapped = depData.data.map(d => ({
-          id: d.id, slug: d.slug, ad: d.ad, kisaAd: d.ad.length > 20 ? d.ad.split(" ").slice(0,2).join(" ") : d.ad,
-          emoji: d.ikon || "📚", renk: d.renk || "#6366f1", aciklama: d.aciklama || "",
-          toplamKredi: d.toplam_kredi, toplamDonem: d.toplam_donem,
-          dersSayisi: d.department_courses?.[0]?.count || 0,
-        }));
+        const mapped = depData.data.map(d => {
+          const adTrans = language !== "tr" && d[`ad_${language}`] ? d[`ad_${language}`] : d.ad;
+          return {
+            id: d.id, slug: d.slug, ad: adTrans, kisaAd: adTrans.length > 20 ? adTrans.split(" ").slice(0,2).join(" ") : adTrans,
+            emoji: d.ikon || "📚", renk: d.renk || "#6366f1", aciklama: d.aciklama || "",
+            toplamKredi: d.toplam_kredi, toplamDonem: d.toplam_donem,
+            dersSayisi: d.department_courses?.[0]?.count || 0,
+          };
+        });
         setBolumler(mapped);
       }
       setLoading(false);
     }
     loadData();
-  }, []);
+  }, [language]);
 
   // Üniversiteye göre fakülteler
-  const uniFakulteler = seciliUni
-    ? faculties.filter(f => f.university_id === seciliUni.id)
+  const currentUni = seciliUni ? universities.find(u => u.id === seciliUni.id) || seciliUni : null;
+  const currentFakulte = seciliFakulte ? faculties.find(f => f.id === seciliFakulte.id) || seciliFakulte : null;
+
+  const uniFakulteler = currentUni
+    ? faculties.filter(f => f.university_id === currentUni.id)
     : [];
 
   // Fakülteye göre bölümler
-  const fakulteBolumleri = seciliFakulte
+  const fakulteBolumleri = currentFakulte
     ? bolumler.filter(b =>
         facultyDepartments
-          .filter(fd => fd.faculty_id === seciliFakulte.id)
+          .filter(fd => fd.faculty_id === currentFakulte.id)
           .map(fd => fd.department_slug)
           .includes(b.slug)
       )
@@ -74,15 +79,15 @@ function BolumSecim({ onSecim }) {
   }
 
   // Adım başlığı
-  const stepTitle = seciliFakulte
-    ? seciliFakulte.ad
-    : seciliUni
-      ? seciliUni.ad
+  const stepTitle = currentFakulte
+    ? currentFakulte.ad
+    : currentUni
+      ? currentUni.ad
       : t("app.select_university");
 
-  const stepSubtitle = seciliFakulte
+  const stepSubtitle = currentFakulte
     ? t("app.select_department")
-    : seciliUni
+    : currentUni
       ? t("app.select_faculty")
       : null;
   if (loading) return <LoadingScreen text={t("Bölümler yükleniyor...")} />;
@@ -110,8 +115,8 @@ function BolumSecim({ onSecim }) {
         <div style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:8, marginBottom:10 }}>
           {/* Adım göstergesi */}
           {["uni","fac","dept"].map((s, i) => {
-            const done = (s === "uni" && (seciliUni || seciliFakulte)) || (s === "fac" && seciliFakulte);
-            const active = (s === "uni" && !seciliUni) || (s === "fac" && seciliUni && !seciliFakulte) || (s === "dept" && seciliFakulte);
+            const done = (s === "uni" && (currentUni || currentFakulte)) || (s === "fac" && currentFakulte);
+            const active = (s === "uni" && !currentUni) || (s === "fac" && currentUni && !currentFakulte) || (s === "dept" && currentFakulte);
             return (
               <div key={s} style={{ display:"flex", alignItems:"center", gap:8 }}>
                 <div style={{
@@ -133,7 +138,7 @@ function BolumSecim({ onSecim }) {
           })}
         </div>
 
-        {(seciliUni || seciliFakulte) ? (
+        {currentUni || currentFakulte ? (
           <div style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:12 }}>
             <button onClick={goBack} style={{ background:"rgba(99,102,241,0.12)", border:"1px solid rgba(99,102,241,0.25)", color:"#818cf8", padding:"6px 14px", borderRadius:10, cursor:"pointer", fontSize:12, fontWeight:600, display:"flex", alignItems:"center", gap:6, transition:"all 0.15s" }} onMouseEnter={e => { e.currentTarget.style.background = "rgba(99,102,241,0.22)"; }} onMouseLeave={e => { e.currentTarget.style.background = "rgba(99,102,241,0.12)"; }}>{t("app.back")}</button>
             <div style={{ textAlign:"left" }}>
@@ -142,12 +147,12 @@ function BolumSecim({ onSecim }) {
             </div>
           </div>
         ) : (
-          <h1 style={{ margin:0, fontSize: mobil ? 26 : "clamp(28px, 5vw, 48px)", fontWeight:900, color:"#f1f5f9", letterSpacing:-1, lineHeight:1.1 }}>Üniversiteni Seç</h1>
+          <h1 style={{ margin:0, fontSize: mobil ? 26 : "clamp(28px, 5vw, 48px)", fontWeight:900, color:"#f1f5f9", letterSpacing:-1, lineHeight:1.1 }}>{t("Üniversiteni Seç")}</h1>
         )}
       </div>
 
       {/* İçerik */}
-      {!seciliUni ? (
+      {!currentUni ? (
         /* Üniversite listesi */
         <div style={{ display:"grid", gridTemplateColumns: mobil ? "1fr" : "repeat(auto-fit, minmax(260px, 1fr))", gap: mobil ? 14 : 20, maxWidth:1100, width:"100%", position:"relative", zIndex:1 }}>
           {universities.map((u) => {
@@ -168,7 +173,7 @@ function BolumSecim({ onSecim }) {
             );
           })}
         </div>
-      ) : !seciliFakulte ? (
+      ) : !currentFakulte ? (
         /* Fakülte listesi */
         <div style={{ display:"grid", gridTemplateColumns: mobil ? "1fr" : "repeat(auto-fit, minmax(260px, 1fr))", gap: mobil ? 14 : 20, maxWidth:1100, width:"100%", position:"relative", zIndex:1 }}>
           {uniFakulteler.length === 0 ? (
@@ -238,7 +243,7 @@ export default function App() {
   const [authPage, setAuthPage] = useState("login");
   const [aktifBolum, setAktifBolum] = useState(null);
 
-  const { t } = useI18n();
+  const { t, translateName } = useI18n();
   if (authLoading) return <LoadingScreen text={t("Yükleniyor...")} />;
 
   if (!user) {
@@ -271,7 +276,7 @@ export default function App() {
 
 function AppDataGate({ children }) {
   const { appDataLoading, appDataError, harfNotlari, bosDers } = useAppData();
-  const { t } = useI18n();
+  const { t, translateName } = useI18n();
   const { logout } = useAuth();
   if (appDataLoading) return <LoadingScreen text={t("Uygulama verileri yükleniyor...")} />;
   if (appDataError || harfNotlari.length === 0 || !bosDers) return (
@@ -292,7 +297,7 @@ function ThemeWrapper({ children }) {
 }
 
 function AuthenticatedApp({ profile, selectDepartment, aktifBolum, setAktifBolum }) {
-  const { t } = useI18n();
+  const { t, translateName } = useI18n();
   if (profile?.role === "admin") return <AdminPanel onBackToUser={() => setAktifBolum(null)} />;
   if (!profile) return <LoadingScreen text={t("Profil yükleniyor...")} />;
   if (aktifBolum) return <Dashboard bolum={aktifBolum} />;

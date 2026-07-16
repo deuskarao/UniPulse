@@ -5,7 +5,7 @@ import { supabase } from "../../lib/supabase";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function AdminUniversities() {
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const { tokens } = useTheme();
   const [universities, setUniversities] = useState([]);
   const [faculties, setFaculties] = useState([]);
@@ -25,14 +25,23 @@ export default function AdminUniversities() {
         supabase.from("departments").select("*, department_courses(count)").order("ad"),
         supabase.from("faculty_departments").select("*"),
       ]);
-      if (uniRes.data) setUniversities(uniRes.data);
-      if (facRes.data) setFaculties(facRes.data);
-      if (deptRes.data) setDepartments(deptRes.data);
+
+      const mapAd = (data) => {
+        if (!data) return data;
+        return data.map(item => {
+          const translation = language !== "tr" && item[`ad_${language}`];
+          return { ...item, ad: translation ? translation : item.ad };
+        });
+      };
+
+      if (uniRes.data) setUniversities(mapAd(uniRes.data));
+      if (facRes.data) setFaculties(mapAd(facRes.data));
+      if (deptRes.data) setDepartments(mapAd(deptRes.data));
       if (fdRes.data) setFacultyDepartments(fdRes.data);
       setLoading(false);
     }
     loadData();
-  }, []);
+  }, [language]);
 
   const getFacultiesForUni = (uniId) => faculties.filter(f => f.university_id === uniId);
   const getDeptsForFaculty = (facId) => {

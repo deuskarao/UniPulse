@@ -85,7 +85,7 @@ function UniversityLogo({ university, size = 36 }) {
 }
 
 export default function DepartmentSelector({ onSelect, initialValue = null, tokens }) {
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const [universities, setUniversities] = useState([]);
   const [faculties, setFaculties] = useState([]);
   const [departments, setDepartments] = useState([]);
@@ -104,14 +104,23 @@ export default function DepartmentSelector({ onSelect, initialValue = null, toke
         supabase.from("departments").select("*").order("ad"),
         supabase.from("faculty_departments").select("*"),
       ]);
-      if (uniRes.data) setUniversities(uniRes.data);
-      if (facRes.data) setFaculties(facRes.data);
-      if (deptRes.data) setDepartments(deptRes.data);
+
+      const mapAd = (data) => {
+        if (!data) return data;
+        return data.map(item => {
+          const translation = language !== "tr" && item[`ad_${language}`];
+          return { ...item, ad: translation ? translation : item.ad };
+        });
+      };
+
+      if (uniRes.data) setUniversities(mapAd(uniRes.data));
+      if (facRes.data) setFaculties(mapAd(facRes.data));
+      if (deptRes.data) setDepartments(mapAd(deptRes.data));
       if (fdRes.data) setFacultyDepartments(fdRes.data);
       setLoading(false);
     }
     loadData();
-  }, []);
+  }, [language]);
 
   useEffect(() => {
     if (initialValue) {

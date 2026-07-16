@@ -1,5 +1,6 @@
 import { useTheme } from "../theme/ThemeProvider";
 import { useI18n } from "../context/I18nContext";
+import { GraduationCap } from "lucide-react";
 
 const ICON = {
   dashboard: (color = "currentColor") => (
@@ -45,10 +46,17 @@ const ICON = {
       <line x1="9" y1="18" x2="9" y2="18.01"/>
     </svg>
   ),
+  myclass: (color = "currentColor") => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+      <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+    </svg>
+  ),
 };
 
 const NAV_ITEMS = [
   { id: "dashboard", label: "Ana Sayfa", icon: ICON.dashboard },
+  { id: "myclass", label: "Liderlik Tablosu", icon: ICON.myclass },
   { id: "courses", label: "Dersler", icon: ICON.courses },
   { id: "analytics", label: "Analitik", icon: ICON.analytics },
   { id: "settings", label: "Ayarlar", icon: ICON.settings },
@@ -66,11 +74,7 @@ function SidebarLogo({ tokens, onClick }) {
         display: "flex", alignItems: "center", justifyContent: "center",
         boxShadow: `0 4px 12px ${tokens.primary}40`,
       }}>
-        <svg width="18" height="18" viewBox="0 0 64 64" fill="none">
-          <polyline points="6,34 16,34 22,20 28,48 34,26 38,38 44,30 50,34 58,34"
-            fill="none" stroke="white" strokeWidth="5"
-            strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
+        <GraduationCap size={18} color="white" strokeWidth={2.5} />
       </div>
       <span style={{
         fontWeight: 700, fontSize: 16, color: tokens.textPrimary,

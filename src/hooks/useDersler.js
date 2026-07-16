@@ -1,9 +1,13 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { supabase } from "../lib/supabase";
 import { useAuth } from "../context/AuthContext";
+import { useI18n } from '../context/I18nContext';
 import { useAppData } from "../context/AppDataContext.jsx";
 
 export function hesaplaDönemOrt(ders) {
+  if (ders.buteKaldi) {
+    return (ders.vize || 0) * (ders.vizeYuzde || 0) + (ders.but || 0) * (ders.finalYuzde || 0);
+  }
   return (
     (ders.vize || 0) * (ders.vizeYuzde || 0) +
     (ders.odev || 0) * (ders.odevYuzde || 0) +
@@ -89,6 +93,7 @@ export function hesaplaGerekliiFinal(ders) {
 export function useDersler({ bolumProp, departmentId }) {
   const { user, profile, updateProfile, logout } = useAuth();
   const { harfNotlari, harfRenk, ganoRenkler, bosDers } = useAppData();
+  const { language } = useI18n();
 
   const [bolum, setBolum] = useState(bolumProp || null);
   const [bolumLoading, setBolumLoading] = useState(!bolumProp && !!departmentId);
@@ -125,34 +130,7 @@ export function useDersler({ bolumProp, departmentId }) {
   const [silOnay, setSilOnay] = useState(null);
   const [siralama, setSiralama] = useState({ kolon: null, yon: "asc" });
 
-  // Session timeout: 30 dakika inaktivitede logout
-  const SESSION_TIMEOUT = 30 * 60 * 1000;
-  const [lastActivity, setLastActivity] = useState(() => Date.now());
 
-  useEffect(() => {
-    const handleActivity = () => setLastActivity(() => Date.now());
-    const events = ["mousedown", "keydown", "touchstart", "scroll"];
-    events.forEach((e) => window.addEventListener(e, handleActivity, { passive: true }));
-    return () => events.forEach((e) => window.removeEventListener(e, handleActivity));
-  }, []);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      if (user && Date.now() - lastActivity > SESSION_TIMEOUT) {
-        logout();
-      }
-    }, 60000);
-    return () => clearInterval(timer);
-  }, [user, lastActivity, logout, SESSION_TIMEOUT]);
-
-  useEffect(() => {
-    if (profile?.full_name && bolum?.ad) {
-      document.title = `${profile.full_name} — ${bolum.ad}`;
-    }
-    return () => {
-      document.title = "UniPulse";
-    };
-  }, [profile?.full_name, bolum?.ad]);
 
   useEffect(() => {
     if (!departmentId || bolumProp) return;
@@ -167,6 +145,7 @@ export function useDersler({ bolumProp, departmentId }) {
         if (error) console.error("Bölüm yükleme hatası:", error);
         if (data) {
           setBolum({
+            ...data, // Store all raw fields including ad_en, ad_es etc.
             id: data.id,
             slug: data.slug,
             ad: data.ad,
@@ -183,6 +162,13 @@ export function useDersler({ bolumProp, departmentId }) {
       cancelled = true;
     };
   }, [departmentId, bolumProp]);
+
+  // Derive translated bolum
+  const bolumTranslated = useMemo(() => {
+    if (!bolum) return null;
+    const transAd = language !== "tr" && bolum[`ad_${language}`] ? bolum[`ad_${language}`] : bolum.ad;
+    return { ...bolum, ad: transAd };
+  }, [bolum, language]);
 
   useEffect(() => {
     async function loadData() {
@@ -201,10 +187,11 @@ export function useDersler({ bolumProp, departmentId }) {
 
       const merged = (courses || []).map((c) => {
         const g = gradesMap.get(c.id);
+        const transAd = language !== "tr" && c[`ad_${language}`] ? c[`ad_${language}`] : c.ad;
         return {
           id: c.id,
           legacy_id: c.legacy_id,
-          ad: c.ad,
+          ad: transAd,
           kredi: Number(c.kredi),
           dersSaati: Number(c.ders_saati),
           vizeYuzde: Number(c.vize_yuzde) || 0,
@@ -216,6 +203,8 @@ export function useDersler({ bolumProp, departmentId }) {
           odev: g ? Number(g.odev) : 0,
           proje: g ? Number(g.proje) : 0,
           final: g ? Number(g.final) : 0,
+          but: g ? Number(g.but) : 0,
+          buteKaldi: g?.bute_kaldi || false,
           harfNotu: g?.harf_notu || null,
         };
       });
@@ -247,7 +236,7 @@ export function useDersler({ bolumProp, departmentId }) {
       supabase.removeChannel(gradesChannel);
       supabase.removeChannel(coursesChannel);
     };
-  }, [bolum, user]);
+  }, [bolum, user, language]);
 
   const siralamaDegistir = useCallback((kolon) => {
     setSiralama((s) => {
@@ -370,7 +359,21 @@ export function useDersler({ bolumProp, departmentId }) {
     setForm((f) => {
       if (!f) return f;
       const y = { ...f, [alan]: deger };
-      if (alan === "vizeYuzde" || alan === "odevYuzde" || alan === "projeYuzde") {
+      
+      // If switching to buteKaldi, ensure defaults
+      if (alan === "buteKaldi" && deger === true) {
+        if (y.vizeYuzde + y.finalYuzde !== 1) {
+          y.vizeYuzde = 0.4;
+          y.finalYuzde = 0.6;
+        }
+        y.odevYuzde = 0;
+        y.projeYuzde = 0;
+      }
+      
+      if (y.buteKaldi && (alan === "vizeYuzde" || alan === "finalYuzde")) {
+        const k = 1 - (alan === "vizeYuzde" ? +deger : f.vizeYuzde);
+        y.finalYuzde = Math.max(0, Math.round(k * 100) / 100);
+      } else if (!y.buteKaldi && (alan === "vizeYuzde" || alan === "odevYuzde" || alan === "projeYuzde")) {
         const k = 1 - (alan === "vizeYuzde" ? +deger : f.vizeYuzde) - (alan === "odevYuzde" ? +deger : f.odevYuzde) - (alan === "projeYuzde" ? +deger : f.projeYuzde);
         y.finalYuzde = Math.max(0, Math.round(k * 100) / 100);
       }
@@ -392,6 +395,8 @@ export function useDersler({ bolumProp, departmentId }) {
       odev: formVerisi.odev || 0,
       proje: formVerisi.proje || 0,
       final: formVerisi.final || 0,
+      but: formVerisi.but || 0,
+      bute_kaldi: formVerisi.buteKaldi || false,
       harf_notu: formVerisi.harfNotu || null,
     };
     if (mevcut) {
@@ -431,7 +436,7 @@ export function useDersler({ bolumProp, departmentId }) {
         }
         const { data: courses } = await supabase
           .from("department_courses")
-          .select("*, student_grades(vize, odev, proje, final, harf_notu, user_id)")
+          .select("*, student_grades(vize, odev, proje, final, but, bute_kaldi, harf_notu, user_id)")
           .eq("department_id", bolum.id);
         if (courses) {
           setDersler(
@@ -451,6 +456,8 @@ export function useDersler({ bolumProp, departmentId }) {
                 odev: g?.odev || 0,
                 proje: g?.proje || 0,
                 final: g?.final || 0,
+                but: g?.but || 0,
+                buteKaldi: g?.bute_kaldi || false,
                 harfNotu: g?.harf_notu || null,
               };
             })
@@ -501,7 +508,7 @@ export function useDersler({ bolumProp, departmentId }) {
 
   return {
     user, profile, harfNotlari, harfRenk, ganoRenkler,
-    bolum, bolumLoading, dersler, dbLoading,
+    bolum: bolumTranslated, bolumLoading, dersler, dbLoading,
     aktifDonem, setAktifDonem, aktifProgramDonemi, donemKaydet,
     modal, setModal, form, setForm, silOnay, setSilOnay,
     siralama, siralamaDegistir,

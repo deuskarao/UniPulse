@@ -5,7 +5,7 @@ import { supabase } from "../../lib/supabase";
 import { motion } from "framer-motion";
 
 export default function AdminDepartments() {
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const { tokens } = useTheme();
   const [departments, setDepartments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -18,11 +18,19 @@ export default function AdminDepartments() {
         .from("departments")
         .select("*, department_courses(count), faculty_departments(*, faculties!inner(ad, emoji))")
         .order("ad");
-      if (data) setDepartments(data);
+      const mapAd = (data) => {
+        if (!data) return data;
+        return data.map(item => {
+          const translation = language !== "tr" && item[`ad_${language}`];
+          return { ...item, ad: translation ? translation : item.ad };
+        });
+      };
+
+      if (data) setDepartments(mapAd(data));
       setLoading(false);
     }
     loadData();
-  }, []);
+  }, [language]);
 
   const filtered = departments.filter(d => {
     const q = searchQuery.toLowerCase();
@@ -61,7 +69,7 @@ export default function AdminDepartments() {
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={tokens.muted} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
           <input
             type="text"
-            placeholder=t("admin.search_department")
+            placeholder={t("admin.search_department")}
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             className="flex-1 bg-transparent outline-none text-sm"

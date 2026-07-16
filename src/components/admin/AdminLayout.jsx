@@ -14,14 +14,14 @@ import AdminQuickActions from "./AdminQuickActions";
 import AdminNotes from "./AdminNotes";
 import AdminActivityTimeline from "./AdminActivityTimeline";
 import AdminUniversities from "./AdminUniversities";
-import AdminApplications from "./AdminApplications";
+import AdminClasses from "./AdminClasses";
 import AdminSettings from "./AdminSettings";
 import AdminReports from "./AdminReports";
 
 const TABS = [
   { id: "dashboard", label: "admin.dashboard" },
   { id: "users", label: "admin.users" },
-  { id: "applications", label: "admin.applications" },
+  { id: "classes", label: "admin.classes" },
   { id: "universities", label: "admin.universities" },
   { id: "reports", label: "admin.reports" },
   { id: "logs", label: "admin.logs" },
@@ -189,7 +189,7 @@ export default function AdminLayout() {
                 logAction={logAction}
               />
             </div>
-            <div style={{ width: 300, display: "flex", flexDirection: "column", gap: 16, overflowY: "auto", paddingRight: 4 }}>
+            <div style={{ width: 300, display: "flex", flexDirection: "column", gap: 16, overflowY: "auto", paddingRight: 4, paddingBottom: 40 }}>
               <AdminQuickActions 
                 user={selectedUser}
                 onBlockUser={handleBlockUser}
@@ -206,8 +206,8 @@ export default function AdminLayout() {
             </div>
           </div>
         );
-      case "applications":
-        return <AdminApplications onUserSelect={(u) => { setSelectedUser(u); handleTabChange("users"); }} />;
+      case "classes":
+        return <AdminClasses onUserSelect={(u) => { setSelectedUser(u); handleTabChange("users"); }} />;
       case "universities":
         return <AdminUniversities />;
       case "reports":

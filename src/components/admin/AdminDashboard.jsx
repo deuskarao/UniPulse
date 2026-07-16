@@ -72,11 +72,11 @@ export default function AdminDashboard({ users, onUserSelect }) {
       const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
 
       const [totalUsers, activeUsers, newUsers, admins, blockedUsers, totalApps] = await Promise.all([
-        supabase.from("profiles").select("id", { count: "exact", head: true }),
-        supabase.from("profiles").select("id", { count: "exact", head: true }).eq("is_online", true),
-        supabase.from("profiles").select("id", { count: "exact", head: true }).gte("created_at", sevenDaysAgo.toISOString()),
+        supabase.from("profiles").select("id", { count: "exact", head: true }).neq("role", "admin"),
+        supabase.from("profiles").select("id", { count: "exact", head: true }).neq("role", "admin").eq("is_online", true),
+        supabase.from("profiles").select("id", { count: "exact", head: true }).neq("role", "admin").gte("created_at", sevenDaysAgo.toISOString()),
         supabase.from("profiles").select("id", { count: "exact", head: true }).eq("role", "admin"),
-        supabase.from("profiles").select("id", { count: "exact", head: true }).eq("is_allowed", false),
+        supabase.from("profiles").select("id", { count: "exact", head: true }).neq("role", "admin").eq("is_allowed", false),
         supabase.from("student_grades").select("id", { count: "exact", head: true }),
       ]);
 

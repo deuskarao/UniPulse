@@ -115,7 +115,7 @@ export default function AdminUsersList({ users, loading, selectedUser, onSelect,
                       width: 10,
                       height: 10,
                       borderRadius: "50%",
-                      background: u.is_allowed === false ? tokens.danger : tokens.success,
+                      background: u.is_allowed === false ? tokens.danger : (u.is_online ? tokens.success : tokens.muted),
                       border: `2px solid ${tokens.card}`,
                     }}
                   />

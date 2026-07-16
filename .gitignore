@@ -17,7 +17,11 @@ dist-ssr
 !.vscode/extensions.json
 .idea
 .DS_Store
+**/.DS_Store
 *.suo
+
+# Scratch files
+scratch/
 *.ntvs*
 *.njsproj
 *.sln

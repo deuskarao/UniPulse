@@ -1,5 +1,6 @@
-import { useState, useEffect, createContext, useContext } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
 import { supabase } from "../lib/supabase";
+import { useI18n } from "./I18nContext";
 
 const AppDataContext = createContext(null);
 
@@ -19,10 +20,12 @@ export function AppDataProvider({ children }) {
   const [facultyDepartments, setFacultyDepartments] = useState([]);
   const [appDataLoading, setAppDataLoading] = useState(true);
   const [appDataError, setAppDataError] = useState(null);
+  const { language } = useI18n();
 
   useEffect(() => {
     async function loadAppData() {
       try {
+        setAppDataLoading(true);
         const [hnData, hrData, grData, bdData, uniData, facData, fdData] = await Promise.all([
           supabase.from("harf_notlari").select("*").order("min", { ascending: false }),
           supabase.from("harf_renkler").select("*"),
@@ -36,6 +39,14 @@ export function AppDataProvider({ children }) {
         const error = hnData.error || hrData.error || grData.error || bdData.error || uniData.error || facData.error || fdData.error;
         if (error) throw error;
 
+        const mapAd = (data) => {
+          if (!data) return data;
+          return data.map(item => {
+            const translation = language !== "tr" && item[`ad_${language}`];
+            return { ...item, original_ad: item.ad, ad: translation ? translation : item.ad };
+          });
+        };
+
         if (hnData.data) setHarfNotlari(hnData.data);
         if (hrData.data) {
           const map = {};
@@ -46,8 +57,8 @@ export function AppDataProvider({ children }) {
         }
         if (grData.data) setGanoRenkler(grData.data);
         if (bdData.data?.value) setBosDers(bdData.data.value);
-        if (uniData.data) setUniversities(uniData.data);
-        if (facData.data) setFaculties(facData.data);
+        if (uniData.data) setUniversities(mapAd(uniData.data));
+        if (facData.data) setFaculties(mapAd(facData.data));
         if (fdData.data) setFacultyDepartments(fdData.data);
       } catch (err) {
         console.error("Uygulama verisi yükleme hatası:", err);
@@ -57,7 +68,7 @@ export function AppDataProvider({ children }) {
       }
     }
     loadAppData();
-  }, []);
+  }, [language]);
 
   return (
     <AppDataContext.Provider

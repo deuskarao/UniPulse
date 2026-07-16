@@ -21,32 +21,44 @@ function InfoRow({ label, value, tokens, color }) {
 }
 
 export default function AdminUserDetails({ user, onUserUpdate, onBlockUser, onDeleteUser, onRoleChange, showToast, logAction, isMobile, onBack }) {
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const { tokens } = useTheme();
   const [activeTab, setActiveTab] = useState("general");
   const [grades, setGrades] = useState([]);
   const [activities, setActivities] = useState([]);
   const [editing, setEditing] = useState(false);
-  const [editForm, setEditForm] = useState({ full_name: "", email: "", department_id: "" });
+  const [editForm, setEditForm] = useState({ full_name: "", email: "", department_id: "", class_id: "" });
   const [departments, setDepartments] = useState([]);
   const [faculties, setFaculties] = useState([]);
   const [universities, setUniversities] = useState([]);
+  const [classes, setClasses] = useState([]);
   const [loadingGrades, setLoadingGrades] = useState(false);
   const [loadingActivities, setLoadingActivities] = useState(false);
 
   useEffect(() => {
     async function loadRefData() {
-      const [deptRes, facRes, uniRes] = await Promise.all([
-        supabase.from("departments").select("id, ad").order("ad"),
-        supabase.from("faculties").select("id, ad").order("ad"),
-        supabase.from("universities").select("id, ad").order("ad"),
+      const [deptRes, facRes, uniRes, clsRes] = await Promise.all([
+        supabase.from("departments").select("*").order("ad"),
+        supabase.from("faculties").select("*").order("ad"),
+        supabase.from("universities").select("*").order("ad"),
+        supabase.from("classes").select("id, name, department_id").order("name").catch(() => ({ data: [] })),
       ]);
-      if (deptRes.data) setDepartments(deptRes.data);
-      if (facRes.data) setFaculties(facRes.data);
-      if (uniRes.data) setUniversities(uniRes.data);
+
+      const mapAd = (data) => {
+        if (!data) return data;
+        return data.map(item => {
+          const translation = language !== "tr" && item[`ad_${language}`];
+          return { ...item, ad: translation ? translation : item.ad };
+        });
+      };
+
+      if (deptRes.data) setDepartments(mapAd(deptRes.data));
+      if (facRes.data) setFaculties(mapAd(facRes.data));
+      if (uniRes.data) setUniversities(mapAd(uniRes.data));
+      if (clsRes.data) setClasses(clsRes.data);
     }
     loadRefData();
-  }, []);
+  }, [language]);
 
   useEffect(() => {
     if (!user) return;
@@ -55,6 +67,7 @@ export default function AdminUserDetails({ user, onUserUpdate, onBlockUser, onDe
       full_name: user.full_name || "",
       email: user.email || "",
       department_id: user.department_id || "",
+      class_id: user.class_id || "",
     });
     setActiveTab("general");
   }, [user?.id]);
@@ -276,6 +289,18 @@ export default function AdminUserDetails({ user, onUserUpdate, onBlockUser, onDe
                     >
                       <option value="">{t("admin.no_department")}</option>
                       {departments.map(d => <option key={d.id} value={d.id}>{d.ad}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label style={{ display: "block", fontSize: 11, color: tokens.muted, fontWeight: 600, marginBottom: 6, textTransform: "uppercase" }}>Sınıf</label>
+                    <select
+                      value={editForm.class_id}
+                      onChange={e => setEditForm(f => ({ ...f, class_id: e.target.value }))}
+                      className="w-full rounded-lg px-3 py-2.5 outline-none text-sm"
+                      style={{ background: tokens.input, border: `1px solid ${tokens.border}`, color: tokens.textPrimary }}
+                    >
+                      <option value="">Sınıf Seçin</option>
+                      {classes.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                     </select>
                   </div>
                   <div className="flex gap-2 justify-end mt-2">

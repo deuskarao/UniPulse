@@ -76,7 +76,7 @@ export default function Header({ sidebarWidth, pageTitle, donemler, aktifDonem, 
       top: 0,
       zIndex: 150,
       paddingTop: mobil ? 0 : 20,
-      marginLeft: mobil ? 0 : (sidebarWidth ? sidebarWidth + 20 : 0),
+      marginLeft: mobil ? 0 : (sidebarWidth || sidebarWidth === 0 ? 16 : 0),
       marginRight: mobil ? 0 : 20,
       background: tokens.background, // Match app background to hide scrolling text above header
     }}>
