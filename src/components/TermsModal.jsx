@@ -1,8 +1,8 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { useTranslation } from "react-i18next";
+import { useI18n } from "../context/I18nContext";
 
 export default function TermsModal({ isOpen, onClose, type, tokens, isDark, onApprove, onDecline }) {
-  const { t } = useTranslation();
+  const { t } = useI18n();
 
   if (!isOpen) return null;
 
