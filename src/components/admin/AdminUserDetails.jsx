@@ -27,7 +27,7 @@ export default function AdminUserDetails({ user, onUserUpdate, onBlockUser, onDe
   const [grades, setGrades] = useState([]);
   const [activities, setActivities] = useState([]);
   const [editing, setEditing] = useState(false);
-  const [editForm, setEditForm] = useState({ full_name: "", email: "", department_id: "", class_id: "" });
+  const [editForm, setEditForm] = useState({ full_name: "", email: "", department_id: "", enrollment_year: null });
   const [departments, setDepartments] = useState([]);
   const [faculties, setFaculties] = useState([]);
   const [universities, setUniversities] = useState([]);
@@ -67,7 +67,7 @@ export default function AdminUserDetails({ user, onUserUpdate, onBlockUser, onDe
       full_name: user.full_name || "",
       email: user.email || "",
       department_id: user.department_id || "",
-      class_id: user.class_id || "",
+      enrollment_year: user.enrollment_year || null
     });
     setActiveTab("general");
   }, [user?.id]);
@@ -110,6 +110,7 @@ export default function AdminUserDetails({ user, onUserUpdate, onBlockUser, onDe
     await onUserUpdate(user.id, {
       full_name: editForm.full_name,
       department_id: editForm.department_id || null,
+      enrollment_year: editForm.enrollment_year || null
     });
     setEditing(false);
   }
@@ -132,9 +133,8 @@ export default function AdminUserDetails({ user, onUserUpdate, onBlockUser, onDe
     );
   }
 
-  const department = departments.find(d => d.id === user.department_id);
-  const faculty = faculties.find(f => f.id === user.faculty_id);
-  const university = universities.find(u => u.id === user.university_id);
+  // Using names mapped in AdminLayout.jsx
+  // Removed local find because it relies on async loading which might cause flash of Belirlenmemiş
 
   return (
     <div
@@ -211,11 +211,11 @@ export default function AdminUserDetails({ user, onUserUpdate, onBlockUser, onDe
                 />
                 {user.is_allowed === false ? "Engelli" : "Aktif"}
               </span>
-              {department && (
-                <span style={{ fontSize: 11, color: tokens.muted }}>📚 {department.ad}</span>
+              {user.department_name && (
+                <span style={{ fontSize: 11, color: tokens.muted }}>📚 {user.department_name}</span>
               )}
-              {university && (
-                <span style={{ fontSize: 11, color: tokens.muted }}>🏛️ {university.ad}</span>
+              {user.university_name && (
+                <span style={{ fontSize: 11, color: tokens.muted }}>🏛️ {user.university_name}</span>
               )}
             </div>
           </div>
@@ -292,16 +292,15 @@ export default function AdminUserDetails({ user, onUserUpdate, onBlockUser, onDe
                     </select>
                   </div>
                   <div>
-                    <label style={{ display: "block", fontSize: 11, color: tokens.muted, fontWeight: 600, marginBottom: 6, textTransform: "uppercase" }}>Sınıf</label>
-                    <select
-                      value={editForm.class_id}
-                      onChange={e => setEditForm(f => ({ ...f, class_id: e.target.value }))}
+                    <label style={{ display: "block", fontSize: 11, color: tokens.muted, fontWeight: 600, marginBottom: 6, textTransform: "uppercase" }}>Kayıt Yılı</label>
+                    <input
+                      type="number"
+                      placeholder="Örn: 2024"
+                      value={editForm.enrollment_year || ""}
+                      onChange={e => setEditForm(f => ({ ...f, enrollment_year: e.target.value ? parseInt(e.target.value) : null }))}
                       className="w-full rounded-lg px-3 py-2.5 outline-none text-sm"
                       style={{ background: tokens.input, border: `1px solid ${tokens.border}`, color: tokens.textPrimary }}
-                    >
-                      <option value="">Sınıf Seçin</option>
-                      {classes.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                    </select>
+                    />
                   </div>
                   <div className="flex gap-2 justify-end mt-2">
                     <button
@@ -324,9 +323,9 @@ export default function AdminUserDetails({ user, onUserUpdate, onBlockUser, onDe
                 <div>
                   <InfoRow label="Ad Soyad" value={user.full_name} tokens={tokens} />
                   <InfoRow label={t("admin.email")} value={user.email} tokens={tokens} />
-                  <InfoRow label={t("admin.university")} value={university?.ad || "Belirlenmemiş"} tokens={tokens} />
-                  <InfoRow label={t("admin.faculty")} value={faculty?.ad || "Belirlenmemiş"} tokens={tokens} />
-                  <InfoRow label={t("admin.department")} value={department?.ad || "Belirlenmemiş"} tokens={tokens} />
+                  <InfoRow label={t("admin.university")} value={user.university_name || "Belirlenmemiş"} tokens={tokens} />
+                  <InfoRow label={t("admin.faculty")} value={user.faculty_name || "Belirlenmemiş"} tokens={tokens} />
+                  <InfoRow label={t("admin.department")} value={user.department_name || "Belirlenmemiş"} tokens={tokens} />
                   <InfoRow label={t("admin.register_date")} value={new Date(user.created_at).toLocaleDateString("tr-TR", { year: "numeric", month: "long", day: "numeric" })} tokens={tokens} />
                   <InfoRow label={t("admin.last_login")} value={user.last_login ? new Date(user.last_login).toLocaleDateString("tr-TR") : "Hiç giriş yapmadı"} tokens={tokens} />
                   <InfoRow label={t("admin.role")} value={user.role === "admin" ? "Admin" : "Kullanıcı"} tokens={tokens} color={user.role === "admin" ? tokens.primary : tokens.textPrimary} />

@@ -18,7 +18,7 @@ export default function AdminClasses({ onUserSelect }) {
     async function loadData() {
       setLoading(true);
       const [profRes, deptRes] = await Promise.all([
-        supabase.from("profiles").select("id, department_id, enrollment_year").not("department_id", "is", null).not("enrollment_year", "is", null),
+        supabase.from("profiles").select("id, department_id, enrollment_year"),
         supabase.from("departments").select("id, ad").order("ad").catch(() => ({ data: [] }))
       ]);
       const mapAd = (data) => {
@@ -36,6 +36,7 @@ export default function AdminClasses({ onUserSelect }) {
         if (profRes.data) {
           const groups = {};
           profRes.data.forEach(p => {
+            if (!p.department_id || !p.enrollment_year) return;
             const key = `${p.department_id}_${p.enrollment_year}`;
             if (!groups[key]) {
               const dept = mappedDepts.find(d => d.id === p.department_id);
