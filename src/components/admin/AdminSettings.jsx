@@ -4,7 +4,7 @@ import { useTheme } from "../../theme/ThemeProvider";
 import { useAuth } from "../../context/AuthContext";
 import { supabase } from "../../lib/supabase";
 import { motion } from "framer-motion";
-
+export default function AdminSettings({ showToast }) {
   const { t } = useI18n();
   const { tokens } = useTheme();
   const { user, profile } = useAuth();
