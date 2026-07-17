@@ -87,7 +87,7 @@ export default function AdminActivityTimeline({ userId, isFullPage }) {
         </button>
       </div>
 
-      <div style={{ maxHeight: isFullPage ? "calc(100vh - 200px)" : 320, overflowY: "auto" }}>
+      <div style={{ maxHeight: isFullPage ? "calc(100vh - 200px)" : "none", overflowY: "auto" }}>
         {loading ? (
           <div className="text-center py-8" style={{ color: tokens.muted, fontSize: 12 }}>{t("admin.loading")}</div>
         ) : activities.length === 0 ? (

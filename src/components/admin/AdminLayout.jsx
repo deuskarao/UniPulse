@@ -189,7 +189,7 @@ export default function AdminLayout() {
                 logAction={logAction}
               />
             </div>
-            <div style={{ width: 300, display: "flex", flexDirection: "column", gap: 16, overflowY: "auto", paddingRight: 4, paddingBottom: 40 }}>
+            <div style={{ width: 300, flexShrink: 0, height: "100%", display: "flex", flexDirection: "column", gap: 16, overflowY: "auto", paddingRight: 4, paddingBottom: 40 }}>
               <AdminQuickActions 
                 user={selectedUser}
                 onBlockUser={handleBlockUser}
