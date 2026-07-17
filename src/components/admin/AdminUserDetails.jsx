@@ -41,7 +41,7 @@ export default function AdminUserDetails({ user, onUserUpdate, onBlockUser, onDe
         supabase.from("departments").select("*").order("ad"),
         supabase.from("faculties").select("*").order("ad"),
         supabase.from("universities").select("*").order("ad"),
-        supabase.from("classes").select("id, name, department_id").order("name").catch(() => ({ data: [] })),
+        supabase.from("classes").select("id, name, department_id").order("name")
       ]);
 
       const mapAd = (data) => {
@@ -222,7 +222,19 @@ export default function AdminUserDetails({ user, onUserUpdate, onBlockUser, onDe
           <div className="flex gap-2 flex-shrink-0">
             {!editing && (
               <button
-                onClick={() => setEditing(true)}
+                onClick={() => {
+                  let u_id = ""; let f_id = "";
+                  if (user.department_id) {
+                    const d = departments.find(x => x.id === user.department_id);
+                    if (d) {
+                      f_id = d.faculty_id || "";
+                      const f = faculties.find(x => x.id === f_id);
+                      if (f) u_id = f.university_id || "";
+                    }
+                  }
+                  setEditForm(prev => ({ ...prev, university_id: u_id, faculty_id: f_id }));
+                  setEditing(true);
+                }}
                 className="rounded-lg px-3 py-1.5 text-xs font-semibold"
                 style={{
                   border: `1px solid ${tokens.border}`,
@@ -280,15 +292,41 @@ export default function AdminUserDetails({ user, onUserUpdate, onBlockUser, onDe
                     />
                   </div>
                   <div>
-                    <label style={{ display: "block", fontSize: 11, color: tokens.muted, fontWeight: 600, marginBottom: 6, textTransform: "uppercase" }}>{t("admin.department")}</label>
+                    <label style={{ display: "block", fontSize: 11, color: tokens.muted, fontWeight: 600, marginBottom: 6, textTransform: "uppercase" }}>{t("admin.university")}</label>
                     <select
-                      value={editForm.department_id}
-                      onChange={e => setEditForm(f => ({ ...f, department_id: e.target.value }))}
+                      value={editForm.university_id || ""}
+                      onChange={e => setEditForm(f => ({ ...f, university_id: e.target.value, faculty_id: "", department_id: "" }))}
                       className="w-full rounded-lg px-3 py-2.5 outline-none text-sm"
                       style={{ background: tokens.input, border: `1px solid ${tokens.border}`, color: tokens.textPrimary }}
                     >
+                      <option value="">Üniversite Seçin</option>
+                      {universities.map(u => <option key={u.id} value={u.id}>{u.ad}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label style={{ display: "block", fontSize: 11, color: tokens.muted, fontWeight: 600, marginBottom: 6, textTransform: "uppercase" }}>{t("admin.faculty")}</label>
+                    <select
+                      value={editForm.faculty_id || ""}
+                      onChange={e => setEditForm(f => ({ ...f, faculty_id: e.target.value, department_id: "" }))}
+                      className="w-full rounded-lg px-3 py-2.5 outline-none text-sm"
+                      style={{ background: tokens.input, border: `1px solid ${tokens.border}`, color: tokens.textPrimary }}
+                      disabled={!editForm.university_id}
+                    >
+                      <option value="">Fakülte Seçin</option>
+                      {faculties.filter(f => f.university_id === editForm.university_id).map(f => <option key={f.id} value={f.id}>{f.ad}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label style={{ display: "block", fontSize: 11, color: tokens.muted, fontWeight: 600, marginBottom: 6, textTransform: "uppercase" }}>{t("admin.department")}</label>
+                    <select
+                      value={editForm.department_id || ""}
+                      onChange={e => setEditForm(f => ({ ...f, department_id: e.target.value }))}
+                      className="w-full rounded-lg px-3 py-2.5 outline-none text-sm"
+                      style={{ background: tokens.input, border: `1px solid ${tokens.border}`, color: tokens.textPrimary }}
+                      disabled={!editForm.faculty_id}
+                    >
                       <option value="">{t("admin.no_department")}</option>
-                      {departments.map(d => <option key={d.id} value={d.id}>{d.ad}</option>)}
+                      {departments.filter(d => d.faculty_id === editForm.faculty_id).map(d => <option key={d.id} value={d.id}>{d.ad}</option>)}
                     </select>
                   </div>
                   <div>

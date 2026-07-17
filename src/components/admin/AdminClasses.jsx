@@ -19,7 +19,7 @@ export default function AdminClasses({ onUserSelect }) {
       setLoading(true);
       const [profRes, deptRes] = await Promise.all([
         supabase.from("profiles").select("id, department_id, enrollment_year"),
-        supabase.from("departments").select("id, ad").order("ad").catch(() => ({ data: [] }))
+        supabase.from("departments").select("id, ad").order("ad")
       ]);
       const mapAd = (data) => {
         if (!data) return data;

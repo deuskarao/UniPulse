@@ -145,7 +145,7 @@ export function AuthProvider({ children }) {
           fetchProfile(session.user.id);
           if (_event === 'SIGNED_IN') {
             try {
-              await supabase.from("profiles").update({ is_online: true }).eq("id", session.user.id);
+              await supabase.from("profiles").update({ is_online: true, last_login: new Date().toISOString() }).eq("id", session.user.id);
             } catch {}
           }
         }
