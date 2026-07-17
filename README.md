@@ -16,33 +16,38 @@ Siteyi test etmek için:
 
 ```
 UniPulse/
-├── .github/
-│   └── workflows/
-│       └── build-and-deploy.yml    # CI/CD — build + GitHub Pages deploy
-├── public/
-│   └── favicon.svg
+├── .github/workflows/          # CI/CD - GitHub Pages deploy
 ├── src/
 │   ├── components/
-│   │   ├── ErrorBoundary.jsx       # Render hata yakalama
-│   │   ├── LoginPage.jsx           # Giriş ekranı
-│   │   └── RegisterPage.jsx        # Kayıt ekranı
+│   │   ├── admin/              # Admin paneli bileşenleri (Layout, Dashboard, Users vb.)
+│   │   ├── AuthPage.jsx        # Giriş/Kayıt ekranı
+│   │   ├── DepartmentSelector.jsx # Fakülte/Bölüm seçim sihirbazı
+│   │   └── ...                 # Grafikler, hata yakalayıcı (ErrorBoundary) ve ortak bileşenler
 │   ├── context/
-│   │   └── AuthContext.jsx         # Auth state, RPC'ler
+│   │   ├── AuthContext.jsx     # Kullanıcı yetkilendirme (Auth) state'i
+│   │   └── I18nContext.jsx     # Çoklu dil (i18n) yönetimi
+│   ├── hooks/
+│   │   └── useDersler.js       # Ders işlemleri (CRUD) ve hesaplamalar (GANO vb.)
+│   ├── layout/
+│   │   └── MainLayout.jsx      # Sidebar, Header ve Ana içerik kapsayıcısı
 │   ├── lib/
-│   │   └── supabase.js             # Supabase client (env vars)
-│   ├── App.jsx                     # Ana uygulama (DB-driven config, Dashboard, Admin)
-│   ├── index.css                   # Global stiller
-│   └── main.jsx                    # React root + AuthProvider + ErrorBoundary
+│   │   └── supabase.js         # Supabase client ve bağlantı ayarları
+│   ├── locales/
+│   │   ├── tr.json, en.json... # Çeviri dosyaları (TR, EN, RU, ES, IT)
+│   ├── pages/
+│   │   ├── DashboardPage.jsx   # Ana özet ekranı
+│   │   ├── CoursesPage.jsx     # Dersler ve not giriş ekranı
+│   │   ├── MyClassPage.jsx     # Sınıf, Bölüm ve Okul Liderlik tabloları
+│   │   └── TranscriptPage.jsx  # Transkript (geçmiş dönemler)
+│   ├── theme/
+│   │   └── ThemeProvider.jsx   # Tema yönetimi ve renk token'ları
+│   ├── App.jsx                 # Ana uygulama rotaları (Router)
+│   ├── index.css               # Global CSS stilleri
+│   └── main.jsx                # React root
 ├── sql/
-│   └── production_ready.sql        # Tablolar, RLS, RPC'ler, trigger'lar
-├── .env                            # Local dev env vars (gitignored)
-├── .gitignore
-├── eslint.config.js
-├── favicon.svg
+│   └── production_ready.sql    # Veritabanı tabloları, RLS ve fonksiyonlar
 ├── index.html
 ├── package.json
-├── package-lock.json
-├── vite.config.js
 └── README.md
 ```
 
