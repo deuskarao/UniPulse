@@ -487,5 +487,7 @@
   "kvkk_p6": "You can send your requests under KVKK to",
   "kvkk_p6_2": ".",
   "Kabul Et": "Accept",
-  "Reddet": "Decline"
+  "Reddet": "Decline",
+  "Kayıtlı Öğrenci Yok": "No Registered Students",
+  "Ya bu dersi almıyorsunuz ya da sınıfınızda bu dersi alan başka öğrenci bulunmuyor.": "You are either not taking this course, or there are no other students in your class taking it."
 }

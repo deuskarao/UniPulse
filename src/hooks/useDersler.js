@@ -312,8 +312,9 @@ export function useDersler({ bolumProp, departmentId }) {
         return { ...d, ort, harf };
       });
     const ganoList = list.filter((d) => d.harf.harf !== "EK");
-    const tk = ganoList.reduce((a, d) => a + d.kredi, 0);
-    const gano = ganoList.reduce((a, d) => a + d.harf.katsayi * d.kredi, 0) / (tk || 1);
+    const ganoKredi = ganoList.reduce((a, d) => a + d.kredi, 0);
+    const gano = ganoList.reduce((a, d) => a + d.harf.katsayi * d.kredi, 0) / (ganoKredi || 1);
+    const alinanKredi = list.reduce((a, d) => a + d.kredi, 0);
     const gecenDersler = list.filter((d) => {
       const h = d.harf.harf;
       if (h === "FF") return false;
@@ -335,7 +336,7 @@ export function useDersler({ bolumProp, departmentId }) {
     return {
       gano: gano.toFixed(2),
       gano100: ((gano / 4) * 100).toFixed(1),
-      alinanKredi: tk,
+      alinanKredi: alinanKredi,
       gecenKredi,
       kalanKredi: Math.max(0, (bolum?.toplamKredi || 0) - gecenKredi),
       gecen: gecenDersler.length,

@@ -37,7 +37,7 @@ export default function AdminSettings({ showToast }) {
 
   return (
     <div className="max-w-4xl">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 items-start gap-6 mb-6">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}

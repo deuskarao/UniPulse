@@ -87,9 +87,17 @@ export default function AdminLayout() {
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      setUsers(data || []);
+      
+      const mappedData = (data || []).map(u => ({
+        ...u,
+        department_name: u.department?.ad || null,
+        faculty_name: u.faculty?.ad || null,
+        university_name: u.university?.ad || null
+      }));
+      
+      setUsers(mappedData);
       if (selectedUser) {
-        const updated = data.find(u => u.id === selectedUser.id);
+        const updated = mappedData.find(u => u.id === selectedUser.id);
         if (updated) setSelectedUser(updated);
       }
     } catch (err) {
@@ -164,7 +172,16 @@ export default function AdminLayout() {
   const renderContent = () => {
     switch (activeTab) {
       case "dashboard":
-        return <AdminDashboard users={users} loading={loading} />;
+        return (
+          <AdminDashboard 
+            users={users} 
+            loading={loading} 
+            onUserSelect={(u) => {
+              if (u) setSelectedUser(u);
+              handleTabChange("users");
+            }} 
+          />
+        );
       case "users":
         return (
           <div style={{ display: "flex", gap: 24, height: "calc(100vh - 160px)", minHeight: 600 }}>
@@ -189,20 +206,22 @@ export default function AdminLayout() {
                 logAction={logAction}
               />
             </div>
-            <div style={{ width: 300, flexShrink: 0, height: "100%", display: "flex", flexDirection: "column", gap: 16, overflowY: "auto", paddingRight: 4, paddingBottom: 40 }}>
-              <AdminQuickActions 
-                user={selectedUser}
-                onBlockUser={handleBlockUser}
-                onDeleteUser={handleDeleteUser}
-                onRoleChange={handleRoleChange}
-                showToast={showToast}
-              />
-              <AdminNotes 
-                userId={selectedUser?.id}
-                showToast={showToast}
-                logAction={logAction}
-              />
-              <AdminActivityTimeline userId={selectedUser?.id} />
+            <div style={{ width: 300, flexShrink: 0, height: "100%", overflowY: "auto", paddingRight: 4, paddingBottom: 40 }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                <AdminQuickActions 
+                  user={selectedUser}
+                  onBlockUser={handleBlockUser}
+                  onDeleteUser={handleDeleteUser}
+                  onRoleChange={handleRoleChange}
+                  showToast={showToast}
+                />
+                <AdminNotes 
+                  userId={selectedUser?.id}
+                  showToast={showToast}
+                  logAction={logAction}
+                />
+                <AdminActivityTimeline userId={selectedUser?.id} />
+              </div>
             </div>
           </div>
         );

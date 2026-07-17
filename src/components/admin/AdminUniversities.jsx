@@ -45,8 +45,8 @@ export default function AdminUniversities() {
 
   const getFacultiesForUni = (uniId) => faculties.filter(f => f.university_id === uniId);
   const getDeptsForFaculty = (facId) => {
-    const deptIds = facultyDepartments.filter(fd => fd.faculty_id === facId).map(fd => fd.department_id);
-    return departments.filter(d => deptIds.includes(d.id));
+    const deptSlugs = facultyDepartments.filter(fd => fd.faculty_id === facId).map(fd => fd.department_slug);
+    return departments.filter(d => deptSlugs.includes(d.slug));
   };
 
   const selectedFaculties = selectedUni ? getFacultiesForUni(selectedUni.id) : [];

@@ -17,8 +17,8 @@ export default function AdminClasses({ onUserSelect }) {
   useEffect(() => {
     async function loadData() {
       setLoading(true);
-      const [clsRes, deptRes] = await Promise.all([
-        supabase.from("classes").select("*, profiles(count)").order("name").catch(() => ({ data: [] })),
+      const [profRes, deptRes] = await Promise.all([
+        supabase.from("profiles").select("id, department_id, enrollment_year").not("department_id", "is", null).not("enrollment_year", "is", null),
         supabase.from("departments").select("id, ad").order("ad").catch(() => ({ data: [] }))
       ]);
       const mapAd = (data) => {
@@ -29,26 +29,49 @@ export default function AdminClasses({ onUserSelect }) {
         });
       };
 
-      if (clsRes.data) setClasses(clsRes.data);
-      if (deptRes.data) setDepartments(mapAd(deptRes.data));
+      if (deptRes.data) {
+        const mappedDepts = mapAd(deptRes.data);
+        setDepartments(mappedDepts);
+        
+        if (profRes.data) {
+          const groups = {};
+          profRes.data.forEach(p => {
+            const key = `${p.department_id}_${p.enrollment_year}`;
+            if (!groups[key]) {
+              const dept = mappedDepts.find(d => d.id === p.department_id);
+              groups[key] = {
+                id: key,
+                department_id: p.department_id,
+                enrollment_year: p.enrollment_year,
+                name: `${dept ? dept.ad : "Bilinmeyen Bölüm"} ${p.enrollment_year} Sınıfı`,
+                student_count: 0
+              };
+            }
+            groups[key].student_count += 1;
+          });
+          const virtualClasses = Object.values(groups).sort((a,b) => a.name.localeCompare(b.name));
+          setClasses(virtualClasses);
+        }
+      }
       setLoading(false);
     }
     loadData();
   }, [language]);
 
-  async function loadStudents(classId) {
+  async function loadStudents(virtualClass) {
     setLoadingStudents(true);
     const { data } = await supabase
       .from("profiles")
       .select("*, student_grades(count)")
-      .eq("class_id", classId);
+      .eq("department_id", virtualClass.department_id)
+      .eq("enrollment_year", virtualClass.enrollment_year);
     if (data) setClassStudents(data);
     setLoadingStudents(false);
   }
 
   const handleClassSelect = (cls) => {
     setSelectedClass(cls);
-    loadStudents(cls.id);
+    loadStudents(cls);
   };
 
   const [search, setSearch] = useState("");
@@ -141,7 +164,7 @@ export default function AdminClasses({ onUserSelect }) {
             <div style={{ fontSize: 16, fontWeight: 700, color: tokens.textPrimary }}>{cls.name}</div>
             <div style={{ fontSize: 12, color: tokens.muted, marginTop: 4 }}>{departments.find(d => d.id === cls.department_id)?.ad || "Bölüm Yok"}</div>
             <div className="mt-4 inline-block px-2 py-1 rounded text-xs" style={{ background: tokens.primary + '18', color: tokens.primary }}>
-              {cls.profiles?.[0]?.count || 0} Öğrenci
+              {cls.student_count || 0} Öğrenci
             </div>
           </motion.button>
         ))}
