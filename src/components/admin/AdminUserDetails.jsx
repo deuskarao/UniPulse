@@ -32,16 +32,18 @@ export default function AdminUserDetails({ user, onUserUpdate, onBlockUser, onDe
   const [faculties, setFaculties] = useState([]);
   const [universities, setUniversities] = useState([]);
   const [classes, setClasses] = useState([]);
+  const [facultyDepartments, setFacultyDepartments] = useState([]);
   const [loadingGrades, setLoadingGrades] = useState(false);
   const [loadingActivities, setLoadingActivities] = useState(false);
 
   useEffect(() => {
     async function loadRefData() {
-      const [deptRes, facRes, uniRes, clsRes] = await Promise.all([
+      const [deptRes, facRes, uniRes, clsRes, fdRes] = await Promise.all([
         supabase.from("departments").select("*").order("ad"),
         supabase.from("faculties").select("*").order("ad"),
         supabase.from("universities").select("*").order("ad"),
-        supabase.from("classes").select("id, name, department_id").order("name")
+        supabase.from("classes").select("id, name, department_id").order("name"),
+        supabase.from("faculty_departments").select("*")
       ]);
 
       const mapAd = (data) => {
@@ -56,6 +58,7 @@ export default function AdminUserDetails({ user, onUserUpdate, onBlockUser, onDe
       if (facRes.data) setFaculties(mapAd(facRes.data));
       if (uniRes.data) setUniversities(mapAd(uniRes.data));
       if (clsRes.data) setClasses(clsRes.data);
+      if (fdRes.data) setFacultyDepartments(fdRes.data);
     }
     loadRefData();
   }, [language]);
@@ -227,9 +230,12 @@ export default function AdminUserDetails({ user, onUserUpdate, onBlockUser, onDe
                   if (user.department_id) {
                     const d = departments.find(x => x.id === user.department_id);
                     if (d) {
-                      f_id = d.faculty_id || "";
-                      const f = faculties.find(x => x.id === f_id);
-                      if (f) u_id = f.university_id || "";
+                      const fd = facultyDepartments.find(x => x.department_slug === d.slug);
+                      if (fd) {
+                        f_id = fd.faculty_id || "";
+                        const f = faculties.find(x => x.id === f_id);
+                        if (f) u_id = f.university_id || "";
+                      }
                     }
                   }
                   setEditForm(prev => ({ ...prev, university_id: u_id, faculty_id: f_id }));
@@ -326,7 +332,7 @@ export default function AdminUserDetails({ user, onUserUpdate, onBlockUser, onDe
                       disabled={!editForm.faculty_id}
                     >
                       <option value="">{t("admin.no_department")}</option>
-                      {departments.filter(d => d.faculty_id === editForm.faculty_id).map(d => <option key={d.id} value={d.id}>{d.ad}</option>)}
+                      {departments.filter(d => facultyDepartments.some(fd => fd.faculty_id === editForm.faculty_id && fd.department_slug === d.slug)).map(d => <option key={d.id} value={d.id}>{d.ad}</option>)}
                     </select>
                   </div>
                   <div>

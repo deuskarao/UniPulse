@@ -36,15 +36,16 @@ export default function AdminClasses({ onUserSelect }) {
         if (profRes.data) {
           const groups = {};
           profRes.data.forEach(p => {
-            if (!p.department_id || !p.enrollment_year) return;
-            const key = `${p.department_id}_${p.enrollment_year}`;
+            if (!p.department_id) return;
+            const yearStr = p.enrollment_year || "Belirsiz";
+            const key = `${p.department_id}_${yearStr}`;
             if (!groups[key]) {
               const dept = mappedDepts.find(d => d.id === p.department_id);
               groups[key] = {
                 id: key,
                 department_id: p.department_id,
                 enrollment_year: p.enrollment_year,
-                name: `${dept ? dept.ad : "Bilinmeyen Bölüm"} ${p.enrollment_year} Sınıfı`,
+                name: `${dept ? dept.ad : "Bilinmeyen Bölüm"} ${yearStr === "Belirsiz" ? "(Yılı Belirsiz)" : yearStr + " Sınıfı"}`,
                 student_count: 0
               };
             }
@@ -61,11 +62,15 @@ export default function AdminClasses({ onUserSelect }) {
 
   async function loadStudents(virtualClass) {
     setLoadingStudents(true);
-    const { data } = await supabase
-      .from("profiles")
-      .select("*, student_grades(count)")
-      .eq("department_id", virtualClass.department_id)
-      .eq("enrollment_year", virtualClass.enrollment_year);
+    let query = supabase.from("profiles").select("*").eq("department_id", virtualClass.department_id);
+    
+    if (virtualClass.enrollment_year) {
+      query = query.eq("enrollment_year", virtualClass.enrollment_year);
+    } else {
+      query = query.is("enrollment_year", null);
+    }
+    
+    const { data } = await query;
     if (data) setClassStudents(data);
     setLoadingStudents(false);
   }
@@ -100,21 +105,19 @@ export default function AdminClasses({ onUserSelect }) {
               <thead>
                 <tr style={{ background: tokens.surface, color: tokens.muted, fontSize: 11, textTransform: "uppercase" }}>
                   <th className="p-3 font-semibold">Öğrenci</th>
-                  <th className="p-3 font-semibold">Kayıtlı Notlar</th>
                   <th className="p-3 font-semibold">Kayıt Tarihi</th>
                   <th className="p-3 font-semibold text-right">İşlem</th>
                 </tr>
               </thead>
               <tbody>
                 {loadingStudents ? (
-                  <tr><td colSpan="4" className="p-4 text-center" style={{ color: tokens.muted }}>Yükleniyor...</td></tr>
+                  <tr><td colSpan="3" className="p-4 text-center" style={{ color: tokens.muted }}>Yükleniyor...</td></tr>
                 ) : classStudents.length === 0 ? (
-                  <tr><td colSpan="4" className="p-4 text-center" style={{ color: tokens.muted }}>Bu sınıfta öğrenci yok.</td></tr>
+                  <tr><td colSpan="3" className="p-4 text-center" style={{ color: tokens.muted }}>Bu sınıfta öğrenci yok.</td></tr>
                 ) : (
                   classStudents.map(student => (
                     <tr key={student.id} style={{ borderBottom: `1px solid ${tokens.border}`, color: tokens.textPrimary }}>
                       <td className="p-3 font-medium">{student.full_name || student.email || "İsimsiz"}</td>
-                      <td className="p-3">{student.student_grades?.[0]?.count || 0}</td>
                       <td className="p-3">{new Date(student.created_at).toLocaleDateString("tr-TR")}</td>
                       <td className="p-3 text-right">
                         <button onClick={() => onUserSelect(student)} className="text-xs px-2 py-1 rounded" style={{ background: tokens.primary + '20', color: tokens.primary }}>Detay</button>

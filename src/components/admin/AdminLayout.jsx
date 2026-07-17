@@ -29,9 +29,9 @@ const TABS = [
 ];
 
 export default function AdminLayout() {
-  const { tokens, mode } = useTheme();
-  const { profile, logout } = useAuth();
-  const { t } = useI18n();
+  const { tokens, mode, setMode } = useTheme();
+  const { profile, user, logout } = useAuth();
+  const { t, language, setLanguage } = useI18n();
   
   const [activeTab, setActiveTab] = useState("dashboard");
   const [users, setUsers] = useState([]);
@@ -112,9 +112,21 @@ export default function AdminLayout() {
     fetchUsers();
   }, []);
 
-  const handleUserUpdate = (updatedUser) => {
-    setUsers(users.map(u => u.id === updatedUser.id ? updatedUser : u));
-    setSelectedUser(updatedUser);
+  const handleUserUpdate = async (userId, updates) => {
+    try {
+      const { error } = await supabase
+        .from("profiles")
+        .update(updates)
+        .eq("id", userId);
+      if (error) throw error;
+      
+      await fetchUsers();
+      showToast(t("admin.user_updated") || "Kullanıcı güncellendi");
+      logAction("Kullanıcı bilgileri güncellendi", null, userId);
+    } catch (err) {
+      console.error("Güncelleme hatası:", err);
+      showToast(t("admin.error_failed"), "error");
+    }
   };
 
   const handleBlockUser = async (user, isBlocked) => {
@@ -306,20 +318,48 @@ export default function AdminLayout() {
         })}
         </div>
         
-        <button
-          onClick={logout}
-          className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors"
-          style={{ color: tokens.danger, background: "transparent", border: "none", cursor: "pointer", paddingRight: 8 }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = tokens.danger + "15";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = "transparent";
-          }}
-        >
-          <LogOut size={16} />
-          {t("app.logout")}
-        </button>
+        <div style={{ display: "flex", alignItems: "center", gap: 16, paddingRight: 8 }}>
+          <button
+            onClick={() => {
+              const newMode = mode === 'dark' ? 'light' : 'dark';
+              setMode(newMode);
+              if (user?.id) supabase.from("profiles").update({ theme_preference: newMode }).eq("id", user.id).then(()=>{}).catch(()=>{});
+            }}
+            className="flex items-center justify-center rounded-lg transition-colors"
+            style={{ width: 32, height: 32, background: tokens.surface, border: `1px solid ${tokens.border}`, color: tokens.textPrimary, cursor: "pointer" }}
+            title={t("admin.theme_preference")}
+          >
+            {mode === 'dark' ? "🌙" : "☀️"}
+          </button>
+          
+          <select
+            value={language}
+            onChange={(e) => setLanguage(e.target.value)}
+            className="rounded-lg outline-none font-medium cursor-pointer"
+            style={{ background: tokens.surface, border: `1px solid ${tokens.border}`, color: tokens.textPrimary, padding: "4px 8px", fontSize: 13, height: 32 }}
+          >
+             <option value="tr">🇹🇷 TR</option>
+             <option value="en">🇬🇧 EN</option>
+             <option value="es">🇪🇸 ES</option>
+             <option value="it">🇮🇹 IT</option>
+             <option value="ru">🇷🇺 RU</option>
+          </select>
+
+          <button
+            onClick={logout}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors"
+            style={{ color: tokens.danger, background: "transparent", border: "none", cursor: "pointer", height: 32 }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = tokens.danger + "15";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = "transparent";
+            }}
+          >
+            <LogOut size={16} />
+            {t("app.logout")}
+          </button>
+        </div>
       </div>
 
       {/* CONTENT */}
