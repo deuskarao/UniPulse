@@ -1,6 +1,6 @@
 import { useTheme } from "../theme/ThemeProvider";
 import { useI18n } from "../context/I18nContext";
-import { GraduationCap } from "lucide-react";
+
 
 const ICON = {
   dashboard: (color = "currentColor") => (
@@ -74,7 +74,7 @@ function SidebarLogo({ tokens, onClick }) {
         display: "flex", alignItems: "center", justifyContent: "center",
         boxShadow: `0 4px 12px ${tokens.primary}40`,
       }}>
-        <GraduationCap size={18} color="white" strokeWidth={2.5} />
+        <img src="/logo.svg" alt="UniPulse Logo" width="18" height="18" />
       </div>
       <span style={{
         fontWeight: 700, fontSize: 16, color: tokens.textPrimary,
