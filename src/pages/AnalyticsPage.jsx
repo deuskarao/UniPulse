@@ -35,7 +35,7 @@ export default function AnalyticsPage({ dersler, harfNotlari, stats }) {
         e.katsayiKredi += harf.katsayi * d.kredi;
         e.kredi += d.kredi;
       }
-      e.dersSayisi += 1;
+      if (harf.harf !== "-") e.dersSayisi += 1;
       if (harf.harf !== "FF" && harf.harf !== "EK" && harf.harf !== "-") e.gecen += 1;
     });
     return Array.from(map.entries()).sort((a, b) => a[0] - b[0]).map(([donem, v]) => ({

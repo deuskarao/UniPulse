@@ -62,14 +62,18 @@ export default function CoursesPage({ bolum, profile, harfNotlari, harfRenk, sir
                     </span></td>
                     <td style={{ padding: "12px 10px", textAlign: "center" }}><span style={{ fontWeight: 800, fontSize: 14, color: ort >= 70 ? tokens.success : ort >= 60 ? tokens.warning : tokens.danger }}>{ort.toFixed(1)}</span></td>
                     <td style={{ padding: "12px 10px", textAlign: "center" }}>
-                      <span style={{
-                        display: "inline-flex", alignItems: "center", justifyContent: "center",
-                        minWidth: 30, height: 26, padding: "0 10px", borderRadius: 7,
-                        background: hr, color: "#fff",
-                        fontSize: 12, fontWeight: 800, letterSpacing: 0.3,
-                        boxShadow: `0 2px 6px ${hr}30`,
-                        textShadow: "0 1px 2px rgba(0,0,0,0.15)",
-                      }}>{harf.harf === "-" ? t("Not Girilmedi") : harf.harf}</span>
+                      {harf.harf === "-" ? (
+                        <span style={{ fontSize: 11, fontWeight: 600, color: tokens.muted }}>{t("Not Girilmedi")}</span>
+                      ) : (
+                        <span style={{
+                          display: "inline-flex", alignItems: "center", justifyContent: "center",
+                          minWidth: 30, height: 26, padding: "0 10px", borderRadius: 7,
+                          background: hr, color: "#fff",
+                          fontSize: 12, fontWeight: 800, letterSpacing: 0.3,
+                          boxShadow: `0 2px 6px ${hr}30`,
+                          textShadow: "0 1px 2px rgba(0,0,0,0.15)",
+                        }}>{harf.harf}</span>
+                      )}
                     </td>
                     <td style={{ padding: "12px 10px", textAlign: "center", fontSize: 13, fontWeight: 700, color: tokens.textSecondary }}>{(d.kredi * harf.katsayi).toFixed(2)}</td>
                     <td style={{ padding: "12px 10px", textAlign: "center" }}>
@@ -181,7 +185,7 @@ export default function CoursesPage({ bolum, profile, harfNotlari, harfRenk, sir
                     {[[t("DÖNEM ORT."), ort.toFixed(1), ort >= 60 ? tokens.success : tokens.danger], [t("HARF NOTU"), harf.harf === "-" ? t("Not Girilmedi") : harf.harf, hr], [t("KATSAYI"), harf.katsayi.toFixed(2), tokens.primary]].map(([l, v, c]) => (
                       <div key={l} style={{ textAlign: "center" }}>
                         <div style={{ fontSize: 10, color: tokens.muted, marginBottom: 4, textTransform: "uppercase", letterSpacing: 0.5 }}>{l}</div>
-                        <div style={{ fontSize: 22, fontWeight: 800, color: c }}>{v}</div>
+                        <div style={{ fontSize: v === t("Not Girilmedi") ? 14 : 22, fontWeight: 800, color: c }}>{v}</div>
                       </div>
                     ))}
                   </div>

@@ -318,9 +318,8 @@ export function useDersler({ bolumProp, departmentId }) {
 
   const stats = useMemo(() => {
     const gecmeLimiti = 50;
-    const aktifDonemler = new Set(dersler.filter((d) => d.hasGrades).map((d) => d.donem));
     const list = dersler
-      .filter((d) => aktifDonemler.has(d.donem) && (aktifProgramDonemi === 0 || d.donem <= aktifProgramDonemi))
+      .filter((d) => d.hasGrades && (aktifProgramDonemi === 0 || d.donem <= aktifProgramDonemi))
       .map((d) => {
         const ort = hesaplaDönemOrt(d);
         let harf;
