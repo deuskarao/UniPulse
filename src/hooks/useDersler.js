@@ -195,7 +195,7 @@ export function useDersler({ bolumProp, departmentId }) {
         const but = g ? Number(g.but) : 0;
         const harfNotu = g?.harf_notu || null;
         const buteKaldi = g?.bute_kaldi || false;
-        const hasGrades = !!g;
+        const hasGrades = vize > 0 || odev > 0 || proje > 0 || final > 0 || but > 0 || !!harfNotu;
 
         return {
           id: c.id,
@@ -259,7 +259,14 @@ export function useDersler({ bolumProp, departmentId }) {
     const ders = dersler.find((d) => d.id === dersId);
     if (!ders) return;
     const yeniDers = { ...ders, [alan]: deger };
-    setDersler((p) => p.map((d) => (d.id === dersId ? { ...d, [alan]: deger } : d)));
+    setDersler((p) => p.map((d) => {
+      if (d.id === dersId) {
+        const u = { ...d, [alan]: deger };
+        u.hasGrades = u.vize > 0 || u.odev > 0 || u.proje > 0 || u.final > 0 || u.but > 0 || !!u.harfNotu;
+        return u;
+      }
+      return d;
+    }));
     try {
       const { data: mevcut } = await supabase
         .from("student_grades")
@@ -510,7 +517,14 @@ export function useDersler({ bolumProp, departmentId }) {
       } catch (e) {
         console.error("Not kaydetme hatası:", e);
       }
-      setDersler((p) => p.map((d) => (d.id === form.id ? { ...d, ...form } : d)));
+      setDersler((p) => p.map((d) => {
+        if (d.id === form.id) {
+          const u = { ...d, ...form };
+          u.hasGrades = u.vize > 0 || u.odev > 0 || u.proje > 0 || u.final > 0 || u.but > 0 || !!u.harfNotu;
+          return u;
+        }
+        return d;
+      }));
     }
     setModal(null);
   }
