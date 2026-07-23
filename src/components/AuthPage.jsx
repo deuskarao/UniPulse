@@ -214,6 +214,14 @@ export default function AuthPage({ initialMode = 'login' }) {
         setLoading(false)
         return
       }
+      
+      const allowedDomains = ["gmail.com", "icloud.com", "hotmail.com", "outlook.com", "yahoo.com", "yandex.com", "msn.com", "live.com"];
+      const domain = email.split('@')[1]?.toLowerCase();
+      if (!domain || !allowedDomains.includes(domain)) {
+        setError(t('Sadece bilinen e-posta sağlayıcıları (gmail, icloud vb.) kabul edilmektedir.'));
+        setLoading(false);
+        return;
+      }
       if (!username || !/^[a-zA-Z0-9_.-]+$/.test(username)) {
         setError(t("Lütfen geçerli bir kullanıcı adı girin (Boşluksuz harf, rakam, alt çizgi)."));
         setLoading(false);

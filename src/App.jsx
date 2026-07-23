@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect, useCallback } from "react";
 import { supabase } from './lib/supabase';
 import { useAuth } from './context/AuthContext';
 import AuthPage from './components/AuthPage';
+import ResetPasswordPage from './components/ResetPasswordPage';
 import AdminPage from './pages/AdminPage';
 import { AppDataProvider, useAppData } from './context/AppDataContext.jsx';
 import { useWindowSize, hexToRgb, Overlay } from './components/shared.jsx';
@@ -261,12 +262,16 @@ function Dashboard({ bolum: bolumProp, departmentId }) {
 }
 
 export default function App() {
-  const { user, profile, loading: authLoading, logout, selectDepartment } = useAuth();
+  const { user, profile, loading: authLoading, logout, selectDepartment, isPasswordRecovery } = useAuth();
   const [authPage, setAuthPage] = useState("login");
   const [aktifBolum, setAktifBolum] = useState(null);
 
   const { t, translateName } = useI18n();
   if (authLoading) return <LoadingScreen text={t("Yükleniyor...")} />;
+
+  if (isPasswordRecovery) {
+    return <ThemeWrapper><ResetPasswordPage /></ThemeWrapper>;
+  }
 
   if (!user) {
     return <ThemeWrapper><AuthPage initialMode={authPage} /></ThemeWrapper>;
