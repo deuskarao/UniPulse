@@ -195,7 +195,7 @@ export function useDersler({ bolumProp, departmentId }) {
         const but = g ? Number(g.but) : 0;
         const harfNotu = g?.harf_notu || null;
         const buteKaldi = g?.bute_kaldi || false;
-        const hasGrades = vize > 0 || odev > 0 || proje > 0 || final > 0 || but > 0 || !!harfNotu;
+        const hasGrades = !!g;
 
         return {
           id: c.id,
@@ -318,7 +318,7 @@ export function useDersler({ bolumProp, departmentId }) {
 
   const stats = useMemo(() => {
     const gecmeLimiti = 50;
-    const aktifDonemler = new Set(dersler.filter((d) => d.vize > 0 || d.odev > 0 || d.proje > 0 || d.final > 0 || d.harfNotu).map((d) => d.donem));
+    const aktifDonemler = new Set(dersler.filter((d) => d.hasGrades).map((d) => d.donem));
     const list = dersler
       .filter((d) => aktifDonemler.has(d.donem) && (aktifProgramDonemi === 0 || d.donem <= aktifProgramDonemi))
       .map((d) => {

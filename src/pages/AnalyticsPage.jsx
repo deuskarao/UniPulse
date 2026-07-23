@@ -19,7 +19,7 @@ export default function AnalyticsPage({ dersler, harfNotlari, stats }) {
   const { t } = useI18n();
 
   const donemStats = useMemo(() => {
-    const aktifDonemler = new Set(dersler.filter((d) => d.vize > 0 || d.odev > 0 || d.proje > 0 || d.final > 0 || d.harfNotu).map((d) => d.donem));
+    const aktifDonemler = new Set(dersler.filter((d) => d.hasGrades).map((d) => d.donem));
     const map = new Map();
     dersler.forEach((d) => {
       if (!aktifDonemler.has(d.donem)) return;
@@ -44,7 +44,7 @@ export default function AnalyticsPage({ dersler, harfNotlari, stats }) {
   }, [dersler, harfNotlari]);
 
   const gradeDistribution = useMemo(() => {
-    const aktifDonemler = new Set(dersler.filter((d) => d.vize > 0 || d.odev > 0 || d.proje > 0 || d.final > 0 || d.harfNotu).map((d) => d.donem));
+    const aktifDonemler = new Set(dersler.filter((d) => d.hasGrades).map((d) => d.donem));
     const counts = {};
     dersler.forEach((d) => {
       if (!aktifDonemler.has(d.donem)) return;

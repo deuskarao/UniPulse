@@ -134,7 +134,7 @@ export default function DashboardPage({ dersler, stats, harfNotlari, bolum, akti
   const { t } = useI18n();
 
   const gpaTrendData = useMemo(() => {
-    const aktifDonemler = new Set(dersler.filter((d) => d.vize > 0 || d.odev > 0 || d.proje > 0 || d.final > 0 || d.harfNotu).map((d) => d.donem));
+    const aktifDonemler = new Set(dersler.filter((d) => d.hasGrades).map((d) => d.donem));
     const donemMap = new Map();
 
     dersler.forEach((d) => {

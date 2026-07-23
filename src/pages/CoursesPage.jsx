@@ -69,7 +69,7 @@ export default function CoursesPage({ bolum, profile, harfNotlari, harfRenk, sir
                         fontSize: 12, fontWeight: 800, letterSpacing: 0.3,
                         boxShadow: `0 2px 6px ${hr}30`,
                         textShadow: "0 1px 2px rgba(0,0,0,0.15)",
-                      }}>{harf.harf}</span>
+                      }}>{harf.harf === "-" ? t("Not Girilmedi") : harf.harf}</span>
                     </td>
                     <td style={{ padding: "12px 10px", textAlign: "center", fontSize: 13, fontWeight: 700, color: tokens.textSecondary }}>{(d.kredi * harf.katsayi).toFixed(2)}</td>
                     <td style={{ padding: "12px 10px", textAlign: "center" }}>
@@ -178,7 +178,7 @@ export default function CoursesPage({ bolum, profile, harfNotlari, harfRenk, sir
                 const hr = harfRengi(harf.harf, {});
                 return (
                   <div style={{ background: tokens.primary + "0c", border: `1px solid ${hr}30`, borderRadius: 14, padding: "14px 20px", display: "flex", justifyContent: "space-around" }}>
-                    {[[t("DÖNEM ORT."), ort.toFixed(1), ort >= 60 ? tokens.success : tokens.danger], [t("HARF NOTU"), harf.harf, hr], [t("KATSAYI"), harf.katsayi.toFixed(2), tokens.primary]].map(([l, v, c]) => (
+                    {[[t("DÖNEM ORT."), ort.toFixed(1), ort >= 60 ? tokens.success : tokens.danger], [t("HARF NOTU"), harf.harf === "-" ? t("Not Girilmedi") : harf.harf, hr], [t("KATSAYI"), harf.katsayi.toFixed(2), tokens.primary]].map(([l, v, c]) => (
                       <div key={l} style={{ textAlign: "center" }}>
                         <div style={{ fontSize: 10, color: tokens.muted, marginBottom: 4, textTransform: "uppercase", letterSpacing: 0.5 }}>{l}</div>
                         <div style={{ fontSize: 22, fontWeight: 800, color: c }}>{v}</div>
