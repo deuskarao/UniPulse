@@ -36,7 +36,9 @@ export default function CoursesPage({ bolum, profile, harfNotlari, harfRenk, sir
               {filtered.length === 0 && <tr><td colSpan={8} style={{ padding: 48, textAlign: "center", color: tokens.muted, fontSize: 13 }}>{t("Ders bulunamadı.")}</td></tr>}
               {filtered.map((d, i) => {
                 const ort = hesaplaDönemOrt(d);
-                const otomatikHarf = hesaplaHarf(ort, harfNotlari);
+                let otomatikHarf;
+                if (!d.hasGrades) { otomatikHarf = { harf: "-", katsayi: 0 }; }
+                else { otomatikHarf = hesaplaHarf(ort, harfNotlari); }
                 const harf = d.harfNotu ? harfNotlari.find((h) => h.harf === d.harfNotu) || otomatikHarf : otomatikHarf;
                 const hr = harfRengi(harf.harf, harfRenk);
                 const gFin = hesaplaGerekliiFinal(d);
@@ -168,7 +170,10 @@ export default function CoursesPage({ bolum, profile, harfNotlari, harfRenk, sir
               </div>
               {(() => {
                 const ort = hesaplaDönemOrt(form);
-                const otomatikHarf = hesaplaHarf(ort, harfNotlari);
+                let otomatikHarf;
+                const formHasGrades = form.vize > 0 || form.odev > 0 || form.proje > 0 || form.final > 0 || form.but > 0 || !!form.harfNotu;
+                if (!formHasGrades) { otomatikHarf = { harf: "-", katsayi: 0 }; }
+                else { otomatikHarf = hesaplaHarf(ort, harfNotlari); }
                 const harf = form.harfNotu ? (harfNotlari.find((h) => h.harf === form.harfNotu) || otomatikHarf) : otomatikHarf;
                 const hr = harfRengi(harf.harf, {});
                 return (

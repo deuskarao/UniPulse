@@ -27,14 +27,16 @@ export default function AnalyticsPage({ dersler, harfNotlari, stats }) {
       const e = map.get(d.donem);
       
       const ort = hesaplaDönemOrt(d);
-      const harf = d.harfNotu ? (harfNotlari.find((h) => h.harf === d.harfNotu) || { harf: d.harfNotu, katsayi: 0 }) : hesaplaHarf(ort, harfNotlari);
+      let harf;
+      if (!d.hasGrades) { harf = { harf: "-", katsayi: 0 }; }
+      else { harf = d.harfNotu ? (harfNotlari.find((h) => h.harf === d.harfNotu) || { harf: d.harfNotu, katsayi: 0 }) : hesaplaHarf(ort, harfNotlari); }
       
-      if (harf.harf !== "EK") {
+      if (harf.harf !== "EK" && harf.harf !== "-") {
         e.katsayiKredi += harf.katsayi * d.kredi;
         e.kredi += d.kredi;
       }
       e.dersSayisi += 1;
-      if (harf.harf !== "FF" && harf.harf !== "EK") e.gecen += 1;
+      if (harf.harf !== "FF" && harf.harf !== "EK" && harf.harf !== "-") e.gecen += 1;
     });
     return Array.from(map.entries()).sort((a, b) => a[0] - b[0]).map(([donem, v]) => ({
       donem, gano: v.kredi ? (v.katsayiKredi / v.kredi).toFixed(2) : "—", dersSayisi: v.dersSayisi, gecen: v.gecen,
@@ -47,8 +49,11 @@ export default function AnalyticsPage({ dersler, harfNotlari, stats }) {
     dersler.forEach((d) => {
       if (!aktifDonemler.has(d.donem)) return;
       const ort = hesaplaDönemOrt(d);
-      const harf = d.harfNotu ? (harfNotlari.find((h) => h.harf === d.harfNotu) || { harf: d.harfNotu, katsayi: 0 }) : hesaplaHarf(ort, harfNotlari);
-      if (harf.harf === "EK") return;
+      let harf;
+      if (!d.hasGrades) { harf = { harf: "-", katsayi: 0 }; }
+      else { harf = d.harfNotu ? (harfNotlari.find((h) => h.harf === d.harfNotu) || { harf: d.harfNotu, katsayi: 0 }) : hesaplaHarf(ort, harfNotlari); }
+      
+      if (harf.harf === "EK" || harf.harf === "-") return;
       counts[harf.harf] = (counts[harf.harf] || 0) + 1;
     });
     const max = Math.max(1, ...Object.values(counts));

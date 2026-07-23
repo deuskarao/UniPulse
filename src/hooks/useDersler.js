@@ -188,6 +188,15 @@ export function useDersler({ bolumProp, departmentId }) {
       const merged = (courses || []).map((c) => {
         const g = gradesMap.get(c.id);
         const transAd = language !== "tr" && c[`ad_${language}`] ? c[`ad_${language}`] : c.ad;
+        const vize = g ? Number(g.vize) : 0;
+        const odev = g ? Number(g.odev) : 0;
+        const proje = g ? Number(g.proje) : 0;
+        const final = g ? Number(g.final) : 0;
+        const but = g ? Number(g.but) : 0;
+        const harfNotu = g?.harf_notu || null;
+        const buteKaldi = g?.bute_kaldi || false;
+        const hasGrades = vize > 0 || odev > 0 || proje > 0 || final > 0 || but > 0 || !!harfNotu;
+
         return {
           id: c.id,
           legacy_id: c.legacy_id,
@@ -199,13 +208,14 @@ export function useDersler({ bolumProp, departmentId }) {
           projeYuzde: Number(c.proje_yuzde) || 0,
           finalYuzde: Number(c.final_yuzde) || 0,
           donem: c.donem,
-          vize: g ? Number(g.vize) : 0,
-          odev: g ? Number(g.odev) : 0,
-          proje: g ? Number(g.proje) : 0,
-          final: g ? Number(g.final) : 0,
-          but: g ? Number(g.but) : 0,
-          buteKaldi: g?.bute_kaldi || false,
-          harfNotu: g?.harf_notu || null,
+          vize,
+          odev,
+          proje,
+          final,
+          but,
+          buteKaldi,
+          harfNotu,
+          hasGrades,
         };
       });
 
@@ -291,10 +301,15 @@ export function useDersler({ bolumProp, departmentId }) {
     return [...filtreliDersler].sort((a, b) => {
       if (siralama.kolon === "ad") return a.ad.localeCompare(b.ad, "tr") * yonCarpan;
       if (siralama.kolon === "harf") {
-        const ortA = hesaplaDönemOrt(a),
-          ortB = hesaplaDönemOrt(b);
-        const harfA = a.harfNotu ? (harfNotlari.find((h) => h.harf === a.harfNotu) || { harf: a.harfNotu, katsayi: 0 }) : hesaplaHarf(ortA, harfNotlari);
-        const harfB = b.harfNotu ? (harfNotlari.find((h) => h.harf === b.harfNotu) || { harf: b.harfNotu, katsayi: 0 }) : hesaplaHarf(ortB, harfNotlari);
+        const ortA = hesaplaDönemOrt(a), ortB = hesaplaDönemOrt(b);
+        let harfA;
+        if (!a.hasGrades) { harfA = { harf: "-", katsayi: -1 }; }
+        else { harfA = a.harfNotu ? (harfNotlari.find((h) => h.harf === a.harfNotu) || { harf: a.harfNotu, katsayi: 0 }) : hesaplaHarf(ortA, harfNotlari); }
+
+        let harfB;
+        if (!b.hasGrades) { harfB = { harf: "-", katsayi: -1 }; }
+        else { harfB = b.harfNotu ? (harfNotlari.find((h) => h.harf === b.harfNotu) || { harf: b.harfNotu, katsayi: 0 }) : hesaplaHarf(ortB, harfNotlari); }
+        
         return (harfA.katsayi - harfB.katsayi) * yonCarpan;
       }
       return 0;
@@ -308,16 +323,23 @@ export function useDersler({ bolumProp, departmentId }) {
       .filter((d) => aktifDonemler.has(d.donem) && (aktifProgramDonemi === 0 || d.donem <= aktifProgramDonemi))
       .map((d) => {
         const ort = hesaplaDönemOrt(d);
-        const harf = d.harfNotu ? (harfNotlari.find((h) => h.harf === d.harfNotu) || { harf: d.harfNotu, katsayi: 0 }) : hesaplaHarf(ort, harfNotlari);
+        let harf;
+        if (!d.hasGrades) {
+          harf = { harf: "-", katsayi: 0.0 };
+        } else {
+          harf = d.harfNotu ? (harfNotlari.find((h) => h.harf === d.harfNotu) || { harf: d.harfNotu, katsayi: 0 }) : hesaplaHarf(ort, harfNotlari);
+        }
         return { ...d, ort, harf };
       });
-    const ganoList = list.filter((d) => d.harf.harf !== "EK");
+    const ganoList = list.filter((d) => d.harf.harf !== "EK" && d.harf.harf !== "-");
     const ganoKredi = ganoList.reduce((a, d) => a + d.kredi, 0);
     const gano = ganoList.reduce((a, d) => a + d.harf.katsayi * d.kredi, 0) / (ganoKredi || 1);
+    
+    // Alınan krediye EK dahil edilecek, ama geçilen kredi ve derslere dahil edilmeyecek.
     const alinanKredi = list.reduce((a, d) => a + d.kredi, 0);
     const gecenDersler = list.filter((d) => {
       const h = d.harf.harf;
-      if (h === "FF") return false;
+      if (h === "FF" || h === "-" || h === "EK") return false;
       if ((h === "DD" || h === "DC") && gano < 2.0) return false;
       return true;
     });

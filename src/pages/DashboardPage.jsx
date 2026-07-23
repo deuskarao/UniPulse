@@ -140,8 +140,11 @@ export default function DashboardPage({ dersler, stats, harfNotlari, bolum, akti
     dersler.forEach((d) => {
       if (!aktifDonemler.has(d.donem)) return;
       const ort = hesaplaDönemOrt(d);
-      const harf = d.harfNotu ? (harfNotlari.find((h) => h.harf === d.harfNotu) || { harf: d.harfNotu, katsayi: 0 }) : hesaplaHarf(ort, harfNotlari);
-      if (harf.harf === "EK") return;
+      let harf;
+      if (!d.hasGrades) { harf = { harf: "-", katsayi: 0 }; }
+      else { harf = d.harfNotu ? (harfNotlari.find((h) => h.harf === d.harfNotu) || { harf: d.harfNotu, katsayi: 0 }) : hesaplaHarf(ort, harfNotlari); }
+      
+      if (harf.harf === "EK" || harf.harf === "-") return;
 
       if (!donemMap.has(d.donem)) donemMap.set(d.donem, { katsayiKredi: 0, kredi: 0 });
       const entry = donemMap.get(d.donem);
