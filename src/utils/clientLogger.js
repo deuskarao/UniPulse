@@ -1,6 +1,7 @@
 import { supabase } from '../lib/supabase';
 import posthog from 'posthog-js';
 import { displayProfileName, displayUsername } from './profileDisplay';
+import { isLegacyAdminHash, readHashRoute } from './routeState';
 
 const SUSPICIOUS_PATTERNS = [
   /\.\./,
@@ -31,17 +32,22 @@ function redactAuthText(value) {
     .replace(JWT_RE, '[jwt-redacted]');
 }
 
-const SCREEN_LABELS = {
+const USER_SCREEN_LABELS = {
   dashboard: 'Dashboard',
-  users: 'Kullanıcılar',
-  classes: 'Sınıflar',
-  universities: 'Üniversiteler',
-  reports: 'Raporlar',
-  logs: 'Loglar',
   settings: 'Ayarlar',
   courses: 'Dersler',
-  leaderboard: 'Liderlik Tablosu',
-  profile: 'Profil',
+  analytics: 'Analitik',
+  myclass: 'Liderlik Tablosu',
+};
+
+const ADMIN_SCREEN_LABELS = {
+  dashboard: 'Admin: Genel Bakış',
+  users: 'Admin: Kullanıcılar',
+  logs: 'Admin: Canlı Hareket',
+  academic: 'Admin: Akademik Veri',
+  reports: 'Admin: Raporlar',
+  security: 'Admin: Güvenlik',
+  settings: 'Admin: Ayarlar',
 };
 
 function getAnonymousId() {
@@ -74,19 +80,51 @@ function safeTarget(target) {
   };
 }
 
+function safeCurrentHash() {
+  if (/(?:^|[&#])(access_token|refresh_token|provider_token|provider_refresh_token)=/.test(window.location.hash)) {
+    return redactAuthText(window.location.hash);
+  }
+  const route = readHashRoute();
+  if (route === 'admin' && currentIdentity?.role === 'admin') {
+    return '#/admin/dashboard';
+  }
+  if (route.startsWith('admin/') && currentIdentity?.role !== 'admin') {
+    return '#/dashboard';
+  }
+  if (isLegacyAdminHash()) {
+    if (currentIdentity?.role === 'admin') {
+      const tab = route === 'classes' || route === 'universities' ? 'academic' : route;
+      return `#/admin/${tab}`;
+    }
+    return '#/dashboard';
+  }
+  return redactAuthText(window.location.hash);
+}
+
 function currentPath() {
-  return redactAuthText(`${window.location.pathname}${window.location.search}${window.location.hash}`);
+  return redactAuthText(`${window.location.pathname}${window.location.search}${safeCurrentHash()}`);
 }
 
 function currentScreenName() {
   if (/(?:^|[&#])(access_token|refresh_token|provider_token|provider_refresh_token)=/.test(window.location.hash)) {
     return 'Auth Callback';
   }
-  const raw = (window.location.hash || window.location.pathname || 'dashboard')
-    .replace(/^#\/?/, '')
-    .replace(/^\//, '')
-    .split(/[/?&]/)[0] || 'dashboard';
-  return SCREEN_LABELS[raw] || raw || 'Ana Ekran';
+  const route = readHashRoute() || 'dashboard';
+  if (route.startsWith('admin/')) {
+    const tab = route.split('/')[1] || 'dashboard';
+    return currentIdentity?.role === 'admin'
+      ? (ADMIN_SCREEN_LABELS[tab] || 'Admin Paneli')
+      : USER_SCREEN_LABELS.dashboard;
+  }
+  if (isLegacyAdminHash()) {
+    return currentIdentity?.role === 'admin'
+      ? (ADMIN_SCREEN_LABELS[route === 'classes' || route === 'universities' ? 'academic' : route] || 'Admin Paneli')
+      : USER_SCREEN_LABELS.dashboard;
+  }
+  if (route === 'admin') {
+    return currentIdentity?.role === 'admin' ? ADMIN_SCREEN_LABELS.dashboard : USER_SCREEN_LABELS.dashboard;
+  }
+  return USER_SCREEN_LABELS[route] || route || 'Ana Ekran';
 }
 
 function publicIdentity(profile = {}, authUser = {}) {
@@ -164,8 +202,8 @@ function sendPostHog(type, entry, userId) {
     path: entry.path,
     screen: entry.screen || currentScreenName(),
     page: entry.screen || currentScreenName(),
-    url: redactAuthText(window.location.href),
-    $current_url: redactAuthText(window.location.href),
+    url: redactAuthText(`${window.location.origin}${currentPath()}`),
+    $current_url: redactAuthText(`${window.location.origin}${currentPath()}`),
     $pathname: window.location.pathname,
     $host: window.location.host,
     $screen_name: entry.screen || currentScreenName(),
@@ -232,6 +270,11 @@ export function identifyUser(profile = {}, authUser = {}) {
       role: currentIdentity.role,
     }, currentIdentity.id);
     if (currentView) {
+      currentView = {
+        ...currentView,
+        screen: currentScreenName(),
+        path: currentPath(),
+      };
       captureEvent('unipulse_view_changed', {
         screen: currentView.screen,
         path: currentView.path,
@@ -326,7 +369,7 @@ export function installClientLogger() {
   initPostHog();
 
   const inspectUrl = () => {
-    const raw = redactAuthText(`${window.location.pathname}${window.location.search}${window.location.hash}`);
+    const raw = currentPath();
     const matched = SUSPICIOUS_PATTERNS.find((pattern) => pattern.test(raw));
     if (matched) {
       logClientEvent('security_suspicious', {
@@ -355,8 +398,8 @@ export function installClientLogger() {
   window.addEventListener('hashchange', () => {
     closeView('route_change');
     startView('hashchange');
-    captureEvent('$pageview', { hash: redactAuthText(window.location.hash), screen: currentScreenName() });
-    captureEvent('unipulse_route_changed', { hash: redactAuthText(window.location.hash), screen: currentScreenName() });
+    captureEvent('$pageview', { hash: safeCurrentHash(), screen: currentScreenName() });
+    captureEvent('unipulse_route_changed', { hash: safeCurrentHash(), screen: currentScreenName() });
     inspectUrl();
   });
   document.addEventListener('click', (event) => {
@@ -378,7 +421,7 @@ export function installClientLogger() {
   window.addEventListener('pagehide', () => closeView('pagehide'));
   window.addEventListener('beforeunload', () => closeView('beforeunload'));
   startView('boot');
-  captureEvent('$pageview', { hash: redactAuthText(window.location.hash), screen: currentScreenName() });
-  captureEvent('unipulse_client_boot', { hash: redactAuthText(window.location.hash), screen: currentScreenName() });
+  captureEvent('$pageview', { hash: safeCurrentHash(), screen: currentScreenName() });
+  captureEvent('unipulse_client_boot', { hash: safeCurrentHash(), screen: currentScreenName() });
   inspectUrl();
 }

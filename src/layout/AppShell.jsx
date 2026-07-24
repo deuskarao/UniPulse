@@ -13,6 +13,7 @@ import MyClassPage from "../pages/MyClassPage";
 import SettingsPage from "../pages/SettingsPage";
 import AdminPage from "../pages/AdminPage";
 import DepartmentPage from "../pages/DepartmentPage";
+import { replaceHashRoute, resolveUserRoute, setHashRoute } from "../utils/routeState";
 
 const PAGE_TITLES = {
   dashboard: "Ana Sayfa",
@@ -40,24 +41,24 @@ export default function AppShell({ bolumProp, departmentId }) {
   const mobil = w < 768;
 
   const [activePage, setActivePage] = useState(() => {
-    const hash = window.location.hash.replace("#/", "").replace("#", "");
-    return ["dashboard", "courses", "analytics", "myclass", "settings", "admin", "departments"].includes(hash) ? hash : "dashboard";
+    return resolveUserRoute().page;
   });
 
   useEffect(() => {
-    const handleHashChange = () => {
-      const hash = window.location.hash.replace("#/", "").replace("#", "");
-      if (["dashboard", "courses", "analytics", "myclass", "settings", "admin", "departments"].includes(hash)) {
-        setActivePage(hash);
+    const syncUserRoute = () => {
+      const route = resolveUserRoute();
+      setActivePage(route.page);
+      if (route.shouldReplace) {
+        replaceHashRoute(route.canonical);
       }
     };
-    window.addEventListener("hashchange", handleHashChange);
-    if (!window.location.hash) window.location.hash = `/${activePage}`;
-    return () => window.removeEventListener("hashchange", handleHashChange);
+    window.addEventListener("hashchange", syncUserRoute);
+    syncUserRoute();
+    return () => window.removeEventListener("hashchange", syncUserRoute);
   }, []);
 
   const navigate = (page) => {
-    window.location.hash = `/${page}`;
+    setHashRoute(page);
     setActivePage(page);
   };
   const [collapsed, setCollapsed] = useState(false);

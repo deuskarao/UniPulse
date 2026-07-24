@@ -31,6 +31,7 @@ import AdminSecurityCenter from "./AdminSecurityCenter";
 import AdminSettings from "./AdminSettings";
 import AdminReports from "./AdminReports";
 import { displayProfileName, sanitizeProfileUpdates } from "../../utils/profileDisplay";
+import { replaceHashRoute, resolveAdminRoute, setHashRoute } from "../../utils/routeState";
 
 const TABS = [
   { id: "dashboard", label: "Genel Bakış", description: "Sistem sağlığı, kayıtlar ve veri tutarlılığı", icon: LayoutDashboard },
@@ -54,22 +55,22 @@ export default function AdminLayout() {
   const [searchQuery, setSearchQuery] = useState("");
   const [toast, setToast] = useState(null);
 
-  // Sync tab with URL hash
   useEffect(() => {
-    const hash = window.location.hash.replace("#", "");
-    if (hash === "classes" || hash === "universities") {
-      setActiveTab("academic");
-      window.location.hash = "academic";
-    } else if (TABS.find(t => t.id === hash)) {
-      setActiveTab(hash);
-    } else {
-      window.location.hash = "dashboard";
-    }
+    const syncAdminRoute = () => {
+      const route = resolveAdminRoute();
+      setActiveTab(route.tab);
+      if (route.shouldReplace) {
+        replaceHashRoute(route.canonical);
+      }
+    };
+    window.addEventListener("hashchange", syncAdminRoute);
+    syncAdminRoute();
+    return () => window.removeEventListener("hashchange", syncAdminRoute);
   }, []);
 
   const handleTabChange = (id) => {
     setActiveTab(id);
-    window.location.hash = id;
+    setHashRoute(`admin/${id}`);
   };
 
   const showToast = (message, type = "success") => {

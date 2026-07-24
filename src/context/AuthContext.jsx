@@ -19,6 +19,11 @@ function cleanAuthCallbackUrl() {
   window.history.replaceState({}, document.title, "/");
 }
 
+function cleanUrlAfterLogout() {
+  if (typeof window === "undefined") return;
+  window.history.replaceState({}, document.title, "/");
+}
+
 function isTrustedEmail(email) {
   const domain = String(email || "").split("@")[1]?.toLowerCase();
   return Boolean(domain && TRUSTED_EMAIL_DOMAINS.has(domain));
@@ -86,6 +91,7 @@ export function AuthProvider({ children }) {
     } catch {}
     await supabase.auth.signOut();
     resetPostHogIdentity();
+    cleanUrlAfterLogout();
     clearAuthState();
   }, [clearAuthState]);
 
