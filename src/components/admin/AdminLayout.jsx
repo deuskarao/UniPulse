@@ -4,7 +4,19 @@ import { useAuth } from "../../context/AuthContext";
 import { useI18n } from "../../context/I18nContext";
 import { supabase } from "../../lib/supabase";
 import { AnimatePresence } from "framer-motion";
-import { LogOut } from "lucide-react";
+import {
+  Activity,
+  BarChart3,
+  GraduationCap,
+  LayoutDashboard,
+  LogOut,
+  Moon,
+  RefreshCw,
+  Settings as SettingsIcon,
+  ShieldCheck,
+  Sun,
+  Users,
+} from "lucide-react";
 
 // Admin components
 import AdminDashboard from "./AdminDashboard";
@@ -14,20 +26,20 @@ import AdminQuickActions from "./AdminQuickActions";
 import AdminNotes from "./AdminNotes";
 import AdminActivityTimeline from "./AdminActivityTimeline";
 import AdminBehaviorInsights from "./AdminBehaviorInsights";
-import AdminUniversities from "./AdminUniversities";
-import AdminClasses from "./AdminClasses";
+import AdminAcademicCenter from "./AdminAcademicCenter";
+import AdminSecurityCenter from "./AdminSecurityCenter";
 import AdminSettings from "./AdminSettings";
 import AdminReports from "./AdminReports";
 import { displayProfileName, sanitizeProfileUpdates } from "../../utils/profileDisplay";
 
 const TABS = [
-  { id: "dashboard", label: "admin.dashboard" },
-  { id: "users", label: "admin.users" },
-  { id: "classes", label: "admin.classes" },
-  { id: "universities", label: "admin.universities" },
-  { id: "reports", label: "admin.reports" },
-  { id: "logs", label: "admin.logs" },
-  { id: "settings", label: "admin.settings" }
+  { id: "dashboard", label: "Genel Bakış", description: "Sistem sağlığı, kayıtlar ve veri tutarlılığı", icon: LayoutDashboard },
+  { id: "users", label: "Kullanıcılar", description: "Profil, rol, notlar ve son hareketler", icon: Users },
+  { id: "logs", label: "Canlı Hareket", description: "Kim nerede, nereden çıktı, nerede vakit geçiriyor", icon: Activity },
+  { id: "academic", label: "Akademik Veri", description: "Sınıf, üniversite, fakülte, bölüm ve ders bağlantıları", icon: GraduationCap },
+  { id: "reports", label: "Raporlar", description: "GANO, harf notu, kayıt ve sistem dağılımları", icon: BarChart3 },
+  { id: "security", label: "Güvenlik", description: "Rate-limit, şüpheli istekler ve hata kayıtları", icon: ShieldCheck },
+  { id: "settings", label: "Ayarlar", description: "Dil, tema, roller ve admin tercihleri", icon: SettingsIcon },
 ];
 
 export default function AdminLayout() {
@@ -45,7 +57,10 @@ export default function AdminLayout() {
   // Sync tab with URL hash
   useEffect(() => {
     const hash = window.location.hash.replace("#", "");
-    if (TABS.find(t => t.id === hash)) {
+    if (hash === "classes" || hash === "universities") {
+      setActiveTab("academic");
+      window.location.hash = "academic";
+    } else if (TABS.find(t => t.id === hash)) {
       setActiveTab(hash);
     } else {
       window.location.hash = "dashboard";
@@ -65,7 +80,7 @@ export default function AdminLayout() {
   const logAction = async (action, details = null, targetUserId = null) => {
     try {
       await supabase.from("activity_logs").insert([{
-        user_id: profile.id,
+        user_id: profile?.id || user?.id,
         target_user_id: targetUserId,
         action,
         details
@@ -140,8 +155,7 @@ export default function AdminLayout() {
         .eq("id", user.id);
       if (error) throw error;
       
-      const updatedUser = { ...user, is_allowed: !isBlocked };
-      handleUserUpdate(updatedUser);
+      await fetchUsers();
       showToast(isBlocked ? t("admin.user_blocked") : t("admin.user_unblocked"));
       logAction(isBlocked ? "Kullanıcı engellendi" : "Kullanıcı engeli kaldırıldı", null, user.id);
     } catch (err) {
@@ -173,8 +187,7 @@ export default function AdminLayout() {
         .eq("id", user.id);
       if (error) throw error;
       
-      const updatedUser = { ...user, role: newRole };
-      handleUserUpdate(updatedUser);
+      await fetchUsers();
       showToast(t("admin.role_updated"));
       logAction("Rol değiştirildi", `Yeni rol: ${newRole}`, user.id);
     } catch (err) {
@@ -199,8 +212,8 @@ export default function AdminLayout() {
         );
       case "users":
         return (
-          <div style={{ display: "flex", gap: 24, height: "calc(100vh - 160px)", minHeight: 600 }}>
-            <div style={{ width: 320, display: "flex", flexDirection: "column", gap: 16 }}>
+          <div className="admin-users-workspace">
+            <div style={{ minWidth: 0, display: "flex", flexDirection: "column", gap: 16 }}>
               <AdminUsersList 
                 users={users} 
                 loading={loading}
@@ -210,7 +223,7 @@ export default function AdminLayout() {
                 onSearchChange={setSearchQuery}
               />
             </div>
-            <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
+            <div style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
               <AdminUserDetails 
                 user={selectedUser}
                 onUserUpdate={handleUserUpdate}
@@ -221,7 +234,7 @@ export default function AdminLayout() {
                 logAction={logAction}
               />
             </div>
-            <div style={{ width: 300, flexShrink: 0, height: "100%", overflowY: "auto", paddingRight: 4, paddingBottom: 40 }}>
+            <div style={{ minWidth: 0, height: "100%", overflowY: "auto", paddingRight: 4, paddingBottom: 40 }}>
               <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                 <AdminQuickActions 
                   user={selectedUser}
@@ -240,10 +253,8 @@ export default function AdminLayout() {
             </div>
           </div>
         );
-      case "classes":
-        return <AdminClasses onUserSelect={(u) => { setSelectedUser(u); handleTabChange("users"); }} />;
-      case "universities":
-        return <AdminUniversities />;
+      case "academic":
+        return <AdminAcademicCenter onUserSelect={(u) => { setSelectedUser(u); handleTabChange("users"); }} />;
       case "reports":
         return <AdminReports />;
       case "logs":
@@ -253,6 +264,8 @@ export default function AdminLayout() {
             <AdminActivityTimeline isFullPage={true} />
           </div>
         );
+      case "security":
+        return <AdminSecurityCenter />;
       case "settings":
         return <AdminSettings showToast={showToast} />;
       default:
@@ -260,8 +273,13 @@ export default function AdminLayout() {
     }
   };
 
+  const activeMeta = TABS.find((tab) => tab.id === activeTab) || TABS[0];
+  const activeUsers = users.filter((item) => item.role !== "admin" && item.is_allowed !== false).length;
+  const totalStudents = users.filter((item) => item.role !== "admin").length;
+  const blockedUsers = users.filter((item) => item.role !== "admin" && item.is_allowed === false).length;
+
   return (
-    <div style={{ width: "100%", maxWidth: 1400, margin: "0 auto", padding: "0 24px", paddingTop: 24, paddingBottom: 40 }}>
+    <div style={{ width: "100%", maxWidth: 1560, margin: "0 auto", padding: "18px 20px 34px" }}>
       {/* Toast Notification */}
       <AnimatePresence>
         {toast && (
@@ -279,99 +297,310 @@ export default function AdminLayout() {
 
       <style>{`
         @keyframes slideIn { from { transform: translateY(100px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .admin-redesign-shell {
+          display: grid;
+          grid-template-columns: 238px minmax(0, 1fr);
+          min-height: calc(100vh - 92px);
+          border: 1px solid ${tokens.border};
+          border-radius: 8px;
+          overflow: hidden;
+          background: ${tokens.card};
+          box-shadow: ${tokens.shadowMd};
+        }
+        .admin-redesign-sidebar {
+          background: ${tokens.sidebar};
+          border-right: 1px solid ${tokens.border};
+          padding: 16px 12px;
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+          min-width: 0;
+        }
+        .admin-redesign-main {
+          min-width: 0;
+          background:
+            linear-gradient(135deg, ${tokens.primary}10 0%, transparent 34%),
+            ${tokens.background};
+          padding: 18px;
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+        }
+        .admin-redesign-nav {
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+        }
+        .admin-redesign-nav-button {
+          width: 100%;
+          display: grid;
+          grid-template-columns: 32px minmax(0, 1fr);
+          align-items: center;
+          gap: 9px;
+          padding: 9px;
+          border-radius: 8px;
+          border: 1px solid transparent;
+          background: transparent;
+          color: ${tokens.textSecondary};
+          cursor: pointer;
+          text-align: left;
+          transition: all 0.16s ease;
+        }
+        .admin-redesign-nav-button:hover {
+          background: ${tokens.sidebarHover};
+          color: ${tokens.textPrimary};
+        }
+        .admin-redesign-nav-button.is-active {
+          background: ${tokens.primary}18;
+          color: ${tokens.primary};
+          border-color: ${tokens.primary}38;
+        }
+        .admin-redesign-icon {
+          width: 32px;
+          height: 32px;
+          border-radius: 8px;
+          display: grid;
+          place-items: center;
+          background: ${tokens.surface};
+          border: 1px solid ${tokens.border};
+        }
+        .admin-redesign-nav-button.is-active .admin-redesign-icon {
+          background: ${tokens.primary}22;
+          border-color: ${tokens.primary}3d;
+        }
+        .admin-redesign-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 14px;
+          flex-wrap: wrap;
+          padding: 2px 2px 0;
+        }
+        .admin-redesign-toolbar {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          flex-wrap: wrap;
+        }
+        .admin-icon-button {
+          width: 36px;
+          height: 36px;
+          border-radius: 8px;
+          border: 1px solid ${tokens.border};
+          background: ${tokens.card};
+          color: ${tokens.textPrimary};
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+        }
+        .admin-action-button {
+          height: 36px;
+          border-radius: 8px;
+          border: 1px solid ${tokens.border};
+          background: ${tokens.card};
+          color: ${tokens.textPrimary};
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          padding: 0 12px;
+          font-size: 12px;
+          font-weight: 800;
+          cursor: pointer;
+        }
+        .admin-users-workspace {
+          display: grid;
+          grid-template-columns: minmax(260px, 320px) minmax(0, 1fr) minmax(260px, 300px);
+          gap: 16px;
+          min-height: 620px;
+          height: calc(100vh - 180px);
+        }
+        @media (max-width: 1200px) {
+          .admin-users-workspace {
+            grid-template-columns: minmax(240px, 300px) minmax(0, 1fr);
+            height: auto;
+          }
+          .admin-users-workspace > div:nth-child(3) {
+            grid-column: 1 / -1;
+            height: auto !important;
+          }
+        }
+        @media (max-width: 920px) {
+          .admin-redesign-shell {
+            grid-template-columns: 1fr;
+          }
+          .admin-redesign-sidebar {
+            border-right: 0;
+            border-bottom: 1px solid ${tokens.border};
+          }
+          .admin-redesign-nav {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+          }
+          .admin-users-workspace {
+            grid-template-columns: 1fr;
+            min-height: 0;
+          }
+        }
+        @media (max-width: 560px) {
+          .admin-redesign-main {
+            padding: 12px;
+          }
+          .admin-redesign-nav {
+            grid-template-columns: 1fr;
+          }
+          .admin-redesign-header {
+            align-items: stretch;
+          }
+          .admin-redesign-toolbar {
+            width: 100%;
+          }
+        }
       `}</style>
 
-      {/* TABS HEADER */}
-      <div style={{ 
-        display: "flex", 
-        justifyContent: "space-between",
-        alignItems: "center",
-        borderBottom: `1px solid ${tokens.border}`, 
-        marginBottom: 24
-      }}>
-        <div style={{ 
-          display: "flex", 
-          gap: 8, 
-          overflowX: "auto",
-          scrollbarWidth: "none"
-        }}>
-        {TABS.map(tab => {
-          const isActive = activeTab === tab.id;
-          return (
-            <button
-              key={tab.id}
-              onClick={() => handleTabChange(tab.id)}
+      <section className="admin-redesign-shell">
+        <aside className="admin-redesign-sidebar">
+          <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
+            <div
               style={{
-                padding: "12px 16px",
-                background: "transparent",
-                border: "none",
-                borderBottom: `2px solid ${isActive ? tokens.primary : "transparent"}`,
-                color: isActive ? tokens.primary : tokens.textSecondary,
-                fontWeight: isActive ? 600 : 500,
-                fontSize: 14,
-                cursor: "pointer",
-                whiteSpace: "nowrap",
-                transition: "all 0.2s"
-              }}
-              onMouseEnter={(e) => {
-                if(!isActive) e.target.style.color = tokens.textPrimary;
-              }}
-              onMouseLeave={(e) => {
-                if(!isActive) e.target.style.color = tokens.textSecondary;
+                width: 40,
+                height: 40,
+                borderRadius: 8,
+                display: "grid",
+                placeItems: "center",
+                background: tokens.primary,
+                color: "#fff",
+                fontWeight: 900,
+                letterSpacing: 0,
+                flexShrink: 0,
               }}
             >
-              {t(tab.label)}
-            </button>
-          );
-        })}
-        </div>
-        
-        <div style={{ display: "flex", alignItems: "center", gap: 16, paddingRight: 8 }}>
-          <button
-            onClick={() => {
-              const newMode = mode === 'dark' ? 'light' : 'dark';
-              setMode(newMode);
-              if (user?.id) supabase.from("profiles").update({ theme_preference: newMode }).eq("id", user.id).then(()=>{}).catch(()=>{});
-            }}
-            className="flex items-center justify-center rounded-lg transition-colors"
-            style={{ width: 32, height: 32, background: tokens.surface, border: `1px solid ${tokens.border}`, color: tokens.textPrimary, cursor: "pointer" }}
-            title={t("admin.theme_preference")}
-          >
-            {mode === 'dark' ? "🌙" : "☀️"}
-          </button>
-          
-          <select
-            value={language}
-            onChange={(e) => setLanguage(e.target.value)}
-            className="rounded-lg outline-none font-medium cursor-pointer"
-            style={{ background: tokens.surface, border: `1px solid ${tokens.border}`, color: tokens.textPrimary, padding: "4px 8px", fontSize: 13, height: 32 }}
-          >
-             <option value="tr">🇹🇷 TR</option>
-             <option value="en">🇬🇧 EN</option>
-             <option value="es">🇪🇸 ES</option>
-             <option value="it">🇮🇹 IT</option>
-             <option value="ru">🇷🇺 RU</option>
-          </select>
+              UP
+            </div>
+            <div style={{ minWidth: 0 }}>
+              <div style={{ color: tokens.textPrimary, fontWeight: 900, fontSize: 15, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                UniPulse Admin
+              </div>
+              <div style={{ color: tokens.muted, fontSize: 11, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                Kontrol merkezi
+              </div>
+            </div>
+          </div>
 
-          <button
-            onClick={logout}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors"
-            style={{ color: tokens.danger, background: "transparent", border: "none", cursor: "pointer", height: 32 }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = tokens.danger + "15";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = "transparent";
+          <nav className="admin-redesign-nav" aria-label="Admin menüsü">
+            {TABS.map((tab) => {
+              const Icon = tab.icon;
+              const isActive = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => handleTabChange(tab.id)}
+                  className={`admin-redesign-nav-button ${isActive ? "is-active" : ""}`}
+                  title={tab.description}
+                >
+                  <span className="admin-redesign-icon"><Icon size={17} /></span>
+                  <span style={{ minWidth: 0 }}>
+                    <span style={{ display: "block", fontSize: 13, fontWeight: 850, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{tab.label}</span>
+                    <span style={{ display: "block", marginTop: 2, fontSize: 10, color: isActive ? tokens.primary : tokens.muted, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{tab.description}</span>
+                  </span>
+                </button>
+              );
+            })}
+          </nav>
+
+          <div
+            style={{
+              marginTop: "auto",
+              border: `1px solid ${tokens.border}`,
+              background: tokens.surface,
+              borderRadius: 8,
+              padding: 12,
+              display: "grid",
+              gap: 10,
             }}
           >
-            <LogOut size={16} />
-            {t("app.logout")}
-          </button>
-        </div>
-      </div>
+            <div style={{ color: tokens.textPrimary, fontSize: 12, fontWeight: 850 }}>{displayProfileName(profile, "Admin")}</div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }}>
+              {[
+                ["Toplam", totalStudents],
+                ["Aktif", activeUsers],
+                ["Risk", blockedUsers],
+              ].map(([label, value]) => (
+                <div key={label} style={{ minWidth: 0 }}>
+                  <div style={{ color: tokens.textPrimary, fontSize: 15, fontWeight: 900 }}>{value}</div>
+                  <div style={{ color: tokens.muted, fontSize: 10 }}>{label}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </aside>
 
-      {/* CONTENT */}
-      {renderContent()}
+        <main className="admin-redesign-main">
+          <header className="admin-redesign-header">
+            <div style={{ minWidth: 0 }}>
+              <h1 style={{ margin: 0, color: tokens.textPrimary, fontSize: 24, fontWeight: 900, letterSpacing: 0 }}>
+                {activeMeta.label}
+              </h1>
+              <p style={{ margin: "5px 0 0", color: tokens.textSecondary, fontSize: 13 }}>
+                {activeMeta.description}
+              </p>
+            </div>
+
+            <div className="admin-redesign-toolbar">
+              <button className="admin-action-button" onClick={fetchUsers} title="Verileri yenile">
+                <RefreshCw size={15} />
+                Yenile
+              </button>
+              <button
+                onClick={() => {
+                  const newMode = mode === 'dark' ? 'light' : 'dark';
+                  setMode(newMode);
+                  if (user?.id) supabase.from("profiles").update({ theme_preference: newMode }).eq("id", user.id).then(()=>{}).catch(()=>{});
+                }}
+                className="admin-icon-button"
+                title={t("admin.theme_preference")}
+              >
+                {mode === 'dark' ? <Moon size={17} /> : <Sun size={17} />}
+              </button>
+              <select
+                value={language}
+                onChange={(e) => setLanguage(e.target.value)}
+                style={{
+                  height: 36,
+                  borderRadius: 8,
+                  border: `1px solid ${tokens.border}`,
+                  background: tokens.card,
+                  color: tokens.textPrimary,
+                  padding: "0 10px",
+                  fontSize: 12,
+                  fontWeight: 800,
+                  cursor: "pointer",
+                }}
+                title="Dil seçimi"
+              >
+                 <option value="tr">TR</option>
+                 <option value="en">EN</option>
+                 <option value="es">ES</option>
+                 <option value="it">IT</option>
+                 <option value="ru">RU</option>
+              </select>
+              <button
+                onClick={logout}
+                className="admin-action-button"
+                style={{ color: tokens.danger, borderColor: `${tokens.danger}42` }}
+                title="Çıkış yap"
+              >
+                <LogOut size={15} />
+                {t("app.logout")}
+              </button>
+            </div>
+          </header>
+
+          <div style={{ minWidth: 0 }}>
+            {renderContent()}
+          </div>
+        </main>
+      </section>
     </div>
   );
 }

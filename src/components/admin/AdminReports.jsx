@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useTheme } from "../../theme/ThemeProvider";
 import { supabase } from "../../lib/supabase";
 import { motion } from "framer-motion";
+import { displayProfileName, profileInitial } from "../../utils/profileDisplay";
 
 export default function AdminReports() {
   const { t } = useI18n();
@@ -26,7 +27,7 @@ export default function AdminReports() {
     async function load() {
       setLoading(true);
       const [usersRes, gradesRes, facRes, deptRes, coursesRes] = await Promise.all([
-        supabase.from("profiles").select("id, is_allowed, created_at"),
+        supabase.from("profiles").select("id, full_name, username, email, is_allowed, created_at"),
         supabase.from("student_grades").select("*, harf_notlari(harf, katsayi)"),
         supabase.from("faculties").select("id"),
         supabase.from("departments").select("id"),
@@ -37,8 +38,8 @@ export default function AdminReports() {
       const grades = gradesRes.data || [];
 
       const totalUsers = users.length;
-      const activeUsers = users.filter(u => u.is_allowed).length;
-      const blockedUsers = users.filter(u => !u.is_allowed).length;
+      const activeUsers = users.filter(u => u.is_allowed !== false).length;
+      const blockedUsers = users.filter(u => u.is_allowed === false).length;
 
       const ganoValues = grades
         .filter(g => g.harf_notlari?.katsayi != null && g.harf_notlari.katsayi > 0)
@@ -84,7 +85,12 @@ export default function AdminReports() {
   return (
     <div>
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
-        <h3 className="mb-5" style={{ fontSize: 18, fontWeight: 800, color: tokens.textPrimary }}>{t("admin.system_reports")}</h3>
+        <div className="mb-5">
+          <h2 style={{ margin: 0, fontSize: 18, fontWeight: 900, color: tokens.textPrimary }}>{t("admin.system_reports")}</h2>
+          <p style={{ margin: "4px 0 0", fontSize: 12, color: tokens.textSecondary }}>
+            Akademik kayıtlar, not dağılımı ve kullanıcı büyümesi
+          </p>
+        </div>
 
         {/* Genel İstatistikler */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
@@ -103,8 +109,8 @@ export default function AdminReports() {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: i * 0.04 }}
-              className="rounded-xl p-4 text-center"
-              style={{ background: tokens.card, border: `1px solid ${tokens.border}` }}
+              className="p-4 text-center"
+              style={{ background: tokens.card, border: `1px solid ${tokens.border}`, borderRadius: 8 }}
             >
               <div style={{ fontSize: 26, fontWeight: 800, color: s.color }}>{s.value}</div>
               <div style={{ fontSize: 10, color: tokens.muted, fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.5, marginTop: 4 }}>{s.label}</div>
@@ -118,8 +124,8 @@ export default function AdminReports() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: 0.3 }}
-            className="rounded-xl p-5"
-            style={{ background: tokens.card, border: `1px solid ${tokens.border}` }}
+            className="p-5"
+            style={{ background: tokens.card, border: `1px solid ${tokens.border}`, borderRadius: 8 }}
           >
             <div className="mb-4" style={{ fontSize: 14, fontWeight: 700, color: tokens.textPrimary }}>{t("admin.grade_distribution")}</div>
             {gradeDistribution.length === 0 ? (
@@ -150,8 +156,8 @@ export default function AdminReports() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: 0.4 }}
-            className="rounded-xl p-5"
-            style={{ background: tokens.card, border: `1px solid ${tokens.border}` }}
+            className="p-5"
+            style={{ background: tokens.card, border: `1px solid ${tokens.border}`, borderRadius: 8 }}
           >
             <div className="mb-4" style={{ fontSize: 14, fontWeight: 700, color: tokens.textPrimary }}>{t("admin.new_users_7d_chart")}</div>
             {recentUsers.length === 0 ? (
@@ -164,12 +170,12 @@ export default function AdminReports() {
                       className="flex items-center justify-center rounded-full"
                       style={{ width: 32, height: 32, background: tokens.primary + "20", color: tokens.primary, fontWeight: 700, fontSize: 12 }}
                     >
-                      {u.email?.[0]?.toUpperCase() || "?"}
+                      {profileInitial(u)}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div style={{ fontSize: 12, fontWeight: 600, color: tokens.textPrimary, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{u.email}</div>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: tokens.textPrimary, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{displayProfileName(u, "Bilinmeyen kullanıcı")}</div>
                       <div style={{ fontSize: 10, color: tokens.muted }}>
-                        {new Date(u.created_at).toLocaleDateString("tr-TR", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}
+                        {u.email} · {new Date(u.created_at).toLocaleDateString("tr-TR", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}
                       </div>
                     </div>
                   </div>
