@@ -11,7 +11,7 @@ export default function CoursesPage({ bolum, profile, harfNotlari, harfRenk, sir
   const w = useWindowSize();
   const mobil = w < 768;
   const [search, setSearch] = useState("");
-  const canEdit = profile?.role === "admin" || (bolum && profile?.department_id === bolum.id);
+  const canEdit = !profile?.is_preview && (profile?.role === "admin" || (bolum && profile?.department_id === bolum.id));
   const filtered = siraliDersler.filter((d) => d.ad.toLowerCase().includes(search.toLowerCase()));
 
   return (

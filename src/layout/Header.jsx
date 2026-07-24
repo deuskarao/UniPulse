@@ -4,6 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import { useI18n } from "../context/I18nContext";
 import LanguageToggle from "../components/LanguageToggle";
 import { useWindowSize } from "../components/shared.jsx";
+import { replaceHashRoute } from "../utils/routeState";
 
 function ThemeIcon({ mode }) {
   if (mode === "dark") {
@@ -54,7 +55,7 @@ const IconBtn = ({ tokens, label, onClick, children, active }) => (
 
 export default function Header({ sidebarWidth, pageTitle, donemler, aktifDonem, onDonemChange, onToggleCollapsed, collapsed, centerContent }) {
   const { tokens, mode, toggleTheme, setMode } = useTheme();
-  const { user, profile, logout, updateProfile } = useAuth();
+  const { user, profile, logout, updateProfile, isPreview } = useAuth();
   const { language, setLanguage, t } = useI18n();
   const [menuOpen, setMenuOpen] = useState(false);
   const w = useWindowSize();
@@ -65,7 +66,7 @@ export default function Header({ sidebarWidth, pageTitle, donemler, aktifDonem, 
   const handleThemeToggle = async () => {
     const newMode = mode === "dark" ? "light" : "dark";
     toggleTheme(); // This handles local storage and CSS instantly
-    if (updateProfile) {
+    if (!isPreview && updateProfile) {
       await updateProfile({ theme_preference: newMode });
     }
   };
@@ -137,6 +138,28 @@ export default function Header({ sidebarWidth, pageTitle, donemler, aktifDonem, 
           <ThemeIcon mode={mode} />
         </IconBtn>
 
+        {isPreview ? (
+          <button
+            onClick={() => replaceHashRoute("login")}
+            style={{
+              height: 36,
+              borderRadius: 10,
+              border: `1px solid ${tokens.primary}40`,
+              background: `${tokens.primary}12`,
+              color: tokens.primary,
+              fontWeight: 700,
+              fontSize: 13,
+              cursor: "pointer",
+              padding: "0 14px",
+              fontFamily: "inherit",
+              whiteSpace: "nowrap",
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = `${tokens.primary}20`; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = `${tokens.primary}12`; }}
+          >
+            {t("Giriş Yap / Kayıt Ol")}
+          </button>
+        ) : (
         <div style={{ position: "relative" }}>
           <button
             onClick={() => setMenuOpen((v) => !v)}
@@ -209,6 +232,7 @@ export default function Header({ sidebarWidth, pageTitle, donemler, aktifDonem, 
             </>
           )}
         </div>
+        )}
       </div>
     </header>
     </div>

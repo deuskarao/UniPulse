@@ -76,7 +76,7 @@ class Point {
 }
 
 export default function AuthPage({ initialMode = 'login' }) {
-  const { login, register, loginWithGoogle, loginAsDemo, resetPassword } = useAuth();
+  const { login, register, loginWithGoogle, resetPassword } = useAuth();
   const { toggleTheme, resolvedMode, tokens } = useTheme();
   const isDark = resolvedMode === "dark";
   const { t } = useI18n();
@@ -318,18 +318,6 @@ export default function AuthPage({ initialMode = 'login' }) {
     }
   }
 
-  async function handleDemoLogin() {
-    setLoading(true)
-    setError('')
-    try {
-      await loginAsDemo();
-    } catch (err) {
-      setError(t("Demo girişi yapılırken bir hata oluştu."));
-    } finally {
-      setLoading(false);
-    }
-  }
-
   async function handleGoogleLogin() {
     setError(t('auth.google_login_failed'));
   }
@@ -447,21 +435,7 @@ export default function AuthPage({ initialMode = 'login' }) {
           <div className="flex flex-col gap-3">
             {mode !== 'forgot-password' && (
               <>
-                <div className={`grid gap-3 ${mode === 'login' ? 'grid-cols-3' : 'grid-cols-2'}`}>
-                  {mode === 'login' && (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className="w-full h-[50px] transition-colors flex items-center justify-center overflow-hidden rounded-xl border"
-                      onClick={handleDemoLogin}
-                      disabled={loading}
-                      title="Demo ile giriş yap"
-                      aria-label="Demo ile giriş yap"
-                      style={{ background: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)", borderColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.08)" }}
-                    >
-                      <Sparkles size={24} className="text-blue-500" />
-                    </Button>
-                  )}
+                <div className="grid grid-cols-2 gap-3">
                   <div
                     className="relative w-full h-[50px] transition-colors flex items-center justify-center overflow-hidden rounded-xl border"
                     title="Google ile giriş yap"

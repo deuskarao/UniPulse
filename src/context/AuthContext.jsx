@@ -2,8 +2,14 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { supabase } from "../lib/supabase";
 import { captureEvent, identifyUser, resetPostHogIdentity } from "../utils/clientLogger";
+import { getCurrentAcademicYear } from "../utils/academic";
 
 const AuthContext = createContext(null);
+const PREVIEW_USER = {
+  id: "00000000-0000-4000-8000-000000000001",
+  email: "preview@unipulse.local",
+  is_preview: true,
+};
 const TRUSTED_EMAIL_DOMAINS = new Set([
   "gmail.com", "googlemail.com", "icloud.com", "me.com", "mac.com", "hotmail.com",
   "outlook.com", "live.com", "msn.com", "yahoo.com", "yahoo.com.tr", "yandex.com",
@@ -47,6 +53,21 @@ function usernameFromEmail(email, userId) {
   return clean || `google_${String(userId || "").slice(0, 8)}`;
 }
 
+function createPreviewProfile(departmentId) {
+  return {
+    id: PREVIEW_USER.id,
+    email: PREVIEW_USER.email,
+    full_name: "UniPulse Demo",
+    username: "demo",
+    role: "preview",
+    is_allowed: true,
+    is_preview: true,
+    department_id: departmentId || null,
+    enrollment_year: getCurrentAcademicYear() - 1,
+    aktif_program_donemi: 0,
+  };
+}
+
 export function useAuth() {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error("useAuth must be used within AuthProvider");
@@ -66,8 +87,10 @@ export function AuthProvider({ children }) {
     return false;
   });
   const profileRequestRef = useRef(0);
-  const inactivityTimerRef = useRef(null);
-  const logoutRef = useRef(null);
+  const [previewDepartmentId, setPreviewDepartmentId] = useState(() => {
+    if (typeof window === "undefined") return null;
+    return localStorage.getItem("unipulse-preview-department-id");
+  });
 
   const clearAuthState = useCallback(() => {
     setUser(null);
@@ -96,27 +119,23 @@ export function AuthProvider({ children }) {
   }, [clearAuthState]);
 
   useEffect(() => {
-    logoutRef.current = logout;
-  }, [logout]);
-
-  const resetInactivityTimer = useCallback(() => {
-    if (inactivityTimerRef.current) {
-      clearTimeout(inactivityTimerRef.current);
-    }
-    inactivityTimerRef.current = setTimeout(() => {
-      if (logoutRef.current) logoutRef.current();
-    }, 15 * 60 * 1000);
-  }, []);
-
-  useEffect(() => {
-    const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
-    events.forEach(event => window.addEventListener(event, resetInactivityTimer, true));
-    resetInactivityTimer();
+    if (user || previewDepartmentId) return;
+    let cancelled = false;
+    supabase
+      .from("departments")
+      .select("id")
+      .order("ad")
+      .limit(1)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (cancelled || !data?.id) return;
+        setPreviewDepartmentId(data.id);
+        try { localStorage.setItem("unipulse-preview-department-id", data.id); } catch {}
+      });
     return () => {
-      events.forEach(event => window.removeEventListener(event, resetInactivityTimer, true));
-      if (inactivityTimerRef.current) clearTimeout(inactivityTimerRef.current);
+      cancelled = true;
     };
-  }, [resetInactivityTimer]);
+  }, [previewDepartmentId, user]);
 
   const signOutMissingProfile = useCallback(async () => {
     clearAuthState();
@@ -460,7 +479,11 @@ export function AuthProvider({ children }) {
   }
 
   async function selectDepartment(deptId, facultyId = null) {
-    if (!user) return;
+    if (!user) {
+      setPreviewDepartmentId(deptId);
+      try { localStorage.setItem("unipulse-preview-department-id", deptId); } catch {}
+      return;
+    }
     const { data: dept, error: deptErr } = await supabase
       .from("departments")
       .select("id, slug")
@@ -544,8 +567,12 @@ export function AuthProvider({ children }) {
     return data || [];
   }
 
+  const isPreview = !user;
+  const effectiveUser = user || PREVIEW_USER;
+  const effectiveProfile = profile || (isPreview ? createPreviewProfile(previewDepartmentId) : null);
+
   return (
-    <AuthContext.Provider value={{ user, profile, loading, register, login, loginAsDemo, loginWithGoogle, logout, resetPassword, updatePassword, isPasswordRecovery, updateProfile, selectDepartment, updateUserEmail, deleteUser, fetchAllProfiles, fetchAllGrades, fetchUserCourses }}>
+    <AuthContext.Provider value={{ user: effectiveUser, sessionUser: user, profile: effectiveProfile, loading, isPreview, register, login, loginAsDemo, loginWithGoogle, logout, resetPassword, updatePassword, isPasswordRecovery, updateProfile, selectDepartment, updateUserEmail, deleteUser, fetchAllProfiles, fetchAllGrades, fetchUserCourses }}>
       {children}
     </AuthContext.Provider>
   );

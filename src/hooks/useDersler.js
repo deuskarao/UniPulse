@@ -92,7 +92,7 @@ export function hesaplaGerekliiFinal(ders) {
  * birebir taşınmış halidir — Supabase sorguları/realtime davranışı değişmedi.
  */
 export function useDersler({ bolumProp, departmentId }) {
-  const { user, profile, updateProfile, logout } = useAuth();
+  const { user, profile, updateProfile, logout, isPreview } = useAuth();
   const { harfNotlari, harfRenk, ganoRenkler, bosDers } = useAppData();
   const { language } = useI18n();
 
@@ -116,7 +116,7 @@ export function useDersler({ bolumProp, departmentId }) {
 
   const setAktifDonem = useCallback(async (donem) => {
     setAktifDonemLocal(donem);
-    if (!profile) return;
+    if (!profile || isPreview) return;
     const dbVal = donem === "tumu" ? 0 : Number(donem);
     if (dbVal === profile.aktif_program_donemi) return;
     try {
@@ -124,7 +124,7 @@ export function useDersler({ bolumProp, departmentId }) {
     } catch (e) {
       console.error("Dönem güncellenirken hata:", e);
     }
-  }, [profile, updateProfile]);
+  }, [profile, updateProfile, isPreview]);
   const aktifProgramDonemi = profile?.aktif_program_donemi !== undefined ? profile.aktif_program_donemi : 1;
   const [modal, setModal] = useState(null);
   const [form, setForm] = useState(() => (bosDers ? { ...bosDers } : null));
@@ -257,6 +257,7 @@ export function useDersler({ bolumProp, departmentId }) {
   }, []);
 
   async function notKaydet(dersId, alan, deger) {
+    if (isPreview) return;
     const ders = dersler.find((d) => d.id === dersId);
     if (!ders) return;
     const yeniDers = { ...ders, [alan]: deger };
@@ -295,6 +296,7 @@ export function useDersler({ bolumProp, departmentId }) {
   }
 
   async function donemKaydet(deger) {
+    if (isPreview) return;
     await updateProfile({ aktif_program_donemi: deger });
   }
 
@@ -407,6 +409,7 @@ export function useDersler({ bolumProp, departmentId }) {
   }
 
   async function notlariKaydet(dersId, formVerisi) {
+    if (isPreview) return;
     const { data: mevcut } = await supabase
       .from("student_grades")
       .select("id")
@@ -432,6 +435,7 @@ export function useDersler({ bolumProp, departmentId }) {
   }
 
   async function kaydet() {
+    if (isPreview) return;
     if (!form || !form.ad?.trim()) return;
     if (modal.tip === "ekle") {
       const { data, error } = await supabase
@@ -526,6 +530,7 @@ export function useDersler({ bolumProp, departmentId }) {
   }
 
   async function sil() {
+    if (isPreview) return;
     if (!silOnay) return;
     await supabase.from("student_grades").delete().eq("department_course_id", silOnay);
     const { error } = await supabase.from("department_courses").delete().eq("id", silOnay);
