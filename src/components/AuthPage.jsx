@@ -667,8 +667,8 @@ export default function AuthPage({ initialMode = 'login' }) {
                     className="mt-0.5 border-primary"
                   />
                     <span className="text-xs opacity-70 mt-0.5 leading-snug text-left">
-                      <button type="button" onClick={() => setTermsModal('terms')} className="text-blue-500 hover:underline font-medium focus:outline-none">{t('Kullanım Koşulları')}</button>
-                      {' '}{t('ve')} <button type="button" onClick={() => setTermsModal('kvkk')} className="text-blue-500 hover:underline font-medium focus:outline-none">{t('KVKK Aydınlatma Metni')}</button> {t("'ni kabul ediyorum")}
+                      {t('Kayıt olarak')} <button type="button" onClick={() => setTermsModal('terms')} className="text-blue-500 hover:underline font-medium focus:outline-none">{t('Kullanım Koşulları')}</button>
+                      {' '}{t('ve')} <button type="button" onClick={() => setTermsModal('kvkk')} className="text-blue-500 hover:underline font-medium focus:outline-none">{t('KVKK Aydınlatma Metni')}</button> {t('metinlerini kabul etmiş olursunuz.')}
                     </span>
                 </div>
               )}
