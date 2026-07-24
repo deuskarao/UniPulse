@@ -20,6 +20,15 @@ let currentIdentity = null;
 let currentView = null;
 let lastViewClosedAt = 0;
 
+const AUTH_URL_PARAM_RE = /([?#&])((?:access_token|refresh_token|provider_token|provider_refresh_token|code|token|token_hash)=)([^&#]*)/gi;
+const JWT_RE = /eyJ[a-zA-Z0-9_-]{16,}\.[a-zA-Z0-9_-]{16,}\.[a-zA-Z0-9_-]{16,}/g;
+
+function redactAuthText(value) {
+  return String(value || '')
+    .replace(AUTH_URL_PARAM_RE, '$1$2[redacted]')
+    .replace(JWT_RE, '[jwt-redacted]');
+}
+
 const SCREEN_LABELS = {
   dashboard: 'Dashboard',
   users: 'Kullanıcılar',
@@ -58,16 +67,19 @@ function safeTarget(target) {
     role: target.getAttribute('role') || undefined,
     name: target.getAttribute('name') || undefined,
     type: target.getAttribute('type') || undefined,
-    href: target instanceof HTMLAnchorElement ? target.pathname + target.hash : undefined,
+    href: target instanceof HTMLAnchorElement ? redactAuthText(target.pathname + target.search + target.hash) : undefined,
     text: text || undefined,
   };
 }
 
 function currentPath() {
-  return `${window.location.pathname}${window.location.search}${window.location.hash}`;
+  return redactAuthText(`${window.location.pathname}${window.location.search}${window.location.hash}`);
 }
 
 function currentScreenName() {
+  if (/(?:^|[&#])(access_token|refresh_token|provider_token|provider_refresh_token)=/.test(window.location.hash)) {
+    return 'Auth Callback';
+  }
   const raw = (window.location.hash || window.location.pathname || 'dashboard')
     .replace(/^#\/?/, '')
     .replace(/^\//, '')
@@ -129,13 +141,13 @@ function sendPostHog(type, entry, userId) {
       path: entry.path,
       screen: entry.screen || currentScreenName(),
       page: entry.screen || currentScreenName(),
-      url: window.location.href,
-      $current_url: window.location.href,
+      url: redactAuthText(window.location.href),
+      $current_url: redactAuthText(window.location.href),
       $pathname: window.location.pathname,
       $host: window.location.host,
       $screen_name: entry.screen || currentScreenName(),
-      $referrer: document.referrer || undefined,
-      referrer: document.referrer || undefined,
+      $referrer: document.referrer ? redactAuthText(document.referrer) : undefined,
+      referrer: document.referrer ? redactAuthText(document.referrer) : undefined,
       userAgent: entry.userAgent,
       details: entry.details,
       ...(identityProps ? { $set: identityProps } : {}),
@@ -259,7 +271,7 @@ export function installClientLogger() {
   installed = true;
 
   const inspectUrl = () => {
-    const raw = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+    const raw = redactAuthText(`${window.location.pathname}${window.location.search}${window.location.hash}`);
     const matched = SUSPICIOUS_PATTERNS.find((pattern) => pattern.test(raw));
     if (matched) {
       logClientEvent('security_suspicious', {
@@ -288,8 +300,8 @@ export function installClientLogger() {
   window.addEventListener('hashchange', () => {
     closeView('route_change');
     startView('hashchange');
-    captureEvent('$pageview', { hash: window.location.hash, screen: currentScreenName() });
-    captureEvent('unipulse_route_changed', { hash: window.location.hash, screen: currentScreenName() });
+    captureEvent('$pageview', { hash: redactAuthText(window.location.hash), screen: currentScreenName() });
+    captureEvent('unipulse_route_changed', { hash: redactAuthText(window.location.hash), screen: currentScreenName() });
     inspectUrl();
   });
   document.addEventListener('click', (event) => {
@@ -311,7 +323,7 @@ export function installClientLogger() {
   window.addEventListener('pagehide', () => closeView('pagehide'));
   window.addEventListener('beforeunload', () => closeView('beforeunload'));
   startView('boot');
-  captureEvent('$pageview', { hash: window.location.hash, screen: currentScreenName() });
-  captureEvent('unipulse_client_boot', { hash: window.location.hash, screen: currentScreenName() });
+  captureEvent('$pageview', { hash: redactAuthText(window.location.hash), screen: currentScreenName() });
+  captureEvent('unipulse_client_boot', { hash: redactAuthText(window.location.hash), screen: currentScreenName() });
   inspectUrl();
 }

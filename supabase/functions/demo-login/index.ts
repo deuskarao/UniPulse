@@ -26,6 +26,7 @@ const json = (req: Request, body: Record<string, unknown>, status = 200) =>
 const DEMO_EMAIL = Deno.env.get("DEMO_EMAIL") || "demo@unipulse.perainc.online";
 const DEMO_NAME = Deno.env.get("DEMO_NAME") || "DEMO";
 const DEMO_USERNAME = Deno.env.get("DEMO_USERNAME") || "demo";
+const APP_ORIGIN = Deno.env.get("APP_ORIGIN") || "https://unipulse.perainc.online";
 
 function clientIp(req: Request) {
   return req.headers.get("cf-connecting-ip")
@@ -154,13 +155,17 @@ serve(async (req) => {
     const { data, error } = await supabaseAdmin.auth.admin.generateLink({
       type: "magiclink",
       email: demoEmail,
+      options: {
+        redirectTo: APP_ORIGIN,
+      },
     });
 
-    if (error) {
-      throw error;
+    const tokenHash = data?.properties?.hashed_token;
+    if (error || !tokenHash) {
+      throw error || new Error("demo_link_not_created");
     }
 
-    return json(req, { action_link: data.properties.action_link });
+    return json(req, { token_hash: tokenHash });
   } catch {
     return json(req, { error: "Demo giriş işlemi şu anda tamamlanamadı." }, 400);
   }

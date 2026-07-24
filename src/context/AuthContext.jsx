@@ -16,7 +16,7 @@ function cleanAuthCallbackUrl() {
   const hasTokenHash = /(?:^|[&#])(access_token|refresh_token|provider_token|provider_refresh_token)=/.test(window.location.hash);
   const hasAuthCode = new URLSearchParams(window.location.search).has("code");
   if (!hasTokenHash && !hasAuthCode) return;
-  window.history.replaceState({}, document.title, window.location.pathname);
+  window.history.replaceState({}, document.title, "/");
 }
 
 function isTrustedEmail(email) {
@@ -218,13 +218,14 @@ export function AuthProvider({ children }) {
         if (!active) return;
         if (error) {
           console.error("Oturum yükleme hatası:", error);
+          cleanAuthCallbackUrl();
           clearAuthState();
           return;
         }
 
+        cleanAuthCallbackUrl();
         setUser(session?.user ?? null);
         if (session?.user) {
-          cleanAuthCallbackUrl();
           const loadedProfile = await fetchProfile(session.user.id, session.user);
           captureEvent("unipulse_session_loaded", {
             source: "initial",
@@ -245,9 +246,9 @@ export function AuthProvider({ children }) {
         if (_event === 'PASSWORD_RECOVERY') {
           setIsPasswordRecovery(true);
         }
+        cleanAuthCallbackUrl();
         setUser(session?.user ?? null);
         if (session?.user) {
-          cleanAuthCallbackUrl();
           const loadedProfile = await fetchProfile(session.user.id, session.user);
           captureEvent("unipulse_auth_state", {
             event: _event,
@@ -341,11 +342,31 @@ export function AuthProvider({ children }) {
 
   async function loginAsDemo() {
     const { data, error } = await supabase.functions.invoke("demo-login");
-    if (error || data?.error || !data?.action_link) {
+    if (error || data?.error || !data?.token_hash) {
       throw new Error("Demo giriş işlemi başarısız oldu. Lütfen internet bağlantınızı kontrol edin.");
     }
-    window.location.assign(data.action_link);
-    return data;
+    const { data: authData, error: verifyError } = await supabase.auth.verifyOtp({
+      token_hash: data.token_hash,
+      type: "magiclink",
+    });
+    if (verifyError) {
+      throw new Error("Demo giriş işlemi başarısız oldu. Lütfen tekrar deneyin.");
+    }
+    if (authData.user) {
+      const loadedProfile = await fetchProfile(authData.user.id, authData.user);
+      try {
+        identifyUser(loadedProfile || {}, authData.user);
+        captureEvent("unipulse_login", { method: "demo", email: authData.user.email }, authData.user.id);
+        await supabase.from("activity_logs").insert({
+          user_id: authData.user.id,
+          action: "demo_login",
+          details: { email: authData.user.email },
+          ip_address: null,
+        });
+        await supabase.from("profiles").update({ is_online: true, last_login: new Date().toISOString() }).eq("id", authData.user.id);
+      } catch {}
+    }
+    return authData;
   }
 
   async function loginWithGoogle(credential, nonce) {
