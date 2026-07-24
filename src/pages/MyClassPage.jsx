@@ -5,6 +5,7 @@ import { useI18n } from "../context/I18nContext";
 import { useAppData } from "../context/AppDataContext";
 import { useTheme } from "../theme/ThemeProvider";
 import { useWindowSize } from "../components/shared.jsx";
+import { formatClassYear } from "../utils/academic";
 
 export default function MyClassPage({ bolum }) {
   const { tokens } = useTheme();
@@ -86,20 +87,20 @@ export default function MyClassPage({ bolum }) {
             p_university_id: userUniversity.id
           });
           if (error) throw error;
-          setStudents(data || []);
+          setStudents(normalizeLeaderboard(data || []));
         } else if (activeTab === "faculty") {
           if (!userFaculty) throw new Error("Fakülte bilgisi bulunamadı.");
           const { data, error } = await supabase.rpc("get_faculty_leaderboard", {
             p_faculty_id: userFaculty.id
           });
           if (error) throw error;
-          setStudents(data || []);
+          setStudents(normalizeLeaderboard(data || []));
         } else if (activeTab === "department") {
           const { data, error } = await supabase.rpc("get_department_leaderboard", {
             p_department_id: profile.department_id
           });
           if (error) throw error;
-          setStudents(data || []);
+          setStudents(normalizeLeaderboard(data || []));
         } else if (activeTab === "class") {
           if (selectedCourse === "all") {
             const { data, error } = await supabase.rpc("get_class_leaderboard", {
@@ -107,7 +108,7 @@ export default function MyClassPage({ bolum }) {
               p_enrollment_year: profile.enrollment_year
             });
             if (error) throw error;
-            setStudents(data || []);
+            setStudents(normalizeLeaderboard(data || []));
           } else {
             const { data, error } = await supabase.rpc("get_course_leaderboard", {
               p_department_id: profile.department_id,
@@ -115,7 +116,7 @@ export default function MyClassPage({ bolum }) {
               p_course_id: selectedCourse
             });
             if (error) throw error;
-            setStudents(data || []);
+            setStudents(normalizeLeaderboard(data || []));
           }
         } else {
           setStudents([]);
@@ -380,13 +381,7 @@ export default function MyClassPage({ bolum }) {
               const gpaStatus = score >= 3.5 ? { l: t("Yüksek Onur"), c: tokens.primary } : score >= 3.0 ? { l: t("Onur"), c: tokens.success } : score >= 2.0 ? { l: t("Başarılı"), c: tokens.textPrimary } : { l: t("Uyarı"), c: tokens.danger };
               const pct = Math.min(100, Math.max(0, (score / 4.0) * 100));
               
-              const getSinif = (year) => {
-                if (!year) return "-";
-                const now = new Date();
-                const currentAcademicYear = now.getMonth() < 8 ? now.getFullYear() - 1 : now.getFullYear();
-                const sinif = currentAcademicYear - year + 1;
-                return sinif > 0 ? `${sinif}. ${t("Sınıf")}` : t("Hazırlık");
-              };
+              const getSinif = (year) => formatClassYear(year, t);
               
               const gridCols = activeTab === "school" ? "60px 2.5fr 120px 2fr 2fr 1fr" :
                                activeTab === "faculty" ? "60px 2.5fr 120px 2fr 1fr" :
@@ -490,4 +485,14 @@ export default function MyClassPage({ bolum }) {
       </div>
     </div>
   );
+}
+
+function normalizeLeaderboard(rows) {
+  const byUser = new Map();
+  rows.forEach((row) => {
+    const userId = row.user_id || row.id;
+    if (!userId || byUser.has(userId)) return;
+    byUser.set(userId, { ...row, user_id: userId });
+  });
+  return Array.from(byUser.values());
 }

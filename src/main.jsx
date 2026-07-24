@@ -4,6 +4,9 @@ import App from './App.jsx'
 import { AuthProvider } from './context/AuthContext.jsx'
 import { I18nProvider } from './context/I18nContext'
 import ErrorBoundary from './components/ErrorBoundary.jsx'
+import { installClientLogger } from './utils/clientLogger.js'
+
+installClientLogger()
 
 createRoot(document.getElementById('root')).render(
   <ErrorBoundary>

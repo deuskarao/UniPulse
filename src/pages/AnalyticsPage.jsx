@@ -3,6 +3,7 @@ import { useTheme } from "../theme/ThemeProvider";
 import { useI18n } from "../context/I18nContext";
 import GpaHistoryChart from "../components/GpaHistoryChart";
 import { hesaplaDönemOrt, hesaplaHarf } from "../hooks/useDersler";
+import { isCreditBearingGrade, isPassedGrade } from "../utils/academic";
 
 function Card({ title, children }) {
   const { tokens } = useTheme();
@@ -31,17 +32,17 @@ export default function AnalyticsPage({ dersler, harfNotlari, stats }) {
       if (!d.hasGrades) { harf = { harf: "-", katsayi: 0 }; }
       else { harf = d.harfNotu ? (harfNotlari.find((h) => h.harf === d.harfNotu) || { harf: d.harfNotu, katsayi: 0 }) : hesaplaHarf(ort, harfNotlari); }
       
-      if (harf.harf !== "EK" && harf.harf !== "-") {
+      if (isCreditBearingGrade(harf.harf)) {
         e.katsayiKredi += harf.katsayi * d.kredi;
         e.kredi += d.kredi;
       }
       if (harf.harf !== "-") e.dersSayisi += 1;
-      if (harf.harf !== "FF" && harf.harf !== "EK" && harf.harf !== "-") e.gecen += 1;
+      if (isPassedGrade(harf.harf, stats.gano)) e.gecen += 1;
     });
     return Array.from(map.entries()).sort((a, b) => a[0] - b[0]).map(([donem, v]) => ({
       donem, gano: v.kredi ? (v.katsayiKredi / v.kredi).toFixed(2) : "—", dersSayisi: v.dersSayisi, gecen: v.gecen,
     }));
-  }, [dersler, harfNotlari]);
+  }, [dersler, harfNotlari, stats.gano]);
 
   const gradeDistribution = useMemo(() => {
     const aktifDonemler = new Set(dersler.filter((d) => d.hasGrades).map((d) => d.donem));
@@ -53,7 +54,7 @@ export default function AnalyticsPage({ dersler, harfNotlari, stats }) {
       if (!d.hasGrades) { harf = { harf: "-", katsayi: 0 }; }
       else { harf = d.harfNotu ? (harfNotlari.find((h) => h.harf === d.harfNotu) || { harf: d.harfNotu, katsayi: 0 }) : hesaplaHarf(ort, harfNotlari); }
       
-      if (harf.harf === "EK" || harf.harf === "-") return;
+      if (!isCreditBearingGrade(harf.harf)) return;
       counts[harf.harf] = (counts[harf.harf] || 0) + 1;
     });
     const max = Math.max(1, ...Object.values(counts));

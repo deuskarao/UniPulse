@@ -6,6 +6,7 @@ import CreditDonutChart from "../components/CreditDonutChart";
 import { hesaplaDönemOrt, hesaplaHarf } from "../hooks/useDersler";
 import { useHedefGano } from "../hooks/useHedefGano";
 import { useI18n } from "../context/I18nContext";
+import { isCreditBearingGrade } from "../utils/academic";
 
 // Mini sparkline — "Bu Dönem" kartında seçili dönem notlarını gösterir
 function MiniSparkline({ dersler, color, height = 28 }) {
@@ -144,7 +145,7 @@ export default function DashboardPage({ dersler, stats, harfNotlari, bolum, akti
       if (!d.hasGrades) { harf = { harf: "-", katsayi: 0 }; }
       else { harf = d.harfNotu ? (harfNotlari.find((h) => h.harf === d.harfNotu) || { harf: d.harfNotu, katsayi: 0 }) : hesaplaHarf(ort, harfNotlari); }
       
-      if (harf.harf === "EK" || harf.harf === "-") return;
+      if (!isCreditBearingGrade(harf.harf)) return;
 
       if (!donemMap.has(d.donem)) donemMap.set(d.donem, { katsayiKredi: 0, kredi: 0 });
       const entry = donemMap.get(d.donem);

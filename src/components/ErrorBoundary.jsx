@@ -1,4 +1,5 @@
 import { Component } from "react";
+import { logClientEvent } from "../utils/clientLogger.js";
 
 export default class ErrorBoundary extends Component {
   constructor(props) {
@@ -12,6 +13,10 @@ export default class ErrorBoundary extends Component {
 
   componentDidCatch(error, info) {
     console.error("Uygulama render hatası:", error, info);
+    logClientEvent("client_render_error", {
+      message: error?.message,
+      componentStack: info?.componentStack,
+    });
   }
 
   render() {

@@ -4,6 +4,14 @@ import { supabase } from "../lib/supabase";
 
 const AuthContext = createContext(null);
 
+function cleanAuthCallbackUrl() {
+  if (typeof window === "undefined") return;
+  const hasTokenHash = /(?:^|[&#])(access_token|refresh_token|provider_token|provider_refresh_token)=/.test(window.location.hash);
+  const hasAuthCode = new URLSearchParams(window.location.search).has("code");
+  if (!hasTokenHash && !hasAuthCode) return;
+  window.history.replaceState({}, document.title, window.location.pathname);
+}
+
 export function useAuth() {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error("useAuth must be used within AuthProvider");
@@ -129,7 +137,10 @@ export function AuthProvider({ children }) {
         }
 
         setUser(session?.user ?? null);
-        if (session?.user) fetchProfile(session.user.id);
+        if (session?.user) {
+          cleanAuthCallbackUrl();
+          fetchProfile(session.user.id);
+        }
         else clearAuthState();
       })
       .catch((err) => {
@@ -146,6 +157,7 @@ export function AuthProvider({ children }) {
         }
         setUser(session?.user ?? null);
         if (session?.user) {
+          cleanAuthCallbackUrl();
           fetchProfile(session.user.id);
           if (_event === 'SIGNED_IN') {
             try {
@@ -164,28 +176,11 @@ export function AuthProvider({ children }) {
   }, [clearAuthState, fetchProfile]);
 
   async function register(email, password, fullName, username, deptData = null) {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: { data: { full_name: fullName, username } }
+    const { data, error } = await supabase.functions.invoke("request-registration", {
+      body: { email, password, fullName, username, deptData }
     });
-    if (error) throw error;
-
-    if (data.user) {
-      const profileUpdates = {};
-      if (username) profileUpdates.username = username;
-      if (deptData?.department_id) profileUpdates.department_id = deptData.department_id;
-      if (deptData?.faculty_id) profileUpdates.faculty_id = deptData.faculty_id;
-      if (deptData?.university_id) profileUpdates.university_id = deptData.university_id;
-
-      if (Object.keys(profileUpdates).length > 0) {
-        await supabase
-          .from("profiles")
-          .update(profileUpdates)
-          .eq("id", data.user.id);
-      }
-    }
-
+    if (error) throw new Error("Kayıt talebi alınamadı. Lütfen daha sonra tekrar deneyin.");
+    if (data?.error) throw new Error(data.error);
     return data;
   }
 
@@ -284,8 +279,11 @@ export function AuthProvider({ children }) {
   }
 
   async function resetPassword(email) {
+    const redirectUrl = import.meta.env.PROD
+      ? 'https://unipulse.perainc.online'
+      : window.location.origin;
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/`,
+      redirectTo: redirectUrl,
     });
     if (error) throw error;
   }

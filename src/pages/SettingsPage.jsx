@@ -7,6 +7,7 @@ import { Overlay, useInputStyle, useWindowSize } from "../components/shared.jsx"
 import { useHedefGano } from "../hooks/useHedefGano";
 import DepartmentSelector from "../components/DepartmentSelector";
 import TermsModal from "../components/TermsModal";
+import { formatClassYear, getClassYear, getCurrentAcademicYear } from "../utils/academic";
 
 function downloadFile(filename, content, mime) {
   const blob = new Blob([content], { type: mime });
@@ -19,7 +20,7 @@ function downloadFile(filename, content, mime) {
 
 export default function SettingsPage({ dersler, stats, bolum }) {
   const { tokens, mode, setMode } = useTheme();
-  const { user, profile, logout, updateProfile } = useAuth();
+  const { user, profile, logout, updateProfile, deleteUser } = useAuth();
   const { t, translateName, language } = useI18n();
   const { hedefGano, setHedefGano, resetHedefGano, defaultHedef } = useHedefGano();
   const [notifEmail, setNotifEmail] = useState(true);
@@ -31,6 +32,10 @@ export default function SettingsPage({ dersler, stats, bolum }) {
   const [hedefInput, setHedefInput] = useState(String(hedefGano.toFixed(2)));
   const [hedefError, setHedefError] = useState("");
   const [termsModal, setTermsModal] = useState(null); // 'terms' or 'kvkk'
+  const [deleteModal, setDeleteModal] = useState(false);
+  const [deletePassword, setDeletePassword] = useState("");
+  const [deleteBusy, setDeleteBusy] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
 
   useEffect(() => { setHedefInput(hedefGano.toFixed(2)); }, [hedefGano]);
 
@@ -294,7 +299,7 @@ export default function SettingsPage({ dersler, stats, bolum }) {
     { icon: <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 1.66 2.69 3 6 3s6-1.34 6-3v-5"/></svg>, label: t("Fakülte"), value: facultyName },
     { icon: <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>, label: t("Bölüm"), value: bolum?.ad || profile?.department_id ? (bolum?.ad || t("Yükleniyor…")) : null },
     { icon: <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>, label: t("Kayıt Yılı"), value: profile?.enrollment_year || t("Belirtilmemiş") },
-    { icon: <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>, label: t("Rol"), value: profile?.role === "admin" ? t("Yönetici") : (profile?.enrollment_year ? (new Date().getMonth() < 6 ? new Date().getFullYear() - 1 : new Date().getFullYear()) - profile.enrollment_year + 1 > 0 ? `${(new Date().getMonth() < 6 ? new Date().getFullYear() - 1 : new Date().getFullYear()) - profile.enrollment_year + 1}. ${t("Sınıf")}` : t("Hazırlık") : t("Öğrenci")) },
+    { icon: <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>, label: t("Rol"), value: profile?.role === "admin" ? t("Yönetici") : (profile?.enrollment_year ? formatClassYear(profile.enrollment_year, t) : t("Öğrenci")) },
   ];
 
   return (
@@ -542,11 +547,11 @@ export default function SettingsPage({ dersler, stats, bolum }) {
               </select>
 
               <select
-                value={profile?.enrollment_year ? (new Date().getMonth() < 6 ? new Date().getFullYear() - 1 : new Date().getFullYear()) - profile.enrollment_year + 1 : ""}
+                value={getClassYear(profile?.enrollment_year) || ""}
                 onChange={async (e) => {
                   const sinif = e.target.value ? parseInt(e.target.value, 10) : null;
                   if (sinif !== null) {
-                    const currentAcademicYear = new Date().getMonth() < 6 ? new Date().getFullYear() - 1 : new Date().getFullYear();
+                    const currentAcademicYear = getCurrentAcademicYear();
                     const year = currentAcademicYear - sinif + 1;
                     try {
                       await updateProfile({ enrollment_year: year });
@@ -618,21 +623,7 @@ export default function SettingsPage({ dersler, stats, bolum }) {
               {t("Verileri CSV İndir")}
             </ExportButton>
             <button
-              onClick={async () => {
-                if (window.confirm("Hesabınızı silmek istediğinize emin misiniz? Bu işlem geri alınamaz ve tüm verileriniz kalıcı olarak silinir!")) {
-                  if (typeof deleteUser === "function" && user?.id) {
-                    try {
-                      await deleteUser(user.id);
-                      alert(t("settings.account_deleted"));
-                      if (typeof logout === "function") await logout();
-                    } catch (err) {
-                      alert(t("settings.account_delete_error") + ": " + err.message);
-                    }
-                  } else {
-                    alert(t("settings.delete_not_active"));
-                  }
-                }
-              }}
+              onClick={() => setDeleteModal(true)}
               style={{
                 display: "flex", alignItems: "center", gap: 8,
                 padding: "9px 14px", borderRadius: 10, border: `1px solid ${tokens.danger}30`,
@@ -648,6 +639,62 @@ export default function SettingsPage({ dersler, stats, bolum }) {
               </svg>
               {t("Hesabı Kalıcı Olarak Sil")}
             </button>
+            {deleteModal && (
+              <div style={{ position: "fixed", inset: 0, zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center", padding: 20, background: mode === "dark" ? "rgba(7,11,20,.72)" : "rgba(15,23,42,.38)", backdropFilter: "blur(8px)" }}>
+                <div style={{ width: "100%", maxWidth: 420, borderRadius: 18, padding: 22, background: tokens.card, border: `1px solid ${tokens.border}`, boxShadow: "0 24px 60px rgba(0,0,0,.22)" }}>
+                  <h3 style={{ margin: "0 0 8px", color: tokens.textPrimary, fontSize: 18 }}>{t("Hesabı Sil")}</h3>
+                  <p style={{ margin: "0 0 16px", color: tokens.textSecondary, fontSize: 13, lineHeight: 1.6 }}>
+                    Bu işlem geri alınamaz. Dersleriniz, notlarınız, hedefleriniz ve profil bilgileriniz kalıcı olarak silinir. Devam etmek için hesap şifrenizi girin.
+                  </p>
+                  <input
+                    type="password"
+                    value={deletePassword}
+                    onChange={(e) => setDeletePassword(e.target.value)}
+                    placeholder="Hesap şifreniz"
+                    autoComplete="current-password"
+                    style={{ ...inputStyle, width: "100%", marginBottom: 14 }}
+                  />
+                  <div style={{ display: "flex", gap: 10 }}>
+                    <button
+                      type="button"
+                      onClick={() => { setDeleteModal(false); setDeletePassword(""); setDeleteError(""); }}
+                      style={{ flex: 1, height: 42, borderRadius: 10, border: `1px solid ${tokens.border}`, background: "transparent", color: tokens.textPrimary, cursor: "pointer", fontWeight: 600 }}
+                    >
+                      {t("Vazgeç")}
+                    </button>
+                    <button
+                      type="button"
+                      disabled={deleteBusy || !deletePassword}
+                      onClick={async () => {
+                        setDeleteBusy(true);
+                        setDeleteError("");
+                        try {
+                          const { error: authError } = await supabase.auth.signInWithPassword({ email: user?.email, password: deletePassword });
+                          if (authError) throw new Error("Şifre hatalı. Hesap silinmedi.");
+                          await deleteUser(user.id);
+                          setDeleteModal(false);
+                          setDeletePassword("");
+                          setDeleteError("");
+                          if (typeof logout === "function") await logout();
+                        } catch (err) {
+                          setDeleteError((err && err.message) || t("settings.account_delete_error"));
+                        } finally {
+                          setDeleteBusy(false);
+                        }
+                      }}
+                      style={{ flex: 1, height: 42, borderRadius: 10, border: "none", background: tokens.danger, color: "#fff", cursor: deleteBusy || !deletePassword ? "not-allowed" : "pointer", opacity: deleteBusy || !deletePassword ? .65 : 1, fontWeight: 700 }}
+                    >
+                      {deleteBusy ? t("Siliniyor") : t("Onaylıyorum")}
+                    </button>
+                  </div>
+                  {deleteError && (
+                    <div style={{ marginTop: 12, padding: "10px 12px", borderRadius: 10, background: tokens.danger + "12", color: tokens.danger, border: `1px solid ${tokens.danger}30`, fontSize: 12.5, fontWeight: 600 }}>
+                      {deleteError}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         </SettingCard>
 

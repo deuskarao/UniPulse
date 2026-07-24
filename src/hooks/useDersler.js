@@ -3,6 +3,7 @@ import { supabase } from "../lib/supabase";
 import { useAuth } from "../context/AuthContext";
 import { useI18n } from '../context/I18nContext';
 import { useAppData } from "../context/AppDataContext.jsx";
+import { isCreditBearingGrade, isPassedGrade } from "../utils/academic";
 
 export function hesaplaDönemOrt(ders) {
   if (ders.buteKaldi) {
@@ -337,21 +338,16 @@ export function useDersler({ bolumProp, departmentId }) {
         }
         return { ...d, ort, harf };
       });
-    const ganoList = list.filter((d) => d.harf.harf !== "EK" && d.harf.harf !== "-");
+    const ganoList = list.filter((d) => isCreditBearingGrade(d.harf.harf));
     const ganoKredi = ganoList.reduce((a, d) => a + d.kredi, 0);
     const gano = ganoList.reduce((a, d) => a + d.harf.katsayi * d.kredi, 0) / (ganoKredi || 1);
     
     // Alınan krediye EK dahil edilecek, ama geçilen kredi ve derslere dahil edilmeyecek.
     const alinanKredi = list.reduce((a, d) => a + d.kredi, 0);
-    const gecenDersler = list.filter((d) => {
-      const h = d.harf.harf;
-      if (h === "FF" || h === "-" || h === "EK") return false;
-      if ((h === "DD" || h === "DC") && gano < 2.0) return false;
-      return true;
-    });
+    const gecenDersler = list.filter((d) => isPassedGrade(d.harf.harf, gano));
     const gecenKredi = gecenDersler.reduce((a, d) => a + d.kredi, 0);
     const seciliListe = aktifDonem === "tumu" ? null : list.filter((d) => d.donem === Number(aktifDonem));
-    const seciliGanoList = seciliListe ? seciliListe.filter((d) => d.harf.harf !== "EK") : null;
+    const seciliGanoList = seciliListe ? seciliListe.filter((d) => isCreditBearingGrade(d.harf.harf)) : null;
     const seciliKredi = seciliGanoList ? seciliGanoList.reduce((a, d) => a + d.kredi, 0) : 0;
     const secilDonemGano = seciliGanoList ? seciliGanoList.reduce((a, d) => a + d.harf.katsayi * d.kredi, 0) / (seciliKredi || 1) : 0;
 

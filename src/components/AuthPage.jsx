@@ -215,10 +215,10 @@ export default function AuthPage({ initialMode = 'login' }) {
         return
       }
       
-      const allowedDomains = ["gmail.com", "icloud.com", "hotmail.com", "outlook.com", "yahoo.com", "yandex.com", "msn.com", "live.com"];
+      const allowedDomains = ["gmail.com", "googlemail.com", "icloud.com", "me.com", "mac.com", "hotmail.com", "outlook.com", "yahoo.com", "yahoo.com.tr", "yandex.com", "yandex.com.tr", "msn.com", "live.com", "proton.me", "protonmail.com", "zoho.com", "perainc.online", "mail.perainc.online", "unipulse.app", "lifeos.app", "komsucep.app"];
       const domain = email.split('@')[1]?.toLowerCase();
       if (!domain || !allowedDomains.includes(domain)) {
-        setError(t('Sadece bilinen e-posta sağlayıcıları (gmail, icloud vb.) kabul edilmektedir.'));
+        setError('Sadece bilinen e-posta sağlayıcıları (gmail, icloud vb.) ve şirket maili kabul edilmektedir.');
         setLoading(false);
         return;
       }
@@ -228,7 +228,7 @@ export default function AuthPage({ initialMode = 'login' }) {
         return;
       }
       try {
-        await register(email, password, { full_name: name, username });
+        await register(email, password, name, username);
         setBasarili(true);
       } catch(err) {
         setError(err.message === "User already registered" ? t("Bu e-posta adresi zaten kayıtlı") : err.message);
@@ -389,6 +389,8 @@ export default function AuthPage({ initialMode = 'login' }) {
                       className="w-full h-[50px] transition-colors flex items-center justify-center overflow-hidden rounded-xl border"
                       onClick={handleDemoLogin}
                       disabled={loading}
+                      title="Demo ile giriş yap"
+                      aria-label="Demo ile giriş yap"
                       style={{ background: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)", borderColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.08)" }}
                     >
                       <Sparkles size={24} className="text-blue-500" />
@@ -400,6 +402,8 @@ export default function AuthPage({ initialMode = 'login' }) {
                     className="w-full h-[50px] transition-colors flex items-center justify-center overflow-hidden rounded-xl border"
                     onClick={handleGoogleLogin}
                     disabled={loading}
+                    title="Google ile giriş yap"
+                    aria-label="Google ile giriş yap"
                     style={{ background: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)", borderColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.08)" }}
                   >
                     <GoogleIcon size={24} />
@@ -410,6 +414,8 @@ export default function AuthPage({ initialMode = 'login' }) {
                     className="w-full h-[50px] transition-colors flex items-center justify-center overflow-hidden rounded-xl border"
                     onClick={handleAppleLogin}
                     disabled={loading}
+                    title="Apple ile giriş yap"
+                    aria-label="Apple ile giriş yap"
                     style={{ background: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)", borderColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.08)" }}
                   >
                     <AppleIcon size={24} />

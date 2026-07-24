@@ -3,6 +3,24 @@ import { useI18n } from "../context/I18nContext";
 
 export default function TermsModal({ isOpen, onClose, type, tokens, isDark, onApprove, onDecline }) {
   const { t } = useI18n();
+  const terms = [
+    ["1. Hizmetin kapsamı", "UniPulse; ders, kredi, harf notu, GANO, dönem takibi, hedef GANO ve liderlik tablosu gibi akademik takip araçları sunar. Platform resmi üniversite sistemi değildir; akademik kararlar için okulunuzun resmi kayıtları esas alınır."],
+    ["2. Hesap güvenliği", "Kullanıcı adı, e-posta ve şifre güvenliğinden kullanıcı sorumludur. Hesabınızda şüpheli işlem fark ederseniz destek ekibiyle iletişime geçmeniz gerekir."],
+    ["3. Veri doğruluğu", "GANO ve kredi hesaplamaları kullanıcının girdiği ders ve not verilerine göre yapılır. Hatalı girilen ders, kredi veya harf notu bilgilerinden doğabilecek sonuçlardan UniPulse sorumlu değildir."],
+    ["4. Kullanım kuralları", "Platformu hukuka aykırı, yanıltıcı, başkalarının verilerine erişmeye yönelik veya hizmet güvenliğini bozacak şekilde kullanamazsınız."],
+    ["5. Hizmet değişiklikleri", "UniPulse özellikleri, hesaplama yöntemleri ve hizmet kapsamı kullanıcı deneyimi, teknik gereklilikler veya yasal yükümlülükler nedeniyle güncellenebilir."],
+    ["6. Hesap silme", "Hesap silme talebiniz onaylandığında profiliniz ve akademik verileriniz kalıcı olarak silinir. Yasal saklama zorunluluğu bulunan teknik kayıtlar ilgili süre boyunca saklanabilir."],
+    ["7. İletişim", "Kullanım koşullarıyla ilgili taleplerinizi destek@unipulse.app adresine iletebilirsiniz."],
+  ];
+  const kvkk = [
+    ["1. Veri sorumlusu", "UniPulse hizmeti kapsamında kişisel verileriniz, UniPulse uygulamasını işleten hizmet sağlayıcı tarafından 6698 sayılı KVKK uyarınca veri sorumlusu sıfatıyla işlenir."],
+    ["2. İşlenen veriler", "Kimlik ve iletişim bilgileriniz, hesap güvenliği verileriniz, üniversite/bölüm/sınıf tercihleriniz, ders, kredi, harf notu, GANO ve uygulama kullanım kayıtlarınız işlenebilir."],
+    ["3. İşleme amaçları", "Üyelik oluşturma, oturum açma, e-posta doğrulama, şifre sıfırlama, akademik takip ve raporlama, liderlik tablolarının oluşturulması, güvenlik, destek ve yasal yükümlülüklerin yerine getirilmesi amaçlanır."],
+    ["4. Hukuki sebep ve yöntem", "Verileriniz elektronik formlar, uygulama içi işlemler ve oturum kayıtlarıyla; sözleşmenin kurulması/ifası, hukuki yükümlülük, meşru menfaat ve gerekli hallerde açık rıza sebeplerine dayanarak toplanır."],
+    ["5. Aktarım ve saklama", "Veriler; barındırma, kimlik doğrulama, e-posta ve teknik destek hizmet sağlayıcılarıyla hizmetin gerektirdiği ölçüde paylaşılabilir. Veriler amaç için gerekli süre boyunca saklanır, ardından silinir veya anonimleştirilir."],
+    ["6. Haklarınız", "KVKK madde 11 kapsamında verilerinizin işlenip işlenmediğini öğrenme, bilgi talep etme, düzeltme, silme/yok etme, aktarım yapılan kişileri öğrenme, itiraz etme ve zararın giderilmesini isteme haklarına sahipsiniz."],
+    ["7. Başvuru", "KVKK kapsamındaki taleplerinizi kvkk@unipulse.app adresine iletebilirsiniz. Başvurular mevzuatta öngörülen sürelerde sonuçlandırılır."],
+  ];
 
   if (!isOpen) return null;
 
@@ -54,32 +72,21 @@ export default function TermsModal({ isOpen, onClose, type, tokens, isDark, onAp
           <div style={{ flex: 1, overflowY: "auto", fontSize: 13, color: tokens.textSecondary, lineHeight: 1.7, paddingRight: 8 }}>
             {type === 'terms' ? (
               <>
-                <h3 style={{ color: tokens.textPrimary, fontSize: 15, fontWeight: 600, margin: "0 0 10px" }}>{t("terms_h1")}</h3>
-                <p>{t("terms_p1")}</p>
-                <p>{t("terms_p2")}</p>
-                <h3 style={{ color: tokens.textPrimary, fontSize: 15, fontWeight: 600, margin: "16px 0 10px" }}>{t("terms_h2")}</h3>
-                <p>{t("terms_p3")}</p>
-                <h3 style={{ color: tokens.textPrimary, fontSize: 15, fontWeight: 600, margin: "16px 0 10px" }}>{t("terms_h3")}</h3>
-                <p>{t("terms_p4")}</p>
-                <h3 style={{ color: tokens.textPrimary, fontSize: 15, fontWeight: 600, margin: "16px 0 10px" }}>{t("terms_h4")}</h3>
-                <p>{t("terms_p5")}</p>
-                <h3 style={{ color: tokens.textPrimary, fontSize: 15, fontWeight: 600, margin: "16px 0 10px" }}>{t("terms_h5")}</h3>
-                <p>{t("terms_p6")} <strong style={{ color: tokens.textPrimary }}>destek@unipulse.app</strong> {t("terms_p6_2")}</p>
+                {terms.map(([title, body], index) => (
+                  <div key={title}>
+                    <h3 style={{ color: tokens.textPrimary, fontSize: 15, fontWeight: 600, margin: index === 0 ? "0 0 10px" : "16px 0 10px" }}>{title}</h3>
+                    <p>{body}</p>
+                  </div>
+                ))}
               </>
             ) : (
               <>
-                <h3 style={{ color: tokens.textPrimary, fontSize: 15, fontWeight: 600, margin: "0 0 10px" }}>{t("kvkk_h1")}</h3>
-                <p>{t("kvkk_p1")}</p>
-                <h3 style={{ color: tokens.textPrimary, fontSize: 15, fontWeight: 600, margin: "16px 0 10px" }}>{t("kvkk_h2")}</h3>
-                <p>{t("kvkk_p2")}</p>
-                <h3 style={{ color: tokens.textPrimary, fontSize: 15, fontWeight: 600, margin: "16px 0 10px" }}>{t("kvkk_h3")}</h3>
-                <p>{t("kvkk_p3")}</p>
-                <h3 style={{ color: tokens.textPrimary, fontSize: 15, fontWeight: 600, margin: "16px 0 10px" }}>{t("kvkk_h4")}</h3>
-                <p>{t("kvkk_p4")}</p>
-                <h3 style={{ color: tokens.textPrimary, fontSize: 15, fontWeight: 600, margin: "16px 0 10px" }}>{t("kvkk_h5")}</h3>
-                <p>{t("kvkk_p5")}</p>
-                <h3 style={{ color: tokens.textPrimary, fontSize: 15, fontWeight: 600, margin: "16px 0 10px" }}>{t("kvkk_h6")}</h3>
-                <p>{t("kvkk_p6")} <strong style={{ color: tokens.textPrimary }}>kvkk@unipulse.app</strong> {t("kvkk_p6_2")}</p>
+                {kvkk.map(([title, body], index) => (
+                  <div key={title}>
+                    <h3 style={{ color: tokens.textPrimary, fontSize: 15, fontWeight: 600, margin: index === 0 ? "0 0 10px" : "16px 0 10px" }}>{title}</h3>
+                    <p>{body}</p>
+                  </div>
+                ))}
               </>
             )}
           </div>
