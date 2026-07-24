@@ -4,6 +4,12 @@ import { supabase } from "../lib/supabase";
 import { captureEvent, identifyUser } from "../utils/clientLogger";
 
 const AuthContext = createContext(null);
+const TRUSTED_EMAIL_DOMAINS = new Set([
+  "gmail.com", "googlemail.com", "icloud.com", "me.com", "mac.com", "hotmail.com",
+  "outlook.com", "live.com", "msn.com", "yahoo.com", "yahoo.com.tr", "yandex.com",
+  "yandex.com.tr", "proton.me", "protonmail.com", "zoho.com", "perainc.online",
+  "mail.perainc.online", "unipulse.app", "lifeos.app", "komsucep.app",
+]);
 
 function cleanAuthCallbackUrl() {
   if (typeof window === "undefined") return;
@@ -11,6 +17,29 @@ function cleanAuthCallbackUrl() {
   const hasAuthCode = new URLSearchParams(window.location.search).has("code");
   if (!hasTokenHash && !hasAuthCode) return;
   window.history.replaceState({}, document.title, window.location.pathname);
+}
+
+function isTrustedEmail(email) {
+  const domain = String(email || "").split("@")[1]?.toLowerCase();
+  return Boolean(domain && TRUSTED_EMAIL_DOMAINS.has(domain));
+}
+
+function decodeJwtPayload(token) {
+  try {
+    const payload = String(token || "").split(".")[1];
+    if (!payload) return null;
+    const base64 = payload.replace(/-/g, "+").replace(/_/g, "/");
+    const padded = base64.padEnd(base64.length + ((4 - (base64.length % 4)) % 4), "=");
+    return JSON.parse(atob(padded));
+  } catch {
+    return null;
+  }
+}
+
+function usernameFromEmail(email, userId) {
+  const localPart = String(email || "").split("@")[0] || "google";
+  const clean = localPart.toLowerCase().replace(/[^a-z0-9_.-]/g, "").slice(0, 24);
+  return clean || `google_${String(userId || "").slice(0, 8)}`;
 }
 
 export function useAuth() {
@@ -91,11 +120,61 @@ export function AuthProvider({ children }) {
     }
   }, [clearAuthState]);
 
+  const ensureProfileForAuthUser = useCallback(async (authUser) => {
+    if (!authUser?.id) return null;
+
+    const { data: existingProfile, error: existingError } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", authUser.id)
+      .maybeSingle();
+
+    if (existingProfile) return existingProfile;
+    if (existingError) throw existingError;
+
+    const metadata = authUser.user_metadata || {};
+    const email = authUser.email || metadata.email || "";
+    const fullName = metadata.full_name || metadata.name || email.split("@")[0] || "Google Kullanıcısı";
+    const username = usernameFromEmail(email, authUser.id);
+    const baseProfile = {
+      id: authUser.id,
+      email,
+      full_name: fullName,
+      username,
+      is_online: true,
+      last_login: new Date().toISOString(),
+    };
+
+    const { data: insertedProfile, error: insertError } = await supabase
+      .from("profiles")
+      .insert(baseProfile)
+      .select("*")
+      .maybeSingle();
+
+    if (!insertError && insertedProfile) return insertedProfile;
+
+    const fallbackProfile = {
+      id: authUser.id,
+      email,
+      full_name: fullName,
+      is_online: true,
+      last_login: new Date().toISOString(),
+    };
+    const { data: fallbackInserted, error: fallbackError } = await supabase
+      .from("profiles")
+      .insert(fallbackProfile)
+      .select("*")
+      .maybeSingle();
+
+    if (fallbackError) throw fallbackError;
+    return fallbackInserted;
+  }, []);
+
   const fetchProfile = useCallback(async (userId, authUser = null) => {
     const requestId = ++profileRequestRef.current;
 
     try {
-      const { data, error } = await supabase
+      let { data, error } = await supabase
         .from("profiles")
         .select("*")
         .eq("id", userId)
@@ -107,6 +186,10 @@ export function AuthProvider({ children }) {
         console.error("Profil yükleme hatası:", error);
         await signOutMissingProfile();
         return null;
+      }
+
+      if (!data && authUser) {
+        data = await ensureProfileForAuthUser(authUser);
       }
 
       if (!data) {
@@ -125,7 +208,7 @@ export function AuthProvider({ children }) {
       }
       return null;
     }
-  }, [signOutMissingProfile]);
+  }, [ensureProfileForAuthUser, signOutMissingProfile]);
 
   useEffect(() => {
     let active = true;
@@ -172,7 +255,7 @@ export function AuthProvider({ children }) {
           }, session.user.id);
           if (_event === 'SIGNED_IN') {
             captureEvent("unipulse_login_seen", {
-              provider: "supabase",
+              provider: session.user.app_metadata?.provider || "supabase",
               email: loadedProfile?.email || session.user.email,
             }, session.user.id);
             try {
@@ -265,21 +348,49 @@ export function AuthProvider({ children }) {
     return data;
   }
 
-  async function loginWithGoogle() {
-    const redirectUrl = import.meta.env.PROD 
-      ? 'https://unipulse.perainc.online'
-      : window.location.origin;
-    
-    const { error } = await supabase.auth.signInWithOAuth({
+  async function loginWithGoogle(credential, nonce) {
+    const token = typeof credential === "string" ? credential : credential?.credential;
+    const payload = decodeJwtPayload(token);
+    if (!token || !payload?.email) {
+      throw new Error("Google giriş bilgisi alınamadı. Lütfen tekrar deneyin.");
+    }
+    if (!isTrustedEmail(payload.email)) {
+      throw new Error("Sadece bilinen e-posta sağlayıcıları (gmail, icloud vb.) ve şirket maili kabul edilmektedir.");
+    }
+
+    const { data, error } = await supabase.auth.signInWithIdToken({
       provider: 'google',
-      options: {
-        redirectTo: redirectUrl,
-        queryParams: {
-          prompt: 'select_account'
-        }
-      }
+      token,
+      nonce,
     });
     if (error) throw error;
+    if (data.user && !isTrustedEmail(data.user.email)) {
+      await supabase.auth.signOut();
+      throw new Error("Sadece bilinen e-posta sağlayıcıları (gmail, icloud vb.) ve şirket maili kabul edilmektedir.");
+    }
+    if (data.user) {
+      const loadedProfile = await fetchProfile(data.user.id, data.user);
+      if (!loadedProfile) {
+        await supabase.auth.signOut();
+        throw new Error("Profil oluşturulamadı. Lütfen tekrar deneyin.");
+      }
+      if (loadedProfile.is_allowed === false) {
+        await supabase.auth.signOut();
+        throw new Error("Hesabınız engellenmiştir.");
+      }
+      try {
+        identifyUser(loadedProfile, data.user);
+        captureEvent("unipulse_login", { method: "google", email: data.user.email }, data.user.id);
+        await supabase.from("activity_logs").insert({
+          user_id: data.user.id,
+          action: "google_login",
+          details: { email: data.user.email },
+          ip_address: null,
+        });
+        await supabase.from("profiles").update({ is_online: true, last_login: new Date().toISOString() }).eq("id", data.user.id);
+      } catch {}
+    }
+    return data;
   }
 
   async function resetPassword(email) {

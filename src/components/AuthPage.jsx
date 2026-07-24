@@ -5,6 +5,7 @@ import { useI18n } from '../context/I18nContext';
 import { Mail, Lock, Loader2, Sparkles, User, ArrowRight, ShieldCheck, Eye, EyeOff, Sun, Moon, GraduationCap } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import LanguageToggle from './LanguageToggle';
+import { createGoogleNonce, getGoogleClientId, loadGoogleIdentity } from '../lib/googleIdentity';
 
 // --- Basic UI Components replacing shadcn/ui ---
 const Button = ({ className = '', variant = 'default', ...props }) => {
@@ -95,8 +96,12 @@ export default function AuthPage({ initialMode = 'login' }) {
   const [agreedContracts, setAgreedContracts] = useState({ terms: false, kvkk: false })
   const [showPassword, setShowPassword] = useState(false)
   const [basarili, setBasarili] = useState(false)
+  const [googleButtonAvailable, setGoogleButtonAvailable] = useState(false)
 
   const canvasRef = useRef(null)
+  const googleButtonRef = useRef(null)
+  const googleLoginRef = useRef(loginWithGoogle)
+  const googleNonceRef = useRef(null)
 
   useEffect(() => {
     const handlePageShow = (e) => {
@@ -107,6 +112,73 @@ export default function AuthPage({ initialMode = 'login' }) {
     window.addEventListener('pageshow', handlePageShow);
     return () => window.removeEventListener('pageshow', handlePageShow);
   }, []);
+
+  useEffect(() => {
+    googleLoginRef.current = loginWithGoogle;
+  }, [loginWithGoogle]);
+
+  useEffect(() => {
+    if (mode === 'forgot-password') return undefined;
+
+    let cancelled = false;
+
+    async function renderGoogleButton() {
+      const container = googleButtonRef.current;
+      if (!container) return;
+
+      container.innerHTML = "";
+      setGoogleButtonAvailable(false);
+
+      try {
+        const clientId = getGoogleClientId();
+        const google = await loadGoogleIdentity();
+        const { nonce, hashedNonce } = await createGoogleNonce();
+        if (cancelled) return;
+
+        googleNonceRef.current = nonce;
+        google.accounts.id.initialize({
+          client_id: clientId,
+          callback: async (response) => {
+            if (cancelled) return;
+            setLoading(true);
+            setError('');
+            try {
+              await googleLoginRef.current(response?.credential, googleNonceRef.current);
+            } catch (err) {
+              setError(err.message || t('auth.google_login_failed'));
+              setLoading(false);
+            }
+          },
+          nonce: hashedNonce,
+          auto_select: false,
+          cancel_on_tap_outside: true,
+          context: mode === 'register' ? 'signup' : 'signin',
+          ux_mode: 'popup',
+        });
+
+        container.innerHTML = "";
+        google.accounts.id.renderButton(container, {
+          type: 'icon',
+          shape: 'rectangular',
+          theme: isDark ? 'filled_black' : 'outline',
+          size: 'large',
+          logo_alignment: 'center',
+          width: 48,
+        });
+        setGoogleButtonAvailable(true);
+      } catch (err) {
+        console.warn("Google kimlik butonu hazırlanamadı:", err);
+        setGoogleButtonAvailable(false);
+      }
+    }
+
+    renderGoogleButton();
+
+    return () => {
+      cancelled = true;
+      if (googleButtonRef.current) googleButtonRef.current.innerHTML = "";
+    };
+  }, [isDark, mode, t]);
 
   // Rainbow Trail Animasyonu
   useEffect(() => {
@@ -259,13 +331,7 @@ export default function AuthPage({ initialMode = 'login' }) {
   }
 
   async function handleGoogleLogin() {
-    setLoading(true)
-    try {
-      await loginWithGoogle();
-    } catch (err) {
-      setError(err.message || 'Google girişi başlatılamadı');
-      setLoading(false);
-    }
+    setError(t('auth.google_login_failed'));
   }
 
   function handleAppleLogin() {
@@ -396,18 +462,36 @@ export default function AuthPage({ initialMode = 'login' }) {
                       <Sparkles size={24} className="text-blue-500" />
                     </Button>
                   )}
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="w-full h-[50px] transition-colors flex items-center justify-center overflow-hidden rounded-xl border"
-                    onClick={handleGoogleLogin}
-                    disabled={loading}
+                  <div
+                    className="relative w-full h-[50px] transition-colors flex items-center justify-center overflow-hidden rounded-xl border"
                     title="Google ile giriş yap"
                     aria-label="Google ile giriş yap"
-                    style={{ background: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)", borderColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.08)" }}
+                    style={{
+                      background: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)",
+                      borderColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.08)",
+                      pointerEvents: loading ? "none" : "auto",
+                    }}
                   >
-                    <GoogleIcon size={24} />
-                  </Button>
+                    <div ref={googleButtonRef} className="flex items-center justify-center" />
+                    {!googleButtonAvailable && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="absolute inset-0 w-full h-full border-0 bg-transparent hover:bg-transparent"
+                        onClick={handleGoogleLogin}
+                        disabled={loading}
+                        title="Google ile giriş yap"
+                        aria-label="Google ile giriş yap"
+                      >
+                        <GoogleIcon size={24} />
+                      </Button>
+                    )}
+                    {loading && (
+                      <div className="absolute inset-0 flex items-center justify-center backdrop-blur-[2px]" style={{ background: isDark ? "rgba(15,22,35,0.55)" : "rgba(255,255,255,0.55)" }}>
+                        <Loader2 size={18} className="animate-spin text-blue-500" />
+                      </div>
+                    )}
+                  </div>
                   <Button
                     type="button"
                     variant="outline"

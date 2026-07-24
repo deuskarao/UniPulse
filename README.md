@@ -77,6 +77,7 @@ npm install
 ```
 VITE_SUPABASE_URL=https://your-project.supabase.co
 VITE_SUPABASE_ANON_KEY=your-anon-key
+VITE_GOOGLE_CLIENT_ID=your-google-web-client-id.apps.googleusercontent.com
 ```
 
 ### Geliştirme
@@ -111,7 +112,7 @@ Supabase SQL Editor'da `sql/production_ready.sql` dosyasını çalıştır. Bu d
 
 Her push'da GitHub Actions otomatik build edip GitHub Pages'a deploy eder.
 
-- Build'de `VITE_SUPABASE_URL` ve `VITE_SUPABASE_ANON_KEY` GitHub Secrets'tan alınır
+- Build'de `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` ve `VITE_GOOGLE_CLIENT_ID` GitHub Secrets/Variables üzerinden alınır
 - Deploy `actions/deploy-pages` ile yapılır
 
 ## Teknolojiler
