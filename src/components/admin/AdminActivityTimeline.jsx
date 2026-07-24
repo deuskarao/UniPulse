@@ -7,6 +7,11 @@ import { motion } from "framer-motion";
 const ACTION_ICONS = {
   login: { icon: "🔑", color: "#22C55E" },
   logout: { icon: "🚪", color: "#94A3B8" },
+  client_error: { icon: "⚠️", color: "#EF4444" },
+  client_unhandled_rejection: { icon: "⚠️", color: "#EF4444" },
+  client_render_error: { icon: "⚠️", color: "#EF4444" },
+  security_suspicious: { icon: "🛡️", color: "#F59E0B" },
+  client_event: { icon: "🌐", color: "#3B82F6" },
   user_updated: { icon: "✏️", color: "#3B82F6" },
   user_blocked: { icon: "🔒", color: "#EF4444" },
   user_unblocked: { icon: "🔓", color: "#22C55E" },
@@ -21,6 +26,11 @@ const ACTION_ICONS = {
 const ACTION_LABELS = {
   login: "Giriş yaptı",
   logout: "Çıkış yaptı",
+  client_error: "İstemci hatası",
+  client_unhandled_rejection: "İstemci hatası",
+  client_render_error: "Ekran hatası",
+  security_suspicious: "Güvenlik uyarısı",
+  client_event: "İstemci olayı",
   user_updated: "Kullanıcı güncellendi",
   user_blocked: "Kullanıcı engellendi",
   user_unblocked: "Kullanıcı engeli kaldırıldı",
@@ -32,36 +42,110 @@ const ACTION_LABELS = {
   profile_updated: "Profil güncellendi",
 };
 
+function asObject(value) {
+  if (!value) return {};
+  if (typeof value === "object" && !Array.isArray(value)) return value;
+  if (typeof value === "string") {
+    try {
+      const parsed = JSON.parse(value);
+      return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : { message: parsed };
+    } catch {
+      return { message: value };
+    }
+  }
+  return { value };
+}
+
+function textValue(value) {
+  if (value === undefined || value === null || value === "") return "";
+  if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") return String(value);
+  try {
+    return JSON.stringify(value);
+  } catch {
+    return String(value);
+  }
+}
+
+function DetailChip({ label, value, tokens }) {
+  const text = textValue(value);
+  if (!text) return null;
+  return (
+    <span
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 4,
+        maxWidth: "100%",
+        padding: "3px 7px",
+        borderRadius: 6,
+        background: tokens.surface,
+        border: `1px solid ${tokens.border}`,
+        color: tokens.muted,
+        fontSize: 10,
+      }}
+    >
+      <strong style={{ color: tokens.textSecondary }}>{label}</strong>
+      <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{text}</span>
+    </span>
+  );
+}
+
 export default function AdminActivityTimeline({ userId, isFullPage }) {
   const { t } = useI18n();
   const { tokens } = useTheme();
   const [activities, setActivities] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [days, setDays] = useState(isFullPage ? "7" : "3");
+  const [action, setAction] = useState("all");
+  const [search, setSearch] = useState("");
 
   const fetchActivities = useCallback(async () => {
     setLoading(true);
-    const threeDaysAgo = new Date();
-    threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+    const since = new Date();
+    since.setDate(since.getDate() - Number(days));
 
     let query = supabase
       .from("activity_logs")
       .select("*, profiles!activity_logs_user_id_fkey(full_name, email)")
-      .gte("created_at", threeDaysAgo.toISOString())
+      .gte("created_at", since.toISOString())
       .order("created_at", { ascending: false })
-      .limit(isFullPage ? 50 : 10);
+      .limit(isFullPage ? 200 : 10);
 
     if (userId) {
       query = query.eq("user_id", userId);
     }
+    if (action !== "all") {
+      query = query.eq("action", action);
+    }
 
     const { data, error } = await query;
-    if (!error && data) setActivities(data);
+    if (!error && data) {
+      const needle = search.trim().toLocaleLowerCase("tr-TR");
+      const filtered = needle
+        ? data.filter((item) => {
+            const details = asObject(item.details);
+            return [
+              item.action,
+              item.ip_address,
+              item.profiles?.full_name,
+              item.profiles?.email,
+              textValue(details.message),
+              textValue(details.path),
+              textValue(details.reason),
+              textValue(details.scope),
+            ].some((value) => textValue(value).toLocaleLowerCase("tr-TR").includes(needle));
+          })
+        : data;
+      setActivities(filtered);
+    }
     setLoading(false);
-  }, [userId, isFullPage]);
+  }, [userId, isFullPage, days, action, search]);
 
   useEffect(() => {
     fetchActivities();
   }, [fetchActivities]);
+
+  const actionOptions = Array.from(new Set(["all", ...Object.keys(ACTION_LABELS), ...activities.map((item) => item.action)])).filter(Boolean);
 
   return (
     <div
@@ -86,6 +170,69 @@ export default function AdminActivityTimeline({ userId, isFullPage }) {
           Yenile
         </button>
       </div>
+      {isFullPage && (
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "minmax(180px, 1fr) 150px 160px",
+            gap: 8,
+            padding: "12px 16px",
+            borderBottom: `1px solid ${tokens.border}`,
+          }}
+        >
+          <input
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder="Kullanıcı, IP, path veya detay ara"
+            style={{
+              minWidth: 0,
+              height: 36,
+              borderRadius: 8,
+              border: `1px solid ${tokens.border}`,
+              background: tokens.input,
+              color: tokens.textPrimary,
+              padding: "0 10px",
+              fontSize: 12,
+            }}
+          />
+          <select
+            value={action}
+            onChange={(event) => setAction(event.target.value)}
+            style={{
+              height: 36,
+              borderRadius: 8,
+              border: `1px solid ${tokens.border}`,
+              background: tokens.input,
+              color: tokens.textPrimary,
+              padding: "0 10px",
+              fontSize: 12,
+            }}
+          >
+            {actionOptions.map((option) => (
+              <option key={option} value={option}>{option === "all" ? "Tüm işlemler" : ACTION_LABELS[option] || option}</option>
+            ))}
+          </select>
+          <select
+            value={days}
+            onChange={(event) => setDays(event.target.value)}
+            style={{
+              height: 36,
+              borderRadius: 8,
+              border: `1px solid ${tokens.border}`,
+              background: tokens.input,
+              color: tokens.textPrimary,
+              padding: "0 10px",
+              fontSize: 12,
+            }}
+          >
+            <option value="1">Son 24 saat</option>
+            <option value="3">Son 3 gün</option>
+            <option value="7">Son 7 gün</option>
+            <option value="14">Son 14 gün</option>
+            <option value="30">Son 30 gün</option>
+          </select>
+        </div>
+      )}
 
       <div style={{ maxHeight: isFullPage ? "calc(100vh - 200px)" : "none", overflowY: "auto" }}>
         {loading ? (
@@ -96,6 +243,8 @@ export default function AdminActivityTimeline({ userId, isFullPage }) {
           activities.map((a, i) => {
             const actionInfo = ACTION_ICONS[a.action] || { icon: "📋", color: "#94A3B8" };
             const label = ACTION_LABELS[a.action] || a.action;
+            const details = asObject(a.details);
+            const summary = textValue(details.message || details.reason || details.scope || details.path);
             return (
               <motion.div
                 key={a.id}
@@ -142,6 +291,23 @@ export default function AdminActivityTimeline({ userId, isFullPage }) {
                   {isFullPage && a.profiles && (
                     <div style={{ fontSize: 11, color: tokens.muted, marginTop: 2 }}>
                       {a.profiles.full_name || a.profiles.email}
+                    </div>
+                  )}
+                  {summary && (
+                    <div style={{ fontSize: 11, color: tokens.textSecondary, marginTop: 4, overflowWrap: "anywhere" }}>
+                      {summary}
+                    </div>
+                  )}
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 6 }}>
+                    <DetailChip label="path" value={details.path} tokens={tokens} />
+                    <DetailChip label="method" value={details.method} tokens={tokens} />
+                    <DetailChip label="scope" value={details.scope} tokens={tokens} />
+                    <DetailChip label="reason" value={details.reason} tokens={tokens} />
+                    <DetailChip label="ip" value={a.ip_address} tokens={tokens} />
+                  </div>
+                  {details.userAgent && (
+                    <div style={{ fontSize: 10, color: tokens.muted, marginTop: 4, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      UA: {textValue(details.userAgent)}
                     </div>
                   )}
                   <div style={{ fontSize: 10, color: tokens.muted, marginTop: 2 }}>

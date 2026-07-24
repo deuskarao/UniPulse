@@ -20,6 +20,54 @@ function InfoRow({ label, value, tokens, color }) {
   );
 }
 
+function asActivityDetails(value) {
+  if (!value) return {};
+  if (typeof value === "object" && !Array.isArray(value)) return value;
+  if (typeof value === "string") {
+    try {
+      const parsed = JSON.parse(value);
+      return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : { message: parsed };
+    } catch {
+      return { message: value };
+    }
+  }
+  return { value };
+}
+
+function activityValue(value) {
+  if (value === undefined || value === null || value === "") return "";
+  if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") return String(value);
+  try {
+    return JSON.stringify(value);
+  } catch {
+    return String(value);
+  }
+}
+
+function ActivityChip({ label, value, tokens }) {
+  const text = activityValue(value);
+  if (!text) return null;
+  return (
+    <span
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 4,
+        maxWidth: "100%",
+        padding: "3px 7px",
+        borderRadius: 6,
+        background: tokens.card,
+        border: `1px solid ${tokens.border}`,
+        color: tokens.muted,
+        fontSize: 10,
+      }}
+    >
+      <strong style={{ color: tokens.textSecondary }}>{label}</strong>
+      <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{text}</span>
+    </span>
+  );
+}
+
 export default function AdminUserDetails({ user, onUserUpdate, onBlockUser, onDeleteUser, onRoleChange, showToast, logAction, isMobile, onBack }) {
   const { t, language } = useI18n();
   const { tokens } = useTheme();
@@ -468,25 +516,36 @@ export default function AdminUserDetails({ user, onUserUpdate, onBlockUser, onDe
                 <div className="text-center py-10" style={{ color: tokens.muted }}>{t("admin.no_activity_found")}</div>
               ) : (
                 <div className="flex flex-col gap-3">
-                  {activities.map(a => (
-                    <div
-                      key={a.id}
-                      className="rounded-lg p-3"
-                      style={{ background: tokens.surface, border: `1px solid ${tokens.border}` }}
-                    >
-                      <div className="flex items-center justify-between">
-                        <span style={{ fontSize: 12, fontWeight: 600, color: tokens.textPrimary }}>{a.action}</span>
-                        <span style={{ fontSize: 10, color: tokens.muted }}>
-                          {new Date(a.created_at).toLocaleDateString("tr-TR", { hour: "2-digit", minute: "2-digit" })}
-                        </span>
-                      </div>
-                      {a.details && Object.keys(a.details).length > 0 && (
-                        <div style={{ fontSize: 11, color: tokens.muted, marginTop: 4 }}>
-                          {JSON.stringify(a.details)}
+                  {activities.map(a => {
+                    const details = asActivityDetails(a.details);
+                    const summary = activityValue(details.message || details.reason || details.scope || details.path);
+                    return (
+                      <div
+                        key={a.id}
+                        className="rounded-lg p-3"
+                        style={{ background: tokens.surface, border: `1px solid ${tokens.border}` }}
+                      >
+                        <div className="flex items-center justify-between gap-3">
+                          <span style={{ fontSize: 12, fontWeight: 600, color: tokens.textPrimary }}>{a.action}</span>
+                          <span style={{ fontSize: 10, color: tokens.muted, whiteSpace: "nowrap" }}>
+                            {new Date(a.created_at).toLocaleDateString("tr-TR", { hour: "2-digit", minute: "2-digit" })}
+                          </span>
                         </div>
-                      )}
-                    </div>
-                  ))}
+                        {summary && (
+                          <div style={{ fontSize: 11, color: tokens.textSecondary, marginTop: 5, overflowWrap: "anywhere" }}>
+                            {summary}
+                          </div>
+                        )}
+                        <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 7 }}>
+                          <ActivityChip label="path" value={details.path} tokens={tokens} />
+                          <ActivityChip label="method" value={details.method} tokens={tokens} />
+                          <ActivityChip label="scope" value={details.scope} tokens={tokens} />
+                          <ActivityChip label="reason" value={details.reason} tokens={tokens} />
+                          <ActivityChip label="ip" value={a.ip_address} tokens={tokens} />
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </motion.div>
