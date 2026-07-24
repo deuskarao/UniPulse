@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabase';
+import posthog from 'posthog-js';
 import { displayProfileName, displayUsername } from './profileDisplay';
 
 const SUSPICIOUS_PATTERNS = [
@@ -16,6 +17,7 @@ const POSTHOG_KEY = import.meta.env.VITE_POSTHOG_KEY;
 const POSTHOG_HOST = (import.meta.env.VITE_POSTHOG_HOST || 'https://eu.i.posthog.com').replace(/\/$/, '');
 const POSTHOG_APP = import.meta.env.VITE_POSTHOG_APP || 'unipulse';
 let installed = false;
+let posthogStarted = false;
 let currentIdentity = null;
 let currentView = null;
 let lastViewClosedAt = 0;
@@ -106,6 +108,30 @@ function compactObject(value) {
   return Object.fromEntries(Object.entries(value).filter(([, item]) => item !== undefined && item !== null && item !== ''));
 }
 
+function initPostHog() {
+  if (!POSTHOG_KEY || posthogStarted || typeof window === 'undefined') return;
+  posthogStarted = true;
+  posthog.init(POSTHOG_KEY, {
+    api_host: POSTHOG_HOST,
+    defaults: '2026-05-30',
+    autocapture: true,
+    capture_pageview: false,
+    capture_exceptions: true,
+    capture_console_errors: true,
+    person_profiles: 'identified_only',
+    loaded: (client) => {
+      try {
+        client.register({
+          app: POSTHOG_APP,
+          platform: 'web',
+          project: 'UniPulse',
+        });
+        client.startSessionRecording?.();
+      } catch {}
+    },
+  });
+}
+
 function storeLocal(entry) {
   try {
     const key = 'unipulse_dev_logs';
@@ -117,6 +143,7 @@ function storeLocal(entry) {
 
 function sendPostHog(type, entry, userId) {
   if (!POSTHOG_KEY) return;
+  initPostHog();
   const distinctId = userId || currentIdentity?.id || getAnonymousId();
   const identityProps = currentIdentity
     ? compactObject({
@@ -129,29 +156,36 @@ function sendPostHog(type, entry, userId) {
         platform: 'web',
       })
     : null;
+  const properties = {
+    app: POSTHOG_APP,
+    platform: 'web',
+    source: 'client',
+    env: import.meta.env.MODE || 'development',
+    path: entry.path,
+    screen: entry.screen || currentScreenName(),
+    page: entry.screen || currentScreenName(),
+    url: redactAuthText(window.location.href),
+    $current_url: redactAuthText(window.location.href),
+    $pathname: window.location.pathname,
+    $host: window.location.host,
+    $screen_name: entry.screen || currentScreenName(),
+    $referrer: document.referrer ? redactAuthText(document.referrer) : undefined,
+    referrer: document.referrer ? redactAuthText(document.referrer) : undefined,
+    userAgent: entry.userAgent,
+    details: entry.details,
+    ...(identityProps ? { $set: identityProps } : {}),
+  };
+
+  try {
+    posthog.capture(type, properties);
+    return;
+  } catch {}
+
   const body = JSON.stringify({
     api_key: POSTHOG_KEY,
     event: type,
     distinct_id: distinctId,
-    properties: {
-      app: POSTHOG_APP,
-      platform: 'web',
-      source: 'client',
-      env: import.meta.env.MODE || 'development',
-      path: entry.path,
-      screen: entry.screen || currentScreenName(),
-      page: entry.screen || currentScreenName(),
-      url: redactAuthText(window.location.href),
-      $current_url: redactAuthText(window.location.href),
-      $pathname: window.location.pathname,
-      $host: window.location.host,
-      $screen_name: entry.screen || currentScreenName(),
-      $referrer: document.referrer ? redactAuthText(document.referrer) : undefined,
-      referrer: document.referrer ? redactAuthText(document.referrer) : undefined,
-      userAgent: entry.userAgent,
-      details: entry.details,
-      ...(identityProps ? { $set: identityProps } : {}),
-    },
+    properties,
   });
 
   navigator.sendBeacon?.(`${POSTHOG_HOST}/capture/`, new Blob([body], { type: 'application/json' })) ||
@@ -179,6 +213,18 @@ export function identifyUser(profile = {}, authUser = {}) {
     try {
       localStorage.setItem('unipulse_distinct_id', currentIdentity.id);
     } catch {}
+    try {
+      initPostHog();
+      posthog.identify(currentIdentity.id, compactObject({
+        email: currentIdentity.email,
+        name: currentIdentity.name,
+        username: currentIdentity.username,
+        role: currentIdentity.role,
+        department: currentIdentity.department,
+        app: POSTHOG_APP,
+        platform: 'web',
+      }));
+    } catch {}
     captureEvent('unipulse_user_identified', {
       email: currentIdentity.email,
       name: currentIdentity.name,
@@ -193,6 +239,14 @@ export function identifyUser(profile = {}, authUser = {}) {
       }, currentIdentity.id, { persist: true });
     }
   }
+}
+
+export function resetPostHogIdentity() {
+  currentIdentity = null;
+  try {
+    initPostHog();
+    posthog.reset();
+  } catch {}
 }
 
 export async function logClientEvent(type, details = {}) {
@@ -269,6 +323,7 @@ function closeView(reason = 'leave') {
 export function installClientLogger() {
   if (installed) return;
   installed = true;
+  initPostHog();
 
   const inspectUrl = () => {
     const raw = redactAuthText(`${window.location.pathname}${window.location.search}${window.location.hash}`);

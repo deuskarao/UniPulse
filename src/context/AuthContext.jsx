@@ -1,7 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { supabase } from "../lib/supabase";
-import { captureEvent, identifyUser } from "../utils/clientLogger";
+import { captureEvent, identifyUser, resetPostHogIdentity } from "../utils/clientLogger";
 
 const AuthContext = createContext(null);
 const TRUSTED_EMAIL_DOMAINS = new Set([
@@ -85,6 +85,7 @@ export function AuthProvider({ children }) {
       }
     } catch {}
     await supabase.auth.signOut();
+    resetPostHogIdentity();
     clearAuthState();
   }, [clearAuthState]);
 
