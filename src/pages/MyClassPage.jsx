@@ -6,6 +6,7 @@ import { useAppData } from "../context/AppDataContext";
 import { useTheme } from "../theme/ThemeProvider";
 import { useWindowSize } from "../components/shared.jsx";
 import { formatClassYear } from "../utils/academic";
+import { displayProfileName, displayUsername } from "../utils/profileDisplay";
 
 export default function MyClassPage({ bolum }) {
   const { tokens } = useTheme();
@@ -416,10 +417,10 @@ export default function MyClassPage({ bolum }) {
                     {s.is_online && <div style={{ width: 8, height: 8, borderRadius: "50%", background: tokens.success, flexShrink: 0 }} />}
                     <div>
                       <div style={{ fontSize: 15, fontWeight: 700, color: isMe ? tokens.primary : tokens.textPrimary, display: "flex", alignItems: "center", gap: 8, marginBottom: 2 }}>
-                        {s.full_name || t("Anonim Öğrenci")}
+                        {displayProfileName(s, t("Anonim Öğrenci"))}
                         {isMe && <span style={{ fontSize: 10, fontWeight: 800, background: tokens.primary + "15", color: tokens.primary, padding: "2px 8px", borderRadius: 8, letterSpacing: 0.5 }}>{t("SEN")}</span>}
                       </div>
-                      {s.username && <div style={{ fontSize: 13, color: tokens.muted }}>@{s.username}</div>}
+                      {displayUsername(s) && <div style={{ fontSize: 13, color: tokens.muted }}>@{displayUsername(s)}</div>}
                     </div>
                   </div>
                   

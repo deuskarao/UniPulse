@@ -4,6 +4,7 @@ import { useTheme } from "../../theme/ThemeProvider";
 import { useAuth } from "../../context/AuthContext";
 import { supabase } from "../../lib/supabase";
 import { motion } from "framer-motion";
+import { displayProfileName, profileInitial } from "../../utils/profileDisplay";
 export default function AdminSettings({ showToast }) {
   const { t } = useI18n();
   const { tokens } = useTheme();
@@ -40,7 +41,7 @@ export default function AdminSettings({ showToast }) {
           <div className="flex flex-col gap-3">
             <div className="flex items-center justify-between py-2.5" style={{ borderBottom: `1px solid ${tokens.border}` }}>
               <span style={{ fontSize: 12, color: tokens.muted }}>{t("admin.full_name")}</span>
-              <span style={{ fontSize: 13, fontWeight: 600, color: tokens.textPrimary }}>{profile?.full_name || "—"}</span>
+              <span style={{ fontSize: 13, fontWeight: 600, color: tokens.textPrimary }}>{displayProfileName(profile, "—")}</span>
             </div>
             <div className="flex items-center justify-between py-2.5" style={{ borderBottom: `1px solid ${tokens.border}` }}>
               <span style={{ fontSize: 12, color: tokens.muted }}>{t("admin.email")}</span>
@@ -87,10 +88,10 @@ export default function AdminSettings({ showToast }) {
                   className="flex items-center justify-center rounded-lg flex-shrink-0"
                   style={{ width: 36, height: 36, background: tokens.primary + "20", color: tokens.primary, fontWeight: 700, fontSize: 13 }}
                 >
-                  {a.full_name?.[0] || a.email?.[0] || "?"}
+                  {profileInitial(a)}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div style={{ fontSize: 13, fontWeight: 600, color: tokens.textPrimary }}>{a.full_name || "—"}</div>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: tokens.textPrimary }}>{displayProfileName(a, "—")}</div>
                   <div style={{ fontSize: 11, color: tokens.muted }}>{a.email}</div>
                 </div>
                 <span className="inline-flex items-center rounded px-2 py-0.5" style={{ fontSize: 10, fontWeight: 700, background: tokens.primary + "20", color: tokens.primary }}>ADMIN</span>

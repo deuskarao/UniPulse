@@ -17,6 +17,7 @@ import AdminUniversities from "./AdminUniversities";
 import AdminClasses from "./AdminClasses";
 import AdminSettings from "./AdminSettings";
 import AdminReports from "./AdminReports";
+import { displayProfileName, sanitizeProfileUpdates } from "../../utils/profileDisplay";
 
 const TABS = [
   { id: "dashboard", label: "admin.dashboard" },
@@ -90,6 +91,7 @@ export default function AdminLayout() {
       
       const mappedData = (data || []).map(u => ({
         ...u,
+        full_name: displayProfileName(u, ""),
         department_name: u.department?.ad || null,
         faculty_name: u.faculty?.ad || null,
         university_name: u.university?.ad || null
@@ -116,7 +118,7 @@ export default function AdminLayout() {
     try {
       const { error } = await supabase
         .from("profiles")
-        .update(updates)
+        .update(sanitizeProfileUpdates(updates))
         .eq("id", userId);
       if (error) throw error;
       

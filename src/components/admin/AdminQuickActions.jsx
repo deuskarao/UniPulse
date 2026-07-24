@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useTheme } from "../../theme/ThemeProvider";
 import { useAuth } from "../../context/AuthContext";
 import { motion } from "framer-motion";
+import { displayProfileName } from "../../utils/profileDisplay";
 
 export default function AdminQuickActions({ user, onBlockUser, onDeleteUser, onRoleChange, showToast }) {
   const { t } = useI18n();
@@ -58,7 +59,7 @@ export default function AdminQuickActions({ user, onBlockUser, onDeleteUser, onR
           </button>
 
           <button
-            onClick={() => onBlockUser(user.id, user.is_allowed !== false)}
+            onClick={() => onBlockUser(user, user.is_allowed !== false)}
             className="flex items-center gap-3 w-full rounded-lg px-3 py-2.5 transition-colors duration-150 text-left"
             style={{
               background: "transparent",
@@ -130,13 +131,13 @@ export default function AdminQuickActions({ user, onBlockUser, onDeleteUser, onR
           >
             <h3 style={{ margin: "0 0 16px", color: tokens.textPrimary, fontSize: 16, fontWeight: 700 }}>{t("admin.change_role")}</h3>
             <p style={{ fontSize: 13, color: tokens.muted, marginBottom: 16 }}>
-              <strong>{user.full_name || user.email}</strong> {t("admin.change_role_desc")}
+              <strong>{displayProfileName(user)}</strong> {t("admin.change_role_desc")}
             </p>
             <div className="flex flex-col gap-2 mb-5">
               {["user", "admin"].map(role => (
                 <button
                   key={role}
-                  onClick={() => { onRoleChange(user.id, role); setShowRoleModal(false); }}
+                  onClick={() => { onRoleChange(user, role); setShowRoleModal(false); }}
                   className="w-full rounded-lg px-4 py-3 text-left font-semibold transition-colors duration-150"
                   style={{
                     background: user.role === role ? tokens.primary + "20" : "transparent",
@@ -177,7 +178,7 @@ export default function AdminQuickActions({ user, onBlockUser, onDeleteUser, onR
             <div style={{ fontSize: 36, marginBottom: 12 }}>🗑️</div>
             <h3 style={{ margin: "0 0 8px", color: tokens.textPrimary, fontSize: 16 }}>{t("admin.delete_user")}</h3>
             <p style={{ margin: "0 0 20px", color: tokens.muted, fontSize: 13 }}>
-              <strong>{user.full_name || user.email}</strong> {t("admin.delete_confirm")}
+              <strong>{displayProfileName(user)}</strong> {t("admin.delete_confirm")}
             </p>
             <div className="flex gap-3 justify-center">
               <button
@@ -188,7 +189,7 @@ export default function AdminQuickActions({ user, onBlockUser, onDeleteUser, onR
                 İptal
               </button>
               <button
-                onClick={() => { onDeleteUser(user.id); setShowDeleteModal(false); }}
+                onClick={() => { onDeleteUser(user); setShowDeleteModal(false); }}
                 className="rounded-lg px-5 py-2.5 text-xs font-semibold"
                 style={{ background: tokens.danger, color: "#fff", border: "none", cursor: "pointer" }}
               >
@@ -215,7 +216,7 @@ export default function AdminQuickActions({ user, onBlockUser, onDeleteUser, onR
             <div style={{ fontSize: 36, marginBottom: 12 }}>🔑</div>
             <h3 style={{ margin: "0 0 8px", color: tokens.textPrimary, fontSize: 16 }}>{t("admin.reset_password")}</h3>
             <p style={{ margin: "0 0 20px", color: tokens.muted, fontSize: 13 }}>
-              <strong>{user.full_name || user.email}</strong> {t("admin.reset_password_desc")}
+              <strong>{displayProfileName(user)}</strong> {t("admin.reset_password_desc")}
             </p>
             <div className="flex gap-3 justify-center">
               <button

@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useTheme } from "../../theme/ThemeProvider";
 import { supabase } from "../../lib/supabase";
 import { motion } from "framer-motion";
+import { displayProfileName } from "../../utils/profileDisplay";
 
 const ACTION_ICONS = {
   login: { icon: "🔑", color: "#22C55E" },
@@ -127,7 +128,7 @@ export default function AdminActivityTimeline({ userId, isFullPage }) {
             return [
               item.action,
               item.ip_address,
-              item.profiles?.full_name,
+              displayProfileName(item.profiles, ""),
               item.profiles?.email,
               textValue(details.message),
               textValue(details.path),
@@ -290,7 +291,7 @@ export default function AdminActivityTimeline({ userId, isFullPage }) {
                   </div>
                   {isFullPage && a.profiles && (
                     <div style={{ fontSize: 11, color: tokens.muted, marginTop: 2 }}>
-                      {a.profiles.full_name || a.profiles.email}
+                      {displayProfileName(a.profiles)}
                     </div>
                   )}
                   {summary && (

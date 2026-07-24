@@ -1,6 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { supabase } from "../lib/supabase";
+import { captureEvent } from "../utils/clientLogger";
 
 const AuthContext = createContext(null);
 
@@ -44,6 +45,7 @@ export function AuthProvider({ children }) {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {
+        captureEvent("unipulse_logout", { reason: "manual" }, session.user.id);
         await supabase.from("activity_logs").insert({
           user_id: session.user.id,
           action: "logout",
@@ -140,6 +142,7 @@ export function AuthProvider({ children }) {
         if (session?.user) {
           cleanAuthCallbackUrl();
           fetchProfile(session.user.id);
+          captureEvent("unipulse_session_loaded", { source: "initial" }, session.user.id);
         }
         else clearAuthState();
       })
@@ -159,7 +162,9 @@ export function AuthProvider({ children }) {
         if (session?.user) {
           cleanAuthCallbackUrl();
           fetchProfile(session.user.id);
+          captureEvent("unipulse_auth_state", { event: _event }, session.user.id);
           if (_event === 'SIGNED_IN') {
+            captureEvent("unipulse_login_seen", { provider: "supabase" }, session.user.id);
             try {
               await supabase.from("profiles").update({ is_online: true, last_login: new Date().toISOString() }).eq("id", session.user.id);
             } catch {}
@@ -227,6 +232,7 @@ export function AuthProvider({ children }) {
         try { window.localStorage.setItem("unipulse-theme", prof.theme_preference); } catch {}
       }
       try {
+        captureEvent("unipulse_login", { method: "password" }, data.user.id);
         await supabase.from("activity_logs").insert({
           user_id: data.user.id,
           action: "login",
@@ -254,6 +260,7 @@ export function AuthProvider({ children }) {
     
     if (data.user) {
       try {
+        captureEvent("unipulse_login", { method: "demo" }, data.user.id);
         await supabase.from("profiles").update({ is_online: true }).eq("id", data.user.id);
       } catch {}
     }

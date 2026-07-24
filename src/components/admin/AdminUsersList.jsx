@@ -2,6 +2,7 @@ import { useI18n } from "../../context/I18nContext";
 import { useState, useMemo } from "react";
 import { useTheme } from "../../theme/ThemeProvider";
 import { motion } from "framer-motion";
+import { displayProfileName, profileInitial } from "../../utils/profileDisplay";
 
 const ITEMS_PER_PAGE = 12;
 
@@ -105,7 +106,7 @@ export default function AdminUsersList({ users, loading, selectedUser, onSelect,
                       fontSize: 13,
                     }}
                   >
-                    {u.full_name?.[0] || u.email?.[0] || "?"}
+                    {profileInitial(u)}
                   </div>
                   <div
                     className="absolute rounded-full"
@@ -131,7 +132,7 @@ export default function AdminUsersList({ users, loading, selectedUser, onSelect,
                       whiteSpace: "nowrap",
                     }}
                   >
-                    {u.full_name || t("admin.anonymous")}
+                    {displayProfileName(u, t("admin.anonymous"))}
                   </div>
                   <div
                     style={{

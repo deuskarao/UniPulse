@@ -4,6 +4,7 @@ import { useTheme } from "../../theme/ThemeProvider";
 import { useAuth } from "../../context/AuthContext";
 import { supabase } from "../../lib/supabase";
 import { motion, AnimatePresence } from "framer-motion";
+import { displayProfileName } from "../../utils/profileDisplay";
 
 export default function AdminNotes({ userId, showToast, logAction }) {
   const { t } = useI18n();
@@ -184,7 +185,7 @@ export default function AdminNotes({ userId, showToast, logAction }) {
                   </div>
                   <div className="flex items-center justify-between mt-2">
                     <span style={{ fontSize: 10, color: tokens.muted }}>
-                      {note.profiles?.full_name || "Admin"} · {new Date(note.created_at).toLocaleDateString("tr-TR", { hour: "2-digit", minute: "2-digit" })}
+                      {displayProfileName(note.profiles, "Admin")} · {new Date(note.created_at).toLocaleDateString("tr-TR", { hour: "2-digit", minute: "2-digit" })}
                     </span>
                     <div className="flex gap-1">
                       <button

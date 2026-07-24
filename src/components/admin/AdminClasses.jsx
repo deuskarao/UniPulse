@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useTheme } from "../../theme/ThemeProvider";
 import { supabase } from "../../lib/supabase";
 import { motion, AnimatePresence } from "framer-motion";
+import { displayProfileName } from "../../utils/profileDisplay";
 
 export default function AdminClasses({ onUserSelect }) {
   const { t, language } = useI18n();
@@ -117,7 +118,7 @@ export default function AdminClasses({ onUserSelect }) {
                 ) : (
                   classStudents.map(student => (
                     <tr key={student.id} style={{ borderBottom: `1px solid ${tokens.border}`, color: tokens.textPrimary }}>
-                      <td className="p-3 font-medium">{student.full_name || student.email || "İsimsiz"}</td>
+                      <td className="p-3 font-medium">{displayProfileName(student, "İsimsiz")}</td>
                       <td className="p-3">{new Date(student.created_at).toLocaleDateString("tr-TR")}</td>
                       <td className="p-3 text-right">
                         <button onClick={() => onUserSelect(student)} className="text-xs px-2 py-1 rounded" style={{ background: tokens.primary + '20', color: tokens.primary }}>Detay</button>

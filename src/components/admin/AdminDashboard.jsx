@@ -3,6 +3,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useTheme } from "../../theme/ThemeProvider";
 import { supabase } from "../../lib/supabase";
 import { motion } from "framer-motion";
+import { displayProfileName, profileInitial } from "../../utils/profileDisplay";
 
 const MetricCard = ({ icon, label, value, change, color, delay }) => {
   const { tokens } = useTheme();
@@ -176,11 +177,11 @@ export default function AdminDashboard({ users, onUserSelect }) {
                       fontSize: 13,
                     }}
                   >
-                    {u.full_name?.[0] || u.email?.[0] || "?"}
+                    {profileInitial(u)}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div style={{ fontSize: 13, fontWeight: 600, color: tokens.textPrimary, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                      {u.full_name || t("admin.anonymous")}
+                      {displayProfileName(u, t("admin.anonymous"))}
                     </div>
                     <div style={{ fontSize: 11, color: tokens.muted, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                       {u.department_name ? `📚 ${u.department_name}` : u.email}

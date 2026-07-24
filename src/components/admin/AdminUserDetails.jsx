@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useTheme } from "../../theme/ThemeProvider";
 import { supabase } from "../../lib/supabase";
 import { motion, AnimatePresence } from "framer-motion";
+import { displayProfileName, profileInitial, sanitizeProfileUpdates } from "../../utils/profileDisplay";
 
 const TABS = [
   { id: "general", labelKey: "admin.tab_general", icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg> },
@@ -115,7 +116,7 @@ export default function AdminUserDetails({ user, onUserUpdate, onBlockUser, onDe
     if (!user) return;
     setEditing(false);
     setEditForm({
-      full_name: user.full_name || "",
+      full_name: displayProfileName(user, ""),
       email: user.email || "",
       department_id: user.department_id || "",
       enrollment_year: user.enrollment_year || null
@@ -158,11 +159,11 @@ export default function AdminUserDetails({ user, onUserUpdate, onBlockUser, onDe
       showToast(t("admin.name_cannot_be_empty"), "error");
       return;
     }
-    await onUserUpdate(user.id, {
+    await onUserUpdate(user.id, sanitizeProfileUpdates({
       full_name: editForm.full_name,
       department_id: editForm.department_id || null,
       enrollment_year: editForm.enrollment_year || null
-    });
+    }));
     setEditing(false);
   }
 
@@ -225,12 +226,12 @@ export default function AdminUserDetails({ user, onUserUpdate, onBlockUser, onDe
               fontSize: 20,
             }}
           >
-            {user.full_name?.[0] || user.email?.[0] || "?"}
+            {profileInitial(user)}
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
               <span style={{ fontSize: 18, fontWeight: 700, color: tokens.textPrimary }}>
-                {user.full_name || t("admin.anonymous_user")}
+                {displayProfileName(user, t("admin.anonymous_user"))}
               </span>
               {user.role === "admin" && (
                 <span
@@ -413,7 +414,7 @@ export default function AdminUserDetails({ user, onUserUpdate, onBlockUser, onDe
                 </div>
               ) : (
                 <div>
-                  <InfoRow label="Ad Soyad" value={user.full_name} tokens={tokens} />
+                  <InfoRow label="Ad Soyad" value={displayProfileName(user)} tokens={tokens} />
                   <InfoRow label={t("admin.email")} value={user.email} tokens={tokens} />
                   <InfoRow label={t("admin.university")} value={user.university_name || "Belirlenmemiş"} tokens={tokens} />
                   <InfoRow label={t("admin.faculty")} value={user.faculty_name || "Belirlenmemiş"} tokens={tokens} />

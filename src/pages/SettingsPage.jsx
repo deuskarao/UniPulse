@@ -8,6 +8,7 @@ import { useHedefGano } from "../hooks/useHedefGano";
 import DepartmentSelector from "../components/DepartmentSelector";
 import TermsModal from "../components/TermsModal";
 import { formatClassYear, getClassYear, getCurrentAcademicYear } from "../utils/academic";
+import { displayProfileName, displayUsername, profileInitial } from "../utils/profileDisplay";
 
 function downloadFile(filename, content, mime) {
   const blob = new Blob([content], { type: mime });
@@ -292,7 +293,9 @@ export default function SettingsPage({ dersler, stats, bolum }) {
   }
 
   // Kullanıcı baş harfi + renk
-  const initials = (profile?.full_name || user?.email || "?")[0]?.toUpperCase() || "?";
+  const initials = profileInitial(profile || { email: user?.email });
+  const profileName = displayProfileName(profile || { email: user?.email }, t("Kullanıcı"));
+  const profileUsername = displayUsername(profile);
 
   const infoItems = [
     { icon: <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/></svg>, label: t("Üniversite"), value: universityName },
@@ -332,10 +335,10 @@ export default function SettingsPage({ dersler, stats, bolum }) {
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
               <div style={{ fontSize: 22, fontWeight: 800, color: tokens.textPrimary, letterSpacing: -0.5 }}>
-                {profile?.full_name || t("Kullanıcı")}
+                {profileName}
               </div>
               <button onClick={openUsernameModal} style={{ fontSize: 13, fontWeight: 700, color: tokens.primary, background: tokens.primary + "15", padding: "4px 10px", borderRadius: 8, border: "none", cursor: "pointer", transition: "all 0.2s" }} onMouseEnter={(e) => e.target.style.background = tokens.primary + "25"} onMouseLeave={(e) => e.target.style.background = tokens.primary + "15"}>
-                {profile?.username ? `@${profile.username}` : t("+ Kullanıcı Adı Ekle")}
+                {profileUsername ? `@${profileUsername}` : t("+ Kullanıcı Adı Ekle")}
               </button>
             </div>
             <div style={{ fontSize: 13, color: tokens.muted, marginTop: 4 }}>{user?.email}</div>
