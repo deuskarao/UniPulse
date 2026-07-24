@@ -13,6 +13,12 @@ const ACTION_ICONS = {
   client_render_error: { icon: "⚠️", color: "#EF4444" },
   security_suspicious: { icon: "🛡️", color: "#F59E0B" },
   client_event: { icon: "🌐", color: "#3B82F6" },
+  unipulse_user_identified: { icon: "👤", color: "#38BDF8" },
+  unipulse_view_changed: { icon: "🧭", color: "#38BDF8" },
+  unipulse_view_left: { icon: "⏱️", color: "#F59E0B" },
+  unipulse_route_changed: { icon: "🧭", color: "#38BDF8" },
+  unipulse_login_seen: { icon: "🔑", color: "#22C55E" },
+  unipulse_session_loaded: { icon: "🔄", color: "#38BDF8" },
   user_updated: { icon: "✏️", color: "#3B82F6" },
   user_blocked: { icon: "🔒", color: "#EF4444" },
   user_unblocked: { icon: "🔓", color: "#22C55E" },
@@ -32,6 +38,12 @@ const ACTION_LABELS = {
   client_render_error: "Ekran hatası",
   security_suspicious: "Güvenlik uyarısı",
   client_event: "İstemci olayı",
+  unipulse_user_identified: "Kullanıcı tanındı",
+  unipulse_view_changed: "Ekran açıldı",
+  unipulse_view_left: "Ekrandan ayrıldı",
+  unipulse_route_changed: "Sayfa değişti",
+  unipulse_login_seen: "Giriş görüldü",
+  unipulse_session_loaded: "Oturum yüklendi",
   user_updated: "Kullanıcı güncellendi",
   user_blocked: "Kullanıcı engellendi",
   user_unblocked: "Kullanıcı engeli kaldırıldı",
@@ -65,6 +77,12 @@ function textValue(value) {
   } catch {
     return String(value);
   }
+}
+
+function eventPayload(log) {
+  const details = asObject(log.details);
+  const nested = asObject(details.details);
+  return { ...details, ...nested };
 }
 
 function DetailChip({ label, value, tokens }) {
@@ -124,7 +142,7 @@ export default function AdminActivityTimeline({ userId, isFullPage }) {
       const needle = search.trim().toLocaleLowerCase("tr-TR");
       const filtered = needle
         ? data.filter((item) => {
-            const details = asObject(item.details);
+            const details = eventPayload(item);
             return [
               item.action,
               item.ip_address,
@@ -244,8 +262,8 @@ export default function AdminActivityTimeline({ userId, isFullPage }) {
           activities.map((a, i) => {
             const actionInfo = ACTION_ICONS[a.action] || { icon: "📋", color: "#94A3B8" };
             const label = ACTION_LABELS[a.action] || a.action;
-            const details = asObject(a.details);
-            const summary = textValue(details.message || details.reason || details.scope || details.path);
+            const details = eventPayload(a);
+            const summary = textValue(details.message || details.screen || details.reason || details.scope || details.path);
             return (
               <motion.div
                 key={a.id}
@@ -301,6 +319,8 @@ export default function AdminActivityTimeline({ userId, isFullPage }) {
                   )}
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 6 }}>
                     <DetailChip label="path" value={details.path} tokens={tokens} />
+                    <DetailChip label="screen" value={details.screen} tokens={tokens} />
+                    <DetailChip label="duration" value={details.duration_seconds ? `${details.duration_seconds} sn` : ""} tokens={tokens} />
                     <DetailChip label="method" value={details.method} tokens={tokens} />
                     <DetailChip label="scope" value={details.scope} tokens={tokens} />
                     <DetailChip label="reason" value={details.reason} tokens={tokens} />

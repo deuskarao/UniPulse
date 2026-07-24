@@ -1,7 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { supabase } from "../lib/supabase";
-import { captureEvent } from "../utils/clientLogger";
+import { captureEvent, identifyUser } from "../utils/clientLogger";
 
 const AuthContext = createContext(null);
 
@@ -91,7 +91,7 @@ export function AuthProvider({ children }) {
     }
   }, [clearAuthState]);
 
-  const fetchProfile = useCallback(async (userId) => {
+  const fetchProfile = useCallback(async (userId, authUser = null) => {
     const requestId = ++profileRequestRef.current;
 
     try {
@@ -115,6 +115,7 @@ export function AuthProvider({ children }) {
       }
 
       setProfile(data);
+      identifyUser(data, authUser || { id: userId, email: data.email });
       setLoading(false);
       return data;
     } catch (err) {
@@ -130,7 +131,7 @@ export function AuthProvider({ children }) {
     let active = true;
 
     supabase.auth.getSession()
-      .then(({ data: { session }, error }) => {
+      .then(async ({ data: { session }, error }) => {
         if (!active) return;
         if (error) {
           console.error("Oturum yükleme hatası:", error);
@@ -141,8 +142,11 @@ export function AuthProvider({ children }) {
         setUser(session?.user ?? null);
         if (session?.user) {
           cleanAuthCallbackUrl();
-          fetchProfile(session.user.id);
-          captureEvent("unipulse_session_loaded", { source: "initial" }, session.user.id);
+          const loadedProfile = await fetchProfile(session.user.id, session.user);
+          captureEvent("unipulse_session_loaded", {
+            source: "initial",
+            email: loadedProfile?.email || session.user.email,
+          }, session.user.id);
         }
         else clearAuthState();
       })
@@ -161,10 +165,16 @@ export function AuthProvider({ children }) {
         setUser(session?.user ?? null);
         if (session?.user) {
           cleanAuthCallbackUrl();
-          fetchProfile(session.user.id);
-          captureEvent("unipulse_auth_state", { event: _event }, session.user.id);
+          const loadedProfile = await fetchProfile(session.user.id, session.user);
+          captureEvent("unipulse_auth_state", {
+            event: _event,
+            email: loadedProfile?.email || session.user.email,
+          }, session.user.id);
           if (_event === 'SIGNED_IN') {
-            captureEvent("unipulse_login_seen", { provider: "supabase" }, session.user.id);
+            captureEvent("unipulse_login_seen", {
+              provider: "supabase",
+              email: loadedProfile?.email || session.user.email,
+            }, session.user.id);
             try {
               await supabase.from("profiles").update({ is_online: true, last_login: new Date().toISOString() }).eq("id", session.user.id);
             } catch {}
@@ -232,7 +242,8 @@ export function AuthProvider({ children }) {
         try { window.localStorage.setItem("unipulse-theme", prof.theme_preference); } catch {}
       }
       try {
-        captureEvent("unipulse_login", { method: "password" }, data.user.id);
+        identifyUser({ ...prof, id: data.user.id, email: data.user.email }, data.user);
+        captureEvent("unipulse_login", { method: "password", email: data.user.email }, data.user.id);
         await supabase.from("activity_logs").insert({
           user_id: data.user.id,
           action: "login",

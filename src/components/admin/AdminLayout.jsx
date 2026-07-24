@@ -13,6 +13,7 @@ import AdminUserDetails from "./AdminUserDetails";
 import AdminQuickActions from "./AdminQuickActions";
 import AdminNotes from "./AdminNotes";
 import AdminActivityTimeline from "./AdminActivityTimeline";
+import AdminBehaviorInsights from "./AdminBehaviorInsights";
 import AdminUniversities from "./AdminUniversities";
 import AdminClasses from "./AdminClasses";
 import AdminSettings from "./AdminSettings";
@@ -246,7 +247,12 @@ export default function AdminLayout() {
       case "reports":
         return <AdminReports />;
       case "logs":
-        return <AdminActivityTimeline isFullPage={true} />;
+        return (
+          <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+            <AdminBehaviorInsights />
+            <AdminActivityTimeline isFullPage={true} />
+          </div>
+        );
       case "settings":
         return <AdminSettings showToast={showToast} />;
       default:
