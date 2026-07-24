@@ -6,6 +6,39 @@ const page = (title: string, body: string, ok = true) =>
     headers: { "Content-Type": "text/html; charset=utf-8" },
   });
 
+function clientIp(req: Request) {
+  return req.headers.get("cf-connecting-ip")
+    || req.headers.get("x-real-ip")
+    || req.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
+    || "unknown";
+}
+
+async function sha256Hex(value: string) {
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(value));
+  return Array.from(new Uint8Array(digest)).map((byte) => byte.toString(16).padStart(2, "0")).join("");
+}
+
+async function checkRateLimit(
+  admin: ReturnType<typeof createClient>,
+  req: Request,
+  scope: string,
+  subject: string,
+  max: number,
+  windowSeconds: number,
+  blockSeconds = windowSeconds,
+) {
+  const key = await sha256Hex(`unipulse:${scope}:${clientIp(req)}:${subject.toLowerCase().trim()}`);
+  const { data, error } = await admin.rpc("check_security_rate_limit", {
+    p_key: key,
+    p_max: max,
+    p_window_seconds: windowSeconds,
+    p_block_seconds: blockSeconds,
+  });
+  if (error) throw new Error("rate_limit_failed");
+  const row = Array.isArray(data) ? data[0] : data;
+  return row?.allowed !== false;
+}
+
 async function decryptionKey() {
   const secret = Deno.env.get("PENDING_REGISTRATION_SECRET");
   if (!secret || secret.length < 32) throw new Error("secret_missing");
@@ -37,6 +70,12 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "",
       { auth: { autoRefreshToken: false, persistSession: false } },
     );
+
+    const ipAllowed = await checkRateLimit(admin, req, "confirm-registration-ip", "", 30, 300, 900);
+    const tokenAllowed = await checkRateLimit(admin, req, "confirm-registration-token", token, 8, 900, 3600);
+    if (!ipAllowed || !tokenAllowed) {
+      return page("Çok fazla deneme", "Lütfen biraz bekleyip tekrar deneyin.", false);
+    }
 
     const { data: pending, error } = await admin
       .from("pending_registrations")

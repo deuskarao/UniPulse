@@ -34,6 +34,42 @@ const json = (req: Request, body: Record<string, unknown>, status = 200) =>
 const safeFail = (req: Request, status = 400) =>
   json(req, { error: "İşlem tamamlanamadı. Lütfen bilgileri kontrol edip tekrar deneyin." }, status);
 
+const rateLimitFail = (req: Request) =>
+  json(req, { error: "Çok fazla deneme yapıldı. Lütfen biraz bekleyip tekrar deneyin." }, 429);
+
+function clientIp(req: Request) {
+  return req.headers.get("cf-connecting-ip")
+    || req.headers.get("x-real-ip")
+    || req.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
+    || "unknown";
+}
+
+async function sha256Hex(value: string) {
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(value));
+  return Array.from(new Uint8Array(digest)).map((byte) => byte.toString(16).padStart(2, "0")).join("");
+}
+
+async function checkRateLimit(
+  admin: ReturnType<typeof createClient>,
+  req: Request,
+  scope: string,
+  subject: string,
+  max: number,
+  windowSeconds: number,
+  blockSeconds = windowSeconds,
+) {
+  const key = await sha256Hex(`unipulse:${scope}:${clientIp(req)}:${subject.toLowerCase().trim()}`);
+  const { data, error } = await admin.rpc("check_security_rate_limit", {
+    p_key: key,
+    p_max: max,
+    p_window_seconds: windowSeconds,
+    p_block_seconds: blockSeconds,
+  });
+  if (error) throw new Error("rate_limit_failed");
+  const row = Array.isArray(data) ? data[0] : data;
+  return row?.allowed !== false;
+}
+
 async function sendMail(to: string, fullName: string, confirmLink: string) {
   const resendKey = Deno.env.get("RESEND_API_KEY");
   if (!resendKey) throw new Error("mail_not_configured");
@@ -97,14 +133,19 @@ serve(async (req) => {
 
     if (!email || !password || !fullName || !username) return safeFail(req);
     if (password.length < 8 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !/^[a-z0-9_.-]+$/.test(username)) return safeFail(req);
-    const domain = email.split("@")[1];
-    if (!domain || !TRUSTED_DOMAINS.has(domain)) return json(req, { error: EMAIL_DOMAIN_ERROR }, 400);
 
     const admin = createClient(
       Deno.env.get("SUPABASE_URL") || "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "",
       { auth: { autoRefreshToken: false, persistSession: false } },
     );
+
+    const ipAllowed = await checkRateLimit(admin, req, "request-registration-ip", "", 20, 300, 900);
+    const emailAllowed = await checkRateLimit(admin, req, "request-registration-email", email, 4, 3600);
+    if (!ipAllowed || !emailAllowed) return rateLimitFail(req);
+
+    const domain = email.split("@")[1];
+    if (!domain || !TRUSTED_DOMAINS.has(domain)) return json(req, { error: EMAIL_DOMAIN_ERROR }, 400);
 
     const { data: existingProfile } = await admin
       .from("profiles")
