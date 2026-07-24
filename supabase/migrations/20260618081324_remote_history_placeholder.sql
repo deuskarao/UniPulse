@@ -1,0 +1,4 @@
+-- Remote migration history placeholder.
+-- The full pre-existing public schema is captured in 20260618081255_remote_baseline.sql.
+-- This timestamp exists in Supabase production migration history and must exist locally
+-- so Supabase Preview can validate repository history.
