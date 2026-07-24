@@ -23,6 +23,10 @@ const json = (req: Request, body: Record<string, unknown>, status = 200) =>
     headers: { ...corsHeaders(req), "Content-Type": "application/json" },
   });
 
+const DEMO_EMAIL = Deno.env.get("DEMO_EMAIL") || "demo@unipulse.perainc.online";
+const DEMO_NAME = Deno.env.get("DEMO_NAME") || "DEMO";
+const DEMO_USERNAME = Deno.env.get("DEMO_USERNAME") || "demo";
+
 function clientIp(req: Request) {
   return req.headers.get("cf-connecting-ip")
     || req.headers.get("x-real-ip")
@@ -51,9 +55,81 @@ async function checkRateLimit(
     p_window_seconds: windowSeconds,
     p_block_seconds: blockSeconds,
   });
-  if (error) throw new Error("rate_limit_failed");
+  if (error) {
+    console.warn("demo-login rate limit skipped:", error.message);
+    return true;
+  }
   const row = Array.isArray(data) ? data[0] : data;
   return row?.allowed !== false;
+}
+
+async function findAuthUserByEmail(admin: ReturnType<typeof createClient>, email: string) {
+  for (let page = 1; page <= 5; page += 1) {
+    const { data, error } = await admin.auth.admin.listUsers({ page, perPage: 1000 });
+    if (error) throw error;
+    const user = data?.users?.find((item) => item.email?.toLowerCase() === email.toLowerCase());
+    if (user) return user;
+    if (!data?.users || data.users.length < 1000) break;
+  }
+  return null;
+}
+
+async function ensureDemoProfile(admin: ReturnType<typeof createClient>) {
+  const { data: roleProfile } = await admin
+    .from("profiles")
+    .select("id, email")
+    .eq("role", "demo")
+    .limit(1)
+    .maybeSingle();
+
+  if (roleProfile?.email) return roleProfile.email;
+
+  const { data: emailProfile } = await admin
+    .from("profiles")
+    .select("id, email")
+    .eq("email", DEMO_EMAIL)
+    .maybeSingle();
+
+  if (emailProfile?.email) {
+    await admin
+      .from("profiles")
+      .update({ role: "demo", is_allowed: true, full_name: DEMO_NAME, username: DEMO_USERNAME })
+      .eq("id", emailProfile.id);
+    return emailProfile.email;
+  }
+
+  let authUser = await findAuthUserByEmail(admin, DEMO_EMAIL);
+  if (!authUser) {
+    const { data: created, error: createError } = await admin.auth.admin.createUser({
+      email: DEMO_EMAIL,
+      password: `${crypto.randomUUID()}Aa1!`,
+      email_confirm: true,
+      user_metadata: { full_name: DEMO_NAME, username: DEMO_USERNAME },
+    });
+    if (createError || !created.user) throw createError || new Error("demo_user_not_created");
+    authUser = created.user;
+  }
+
+  const baseProfile = {
+    id: authUser.id,
+    email: authUser.email || DEMO_EMAIL,
+    full_name: DEMO_NAME,
+    username: DEMO_USERNAME,
+    role: "demo",
+    is_allowed: true,
+  };
+
+  const { error: profileError } = await admin
+    .from("profiles")
+    .upsert(baseProfile, { onConflict: "id" });
+
+  if (profileError) {
+    await admin
+      .from("profiles")
+      .upsert({ ...baseProfile, username: null }, { onConflict: "id" });
+  }
+
+  return authUser.email || DEMO_EMAIL;
 }
 
 serve(async (req) => {
@@ -73,20 +149,11 @@ serve(async (req) => {
       return json(req, { error: "Çok fazla deneme yapıldı. Lütfen biraz bekleyip tekrar deneyin." }, 429);
     }
 
-    const { data: profiles, error: profileError } = await supabaseAdmin
-      .from("profiles")
-      .select("id, email")
-      .eq("role", "demo")
-      .limit(1)
-      .single();
-
-    if (profileError || !profiles) {
-      throw new Error("Sistemde 'demo' rolüne sahip bir kullanıcı bulunamadı.");
-    }
+    const demoEmail = await ensureDemoProfile(supabaseAdmin);
 
     const { data, error } = await supabaseAdmin.auth.admin.generateLink({
       type: "magiclink",
-      email: profiles.email,
+      email: demoEmail,
     });
 
     if (error) {
