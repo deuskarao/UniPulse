@@ -57,8 +57,8 @@ function createPreviewProfile(departmentId) {
   return {
     id: PREVIEW_USER.id,
     email: PREVIEW_USER.email,
-    full_name: "UniPulse Demo",
-    username: "demo",
+    full_name: "UniPulse Önizleme",
+    username: "preview",
     role: "preview",
     is_allowed: true,
     is_preview: true,
@@ -366,35 +366,6 @@ export function AuthProvider({ children }) {
     return data;
   }
 
-  async function loginAsDemo() {
-    const { data, error } = await supabase.functions.invoke("demo-login");
-    if (error || data?.error || !data?.token_hash) {
-      throw new Error("Demo giriş işlemi başarısız oldu. Lütfen internet bağlantınızı kontrol edin.");
-    }
-    const { data: authData, error: verifyError } = await supabase.auth.verifyOtp({
-      token_hash: data.token_hash,
-      type: "magiclink",
-    });
-    if (verifyError) {
-      throw new Error("Demo giriş işlemi başarısız oldu. Lütfen tekrar deneyin.");
-    }
-    if (authData.user) {
-      const loadedProfile = await fetchProfile(authData.user.id, authData.user);
-      try {
-        identifyUser(loadedProfile || {}, authData.user);
-        captureEvent("unipulse_login", { method: "demo", email: authData.user.email }, authData.user.id);
-        await supabase.from("activity_logs").insert({
-          user_id: authData.user.id,
-          action: "demo_login",
-          details: { email: authData.user.email },
-          ip_address: null,
-        });
-        await supabase.from("profiles").update({ is_online: true, last_login: new Date().toISOString() }).eq("id", authData.user.id);
-      } catch {}
-    }
-    return authData;
-  }
-
   async function loginWithGoogle(credential, nonce) {
     const token = typeof credential === "string" ? credential : credential?.credential;
     const payload = decodeJwtPayload(token);
@@ -459,8 +430,8 @@ export function AuthProvider({ children }) {
   async function updateProfile(updates) {
     console.log("[AuthContext] updateProfile çağrıldı:", { user: user?.id, updates });
     if (!user) {
-      console.error("[AuthContext] updateProfile: user null!");
-      return;
+      requestAuth();
+      return false;
     }
     setProfile(prev => prev ? { ...prev, ...updates } : prev);
     console.log("[AuthContext] DB'ye yazılıyor:", updates);
@@ -476,6 +447,7 @@ export function AuthProvider({ children }) {
     console.log("[AuthContext] DB update sonucu:", data);
     await fetchProfile(user.id);
     console.log("[AuthContext] fetchProfile tamamlandı");
+    return true;
   }
 
   async function selectDepartment(deptId, facultyId = null) {
@@ -568,11 +540,20 @@ export function AuthProvider({ children }) {
   }
 
   const isPreview = !user;
+  const requestAuth = useCallback((mode = "login") => {
+    if (typeof window === "undefined") return;
+    window.dispatchEvent(new CustomEvent("unipulse:auth-required", { detail: { mode } }));
+  }, []);
+  const requireAuth = useCallback((mode = "login") => {
+    if (user) return true;
+    requestAuth(mode);
+    return false;
+  }, [requestAuth, user]);
   const effectiveUser = user || PREVIEW_USER;
   const effectiveProfile = profile || (isPreview ? createPreviewProfile(previewDepartmentId) : null);
 
   return (
-    <AuthContext.Provider value={{ user: effectiveUser, sessionUser: user, profile: effectiveProfile, loading, isPreview, register, login, loginAsDemo, loginWithGoogle, logout, resetPassword, updatePassword, isPasswordRecovery, updateProfile, selectDepartment, updateUserEmail, deleteUser, fetchAllProfiles, fetchAllGrades, fetchUserCourses }}>
+    <AuthContext.Provider value={{ user: effectiveUser, sessionUser: user, profile: effectiveProfile, loading, isPreview, requestAuth, requireAuth, register, login, loginWithGoogle, logout, resetPassword, updatePassword, isPasswordRecovery, updateProfile, selectDepartment, updateUserEmail, deleteUser, fetchAllProfiles, fetchAllGrades, fetchUserCourses }}>
       {children}
     </AuthContext.Provider>
   );

@@ -262,6 +262,25 @@ function Dashboard({ bolum: bolumProp, departmentId }) {
   return <AppShell bolumProp={bolumProp} departmentId={departmentId} />;
 }
 
+function AuthRequiredModal({ onClose, onAuth }) {
+  const { t } = useI18n();
+  return (
+    <div style={{ position: "fixed", inset: 0, zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(2,6,23,0.62)", backdropFilter: "blur(10px)", padding: 20 }} onMouseDown={onClose}>
+      <div style={{ width: "min(420px, 100%)", borderRadius: 24, background: "linear-gradient(180deg, rgba(15,23,42,0.98), rgba(8,13,26,0.98))", border: "1px solid rgba(148,163,184,0.22)", boxShadow: "0 30px 80px rgba(0,0,0,0.45)", padding: 24, color: "#f8fafc" }} onMouseDown={(e) => e.stopPropagation()}>
+        <div style={{ width: 44, height: 44, borderRadius: 14, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(59,130,246,0.16)", color: "#60a5fa", marginBottom: 16 }}>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 15v2"/><path d="M7 11V8a5 5 0 0 1 10 0v3"/><rect x="5" y="11" width="14" height="10" rx="2"/></svg>
+        </div>
+        <h2 style={{ margin: "0 0 8px", fontSize: 22, fontWeight: 850, letterSpacing: -0.3 }}>{t("Devam etmek için giriş yapın")}</h2>
+        <p style={{ margin: "0 0 22px", color: "#94a3b8", fontSize: 14, lineHeight: 1.55 }}>{t("Önizleme modunda veriler kaydedilmez. Not, ders veya profil değişikliği yapmak için hesabınıza giriş yapın ya da yeni hesap oluşturun.")}</p>
+        <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+          <button onClick={() => onAuth("login")} style={{ flex: "1 1 150px", border: "none", borderRadius: 12, padding: "12px 16px", background: "#2563eb", color: "#fff", fontWeight: 800, cursor: "pointer" }}>{t("Giriş Yap")}</button>
+          <button onClick={() => onAuth("register")} style={{ flex: "1 1 150px", border: "1px solid rgba(148,163,184,0.28)", borderRadius: 12, padding: "12px 16px", background: "rgba(15,23,42,0.72)", color: "#dbeafe", fontWeight: 800, cursor: "pointer" }}>{t("Kayıt Ol")}</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function App() {
   const { user, profile, loading: authLoading, logout, selectDepartment, isPasswordRecovery, isPreview } = useAuth();
   const authRouteFromHash = useCallback(() => {
@@ -270,6 +289,7 @@ export default function App() {
   }, []);
   const [authPage, setAuthPage] = useState(() => authRouteFromHash() || "login");
   const [showAuth, setShowAuth] = useState(() => Boolean(authRouteFromHash()));
+  const [authPromptOpen, setAuthPromptOpen] = useState(false);
   const [aktifBolum, setAktifBolum] = useState(null);
 
   const { t, translateName } = useI18n();
@@ -287,6 +307,19 @@ export default function App() {
     syncAuthRoute();
     return () => window.removeEventListener("hashchange", syncAuthRoute);
   }, [authRouteFromHash]);
+
+  useEffect(() => {
+    const openPrompt = () => setAuthPromptOpen(true);
+    window.addEventListener("unipulse:auth-required", openPrompt);
+    return () => window.removeEventListener("unipulse:auth-required", openPrompt);
+  }, []);
+
+  const goToAuth = useCallback((mode) => {
+    setAuthPromptOpen(false);
+    setAuthPage(mode === "register" ? "register" : "login");
+    setShowAuth(true);
+    replaceHashRoute(mode === "register" ? "register" : "login");
+  }, []);
 
   if (authLoading) return <LoadingScreen text={t("Yükleniyor...")} />;
 
@@ -316,6 +349,7 @@ export default function App() {
       <AppDataProvider>
         <AppDataGate>
           <AuthenticatedApp profile={profile} selectDepartment={selectDepartment} aktifBolum={aktifBolum} setAktifBolum={setAktifBolum} />
+          {isPreview && authPromptOpen && <AuthRequiredModal onClose={() => setAuthPromptOpen(false)} onAuth={goToAuth} />}
         </AppDataGate>
       </AppDataProvider>
     </ThemeWrapper>

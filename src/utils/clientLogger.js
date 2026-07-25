@@ -156,6 +156,7 @@ function initPostHog() {
     capture_pageview: false,
     capture_exceptions: true,
     capture_console_errors: true,
+    persistence: 'localStorage',
     person_profiles: 'identified_only',
     loaded: (client) => {
       try {

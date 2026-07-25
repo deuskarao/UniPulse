@@ -92,7 +92,7 @@ export function hesaplaGerekliiFinal(ders) {
  * birebir taşınmış halidir — Supabase sorguları/realtime davranışı değişmedi.
  */
 export function useDersler({ bolumProp, departmentId }) {
-  const { user, profile, updateProfile, logout, isPreview } = useAuth();
+  const { user, profile, updateProfile, logout, isPreview, requireAuth } = useAuth();
   const { harfNotlari, harfRenk, ganoRenkler, bosDers } = useAppData();
   const { language } = useI18n();
 
@@ -257,7 +257,10 @@ export function useDersler({ bolumProp, departmentId }) {
   }, []);
 
   async function notKaydet(dersId, alan, deger) {
-    if (isPreview) return;
+    if (isPreview) {
+      requireAuth?.();
+      return;
+    }
     const ders = dersler.find((d) => d.id === dersId);
     if (!ders) return;
     const yeniDers = { ...ders, [alan]: deger };
@@ -296,7 +299,10 @@ export function useDersler({ bolumProp, departmentId }) {
   }
 
   async function donemKaydet(deger) {
-    if (isPreview) return;
+    if (isPreview) {
+      requireAuth?.();
+      return;
+    }
     await updateProfile({ aktif_program_donemi: deger });
   }
 
@@ -409,7 +415,10 @@ export function useDersler({ bolumProp, departmentId }) {
   }
 
   async function notlariKaydet(dersId, formVerisi) {
-    if (isPreview) return;
+    if (isPreview) {
+      requireAuth?.();
+      return;
+    }
     const { data: mevcut } = await supabase
       .from("student_grades")
       .select("id")
@@ -435,7 +444,10 @@ export function useDersler({ bolumProp, departmentId }) {
   }
 
   async function kaydet() {
-    if (isPreview) return;
+    if (isPreview) {
+      requireAuth?.();
+      return;
+    }
     if (!form || !form.ad?.trim()) return;
     if (modal.tip === "ekle") {
       const { data, error } = await supabase
@@ -530,7 +542,10 @@ export function useDersler({ bolumProp, departmentId }) {
   }
 
   async function sil() {
-    if (isPreview) return;
+    if (isPreview) {
+      requireAuth?.();
+      return;
+    }
     if (!silOnay) return;
     await supabase.from("student_grades").delete().eq("department_course_id", silOnay);
     const { error } = await supabase.from("department_courses").delete().eq("id", silOnay);

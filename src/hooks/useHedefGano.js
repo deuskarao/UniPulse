@@ -48,7 +48,7 @@ function clearLocalStorage() {
  *        Offline/error durumunda sadece localStorage'a yazılır.
  */
 export function useHedefGano() {
-  const { user, profile, updateProfile } = useAuth();
+  const { user, profile, updateProfile, isPreview, requireAuth } = useAuth();
   const [hedefGano, setHedefGanoState] = useState(() => {
     // İlk render: localStorage'dan oku (DB'den henüz gelmedi)
     const local = readLocalStorage();
@@ -92,6 +92,10 @@ export function useHedefGano() {
   const setHedefGano = useCallback(async (value) => {
     const parsed = parse(value);
     if (parsed === null) return false;
+    if (isPreview) {
+      requireAuth?.();
+      return false;
+    }
 
     // Optimistik: önce state'i güncelle
     setHedefGanoState(parsed);
@@ -111,9 +115,13 @@ export function useHedefGano() {
       }
     }
     return true;
-  }, [user, updateProfile]);
+  }, [user, updateProfile, isPreview, requireAuth]);
 
   const resetHedefGano = useCallback(async () => {
+    if (isPreview) {
+      requireAuth?.();
+      return false;
+    }
     setHedefGanoState(DEFAULT_HEDEF);
     writeLocalStorage(DEFAULT_HEDEF);
     lastRemoteRef.current = DEFAULT_HEDEF;
@@ -125,7 +133,8 @@ export function useHedefGano() {
         console.error("Hedef GPA sıfırlanamadı:", err);
       }
     }
-  }, [user, updateProfile]);
+    return true;
+  }, [user, updateProfile, isPreview, requireAuth]);
 
   return { hedefGano, setHedefGano, resetHedefGano, defaultHedef: DEFAULT_HEDEF, isLoading };
 }
